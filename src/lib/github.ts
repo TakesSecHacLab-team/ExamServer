@@ -1,0 +1,153 @@
+/**
+ * GitHub API ラッパー
+ *
+ * Octokit を使い、問題データ JSON をリポジトリに直接 commit する。
+ * Vercel デプロイは push 後に自動で走る。
+ */
+
+import { Octokit } from "@octokit/rest";
+
+// ---------------------------------------------------------------------------
+// 環境変数から設定を取得
+// ---------------------------------------------------------------------------
+
+function getConfig() {
+  const token = process.env.GITHUB_TOKEN;
+  const owner = process.env.GITHUB_OWNER;
+  const repo = process.env.GITHUB_REPO;
+  const branch = process.env.GITHUB_BRANCH || "main";
+
+  if (!token || !owner || !repo) {
+    throw new Error(
+      "GitHub 環境変数が不足しています（GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO）"
+    );
+  }
+
+  return { token, owner, repo, branch };
+}
+
+function getOctokit() {
+  const { token } = getConfig();
+  return new Octokit({ auth: token });
+}
+
+// ---------------------------------------------------------------------------
+// ファイル操作
+// ---------------------------------------------------------------------------
+
+/** リポジトリ内のファイル内容を取得する */
+export async function getFileContent(
+  filePath: string
+): Promise<{ content: string; sha: string } | null> {
+  const { owner, repo, branch } = getConfig();
+  const octokit = getOctokit();
+
+  try {
+    const res = await octokit.repos.getContent({
+      owner,
+      repo,
+      path: filePath,
+      ref: branch,
+    });
+
+    const data = res.data;
+    if (Array.isArray(data) || data.type !== "file") return null;
+
+    const content = Buffer.from(data.content, "base64").toString("utf-8");
+    return { content, sha: data.sha };
+  } catch (err: unknown) {
+    if (err && typeof err === "object" && "status" in err && (err as { status: number }).status === 404) {
+      return null;
+    }
+    throw err;
+  }
+}
+
+/** ファイルを作成または更新する（commit） */
+export async function putFileContent(
+  filePath: string,
+  content: string,
+  message: string,
+  /** 既存ファイルの sha（更新時に必要） */
+  sha?: string
+): Promise<void> {
+  const { owner, repo, branch } = getConfig();
+  const octokit = getOctokit();
+
+  await octokit.repos.createOrUpdateFileContents({
+    owner,
+    repo,
+    path: filePath,
+    message,
+    content: Buffer.from(content, "utf-8").toString("base64"),
+    branch,
+    sha,
+  });
+}
+
+/** ファイルを削除する（commit） */
+export async function deleteFile(
+  filePath: string,
+  sha: string,
+  message: string
+): Promise<void> {
+  const { owner, repo, branch } = getConfig();
+  const octokit = getOctokit();
+
+  await octokit.repos.deleteFile({
+    owner,
+    repo,
+    path: filePath,
+    message,
+    sha,
+    branch,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// トークン状態確認
+// ---------------------------------------------------------------------------
+
+export interface TokenStatus {
+  valid: boolean;
+  login?: string;
+  error?: string;
+}
+
+/** GitHub トークンの有効性を確認する */
+export async function checkTokenStatus(): Promise<TokenStatus> {
+  try {
+    const octokit = getOctokit();
+    const { data } = await octokit.users.getAuthenticated();
+    return { valid: true, login: data.login };
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "不明なエラー";
+    return {
+      valid: false,
+      error: `GitHub トークンが無効です。Settings > Developer settings で新しいトークンを生成してください。(${message})`,
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 問題データ用ヘルパー
+// ---------------------------------------------------------------------------
+
+/** 問題データ JSON ファイルのパスを返す */
+export function questionsFilePath(categoryId: string): string {
+  return `data/exams/${categoryId}/questions.json`;
+}
+
+/** シナリオファイルのパスを返す */
+export function scenarioFilePath(
+  categoryId: string,
+  scenarioId: string
+): string {
+  return `data/exams/${categoryId}/${scenarioId}.json`;
+}
+
+/** メタ情報ファイルのパスを返す */
+export function metaFilePath(categoryId: string): string {
+  return `data/exams/${categoryId}/meta.json`;
+}

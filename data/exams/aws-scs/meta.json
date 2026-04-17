@@ -1,0 +1,5 @@
+{
+  "categoryId": "aws-scs",
+  "passingScore": 75,
+  "description": "AWS Certified Security - Specialty の対策問題集です。インシデント対応、ログ・モニタリング、インフラ保護、ID管理、データ保護を出題します。"
+}

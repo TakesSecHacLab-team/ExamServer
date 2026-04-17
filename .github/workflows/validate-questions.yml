@@ -1,0 +1,21 @@
+name: 問題データバリデーション
+
+on:
+  pull_request:
+    paths: ['data/**']
+  push:
+    branches: [main]
+    paths: ['data/**']
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 構造バリデーション実行
+        run: npx tsx scripts/validate-schema.ts

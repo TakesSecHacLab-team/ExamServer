@@ -1,0 +1,64 @@
+/**
+ * 一問一答レイアウト
+ * 上: 問題文 / 下: 選択肢の縦積みレイアウト。PC・スマホ共通。
+ */
+
+"use client";
+
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import type { PublicQuestion, QuestionType } from "@/types/exam";
+import ChoiceGroup from "@/components/exam/ChoiceGroup";
+
+interface Props {
+  question: PublicQuestion;
+  selectedAnswer: number | number[] | null;
+  onAnswer: (answer: number | number[]) => void;
+  /** 正解表示時に渡す */
+  showResult?: {
+    correctAnswer: number | number[];
+    userAnswer: number | number[] | null;
+  };
+  disabled?: boolean;
+}
+
+export default function OneshotLayout({
+  question,
+  selectedAnswer,
+  onAnswer,
+  showResult,
+  disabled,
+}: Props) {
+  return (
+    <div className="space-y-6">
+      {/* 問題文 */}
+      <div className="prose prose-sm max-w-none text-gray-800">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {question.text}
+        </ReactMarkdown>
+      </div>
+
+      {/* 画像（ある場合） */}
+      {question.image && (
+        <div className="flex justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={question.image}
+            alt="問題画像"
+            className="max-w-full max-h-80 rounded border border-gray-200"
+          />
+        </div>
+      )}
+
+      {/* 選択肢 */}
+      <ChoiceGroup
+        options={question.options}
+        type={question.type as QuestionType}
+        selectedAnswer={selectedAnswer}
+        onChange={onAnswer}
+        showResult={showResult}
+        disabled={disabled}
+      />
+    </div>
+  );
+}

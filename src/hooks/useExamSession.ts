@@ -1,0 +1,338 @@
+/**
+ * 受験セッションのカスタムフック
+ *
+ * 問題の読み込み、回答状態の管理、タイマー、採点リクエストを一元管理する。
+ * sessionStorage を利用してブラウザリロード時に回答状態を復帰できる。
+ */
+
+"use client";
+
+import { useState, useEffect, useCallback, useRef } from "react";
+import type {
+  PublicQuestion,
+  PublicScenario,
+  AnswerState,
+  ExamMode,
+  QuestionResult,
+  AnswerResponse,
+  BatchAnswerResponse,
+} from "@/types/exam";
+
+// ---------------------------------------------------------------------------
+// sessionStorage による状態復帰キー
+// ---------------------------------------------------------------------------
+const SESSION_KEY = "exam-session-state";
+
+interface SessionState {
+  answers: AnswerState[];
+  currentIndex: number;
+  remainingTime: number | null;
+}
+
+// ---------------------------------------------------------------------------
+// フックのインターフェース
+// ---------------------------------------------------------------------------
+
+interface UseExamSessionOptions {
+  categoryId: string;
+  mode: ExamMode;
+  questionCount: number;
+  timerEnabled: boolean;
+  timeLimit: number;
+}
+
+interface ExamSessionState {
+  /** 問題一覧（正解なし） */
+  questions: PublicQuestion[];
+  /** 回答状態 */
+  answers: AnswerState[];
+  /** 現在の問題インデックス */
+  currentIndex: number;
+  /** タイマー残り秒数（null=タイマー無効） */
+  remainingTime: number | null;
+  /** 読み込み中 */
+  loading: boolean;
+  /** 一問一答モードで表示中の結果 */
+  drillResult: AnswerResponse | null;
+  /** 試験が終了したか */
+  finished: boolean;
+  /** 一括採点結果 */
+  batchResult: BatchAnswerResponse | null;
+  /** 問題IDからシナリオを引くマップ（シナリオ問題のみ） */
+  scenarioMap: Record<string, PublicScenario>;
+}
+
+interface ExamSessionActions {
+  setAnswer: (answer: number | number[]) => void;
+  toggleFlag: () => void;
+  goTo: (index: number) => void;
+  goNext: () => void;
+  goPrev: () => void;
+  /** 一問一答で回答を送信 */
+  submitDrill: () => Promise<void>;
+  /** 一問一答で次の問題へ */
+  nextDrill: () => void;
+  /** 本番モードで試験を終了・一括採点 */
+  finishExam: () => Promise<void>;
+}
+
+export function useExamSession(
+  options: UseExamSessionOptions
+): ExamSessionState & ExamSessionActions {
+  const { categoryId, mode, questionCount, timerEnabled, timeLimit } = options;
+
+  const [questions, setQuestions] = useState<PublicQuestion[]>([]);
+  const [answers, setAnswers] = useState<AnswerState[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [remainingTime, setRemainingTime] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [drillResult, setDrillResult] = useState<AnswerResponse | null>(null);
+  const [finished, setFinished] = useState(false);
+  const [batchResult, setBatchResult] = useState<BatchAnswerResponse | null>(
+    null
+  );
+  const [scenarioMap, setScenarioMap] = useState<
+    Record<string, PublicScenario>
+  >({});
+
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // ---------------------------------------------------------------------------
+  // 問題データ読み込み
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      const res = await fetch(`/api/questions?categoryId=${categoryId}`);
+      const data = await res.json();
+
+      // 問題IDからシナリオを引くマップを構築
+      const sMap: Record<string, PublicScenario> = {};
+      if (data.scenarios) {
+        for (const scenario of data.scenarios as PublicScenario[]) {
+          for (const q of scenario.questions) {
+            sMap[q.id] = scenario;
+          }
+        }
+      }
+      setScenarioMap(sMap);
+
+      // oneshot問題 → scenario問題の順で結合
+      let allQuestions: PublicQuestion[] = [...(data.questions || [])];
+      if (data.scenarios) {
+        for (const scenario of data.scenarios) {
+          allQuestions = [...allQuestions, ...scenario.questions];
+        }
+      }
+
+      // ランダム出題（問題数指定時）
+      if (questionCount < allQuestions.length) {
+        allQuestions = shuffle(allQuestions).slice(0, questionCount);
+      }
+
+      // sessionStorage から復帰を試みる
+      const saved = loadSessionState();
+      if (saved && saved.answers.length === allQuestions.length) {
+        setAnswers(saved.answers);
+        setCurrentIndex(saved.currentIndex);
+        setRemainingTime(saved.remainingTime);
+      } else {
+        const initialAnswers: AnswerState[] = allQuestions.map((q) => ({
+          questionId: q.id,
+          selectedAnswer: null,
+          flagged: false,
+        }));
+        setAnswers(initialAnswers);
+        setRemainingTime(timerEnabled ? timeLimit : null);
+      }
+
+      setQuestions(allQuestions);
+      setLoading(false);
+    };
+
+    fetchQuestions();
+  }, [categoryId, questionCount, timerEnabled, timeLimit]);
+
+  // ---------------------------------------------------------------------------
+  // タイマー
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    if (remainingTime === null || finished) return;
+
+    timerRef.current = setInterval(() => {
+      setRemainingTime((prev) => {
+        if (prev === null || prev <= 0) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [remainingTime !== null, finished]);
+
+  // ---------------------------------------------------------------------------
+  // sessionStorage への保存（回答変更時）
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    if (answers.length === 0) return;
+    saveSessionState({ answers, currentIndex, remainingTime });
+  }, [answers, currentIndex, remainingTime]);
+
+  // ---------------------------------------------------------------------------
+  // ブラウザ離脱警告
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    if (finished) return;
+
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [finished]);
+
+  // ---------------------------------------------------------------------------
+  // アクション
+  // ---------------------------------------------------------------------------
+
+  const setAnswer = useCallback(
+    (answer: number | number[]) => {
+      setAnswers((prev) =>
+        prev.map((a, i) =>
+          i === currentIndex ? { ...a, selectedAnswer: answer } : a
+        )
+      );
+      // 一問一答で結果表示中に回答を変えたらリセット
+      setDrillResult(null);
+    },
+    [currentIndex]
+  );
+
+  const toggleFlag = useCallback(() => {
+    setAnswers((prev) =>
+      prev.map((a, i) =>
+        i === currentIndex ? { ...a, flagged: !a.flagged } : a
+      )
+    );
+  }, [currentIndex]);
+
+  const goTo = useCallback((index: number) => {
+    setCurrentIndex(index);
+    setDrillResult(null);
+  }, []);
+
+  const goNext = useCallback(() => {
+    setCurrentIndex((prev) => Math.min(prev + 1, questions.length - 1));
+    setDrillResult(null);
+  }, [questions.length]);
+
+  const goPrev = useCallback(() => {
+    setCurrentIndex((prev) => Math.max(prev - 1, 0));
+    setDrillResult(null);
+  }, []);
+
+  /** 一問一答: 回答を送信して即座に結果を取得 */
+  const submitDrill = useCallback(async () => {
+    const current = answers[currentIndex];
+    if (current.selectedAnswer === null) return;
+
+    const res = await fetch("/api/answers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        questionId: current.questionId,
+        answer: current.selectedAnswer,
+      }),
+    });
+    const data = (await res.json()) as AnswerResponse;
+    setDrillResult(data);
+  }, [answers, currentIndex]);
+
+  /** 一問一答: 結果を閉じて次へ */
+  const nextDrill = useCallback(() => {
+    setDrillResult(null);
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      setFinished(true);
+    }
+  }, [currentIndex, questions.length]);
+
+  /** 本番モード: 一括採点 */
+  const finishExam = useCallback(async () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    const res = await fetch("/api/answers/batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        categoryId,
+        answers: answers.map((a) => ({
+          questionId: a.questionId,
+          answer: a.selectedAnswer,
+        })),
+      }),
+    });
+    const data = (await res.json()) as BatchAnswerResponse;
+    setBatchResult(data);
+    setFinished(true);
+    clearSessionState();
+  }, [categoryId, answers]);
+
+  return {
+    questions,
+    answers,
+    currentIndex,
+    remainingTime,
+    loading,
+    drillResult,
+    finished,
+    batchResult,
+    scenarioMap,
+    setAnswer,
+    toggleFlag,
+    goTo,
+    goNext,
+    goPrev,
+    submitDrill,
+    nextDrill,
+    finishExam,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// ユーティリティ
+// ---------------------------------------------------------------------------
+
+/** 配列をシャッフル（Fisher-Yates） */
+function shuffle<T>(arr: T[]): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function loadSessionState(): SessionState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveSessionState(state: SessionState): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(state));
+}
+
+function clearSessionState(): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.removeItem(SESSION_KEY);
+}
