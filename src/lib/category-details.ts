@@ -75,4 +75,12 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetail> = {
       { name: "文化・スポーツ", description: "文学、芸術、スポーツに関する常識" },
     ],
   },
+  "thm-basics": {
+    overview:
+      "TryHackMe初学者向けのLinux基礎コマンド小テストです。前半は状況設定問題（どのコマンドを使うか）、後半はコマンド確認問題（コマンドの作用を答える）の計20問で構成されています。",
+    domains: [
+      { name: "状況設定問題（10問）", description: "こんな状況です。どのコマンドを使えばいいでしょうか？ pwd / ls / cd / mkdir / cat / touch / rm / cp / whoami / sudo" },
+      { name: "コマンド確認問題（10問）", description: "このコマンドでは何がわかりますか？ pwd / ls / cd / mkdir / cat / touch / rm / cp / whoami / sudo" },
+    ],
+  },
 };
