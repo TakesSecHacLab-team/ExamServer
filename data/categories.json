@@ -42,16 +42,9 @@
     "timeLimit": 1800
   },
   {
-    "id": "thm-scenario",
-    "name": "TryHackMe基礎コマンド（状況設定）",
-    "description": "どのコマンドを使えばいいか？状況から判断する初学者向け小テスト",
-    "defaultStyle": "oneshot",
-    "timeLimit": 600
-  },
-  {
-    "id": "thm-command",
-    "name": "TryHackMe基礎コマンド（コマンド確認）",
-    "description": "コマンドの作用を答える初学者向け小テスト",
+    "id": "thm-basics",
+    "name": "THM基礎",
+    "description": "TryHackMe初学者向けLinux基礎コマンド小テスト（状況設定10問＋コマンド確認10問）",
     "defaultStyle": "oneshot",
     "timeLimit": 600
   }
