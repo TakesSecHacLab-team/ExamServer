@@ -1,0 +1,144 @@
+{
+  "questions": [
+    {
+      "id": "thm-c-001",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコマンドでは何が分かりますか？\npwd",
+      "options": [
+        "現在ログインしているユーザー名",
+        "現在いるディレクトリ",
+        "ファイル一覧",
+        "IPアドレス"
+      ],
+      "answer": 1,
+      "explanation": "pwd は現在作業しているディレクトリ（現在地）を表示します。"
+    },
+    {
+      "id": "thm-c-002",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコマンドでは何が分かりますか？\nls",
+      "options": [
+        "ファイルやディレクトリの一覧",
+        "Linuxのバージョン",
+        "ネットワーク接続状況",
+        "ユーザー権限"
+      ],
+      "answer": 0,
+      "explanation": "ls は現在のディレクトリ内のファイルやディレクトリの一覧を表示します。"
+    },
+    {
+      "id": "thm-c-003",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコマンドでは何ができますか？\ncd",
+      "options": [
+        "ファイルコピー",
+        "ユーザー切り替え",
+        "ディレクトリ移動",
+        "ファイル検索"
+      ],
+      "answer": 2,
+      "explanation": "cd は別のディレクトリへ移動するコマンドです。"
+    },
+    {
+      "id": "thm-c-004",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコマンドでは何ができますか？\nmkdir",
+      "options": [
+        "新しいディレクトリ作成",
+        "ファイル削除",
+        "ファイル表示",
+        "ネットワーク確認"
+      ],
+      "answer": 0,
+      "explanation": "mkdir は新しいディレクトリを作成します。"
+    },
+    {
+      "id": "thm-c-005",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコマンドでは何ができますか？\ncat",
+      "options": [
+        "ファイルを削除する",
+        "ファイル内容を表示する",
+        "ファイル名を変更する",
+        "ディレクトリを作成する"
+      ],
+      "answer": 1,
+      "explanation": "cat はファイルの内容を表示します。"
+    },
+    {
+      "id": "thm-c-006",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコマンドでは何ができますか？\ntouch",
+      "options": [
+        "ファイル暗号化",
+        "空ファイル作成",
+        "ファイル圧縮",
+        "ディレクトリ削除"
+      ],
+      "answer": 1,
+      "explanation": "touch は空ファイルの作成によく使われます。"
+    },
+    {
+      "id": "thm-c-007",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコマンドでは何ができますか？\nrm",
+      "options": [
+        "ファイルコピー",
+        "ファイル検索",
+        "ファイル削除",
+        "ファイル編集"
+      ],
+      "answer": 2,
+      "explanation": "rm はファイルを削除するコマンドです。"
+    },
+    {
+      "id": "thm-c-008",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコマンドでは何ができますか？\ncp",
+      "options": [
+        "ファイル移動",
+        "ファイル削除",
+        "ファイルコピー",
+        "ファイル実行"
+      ],
+      "answer": 2,
+      "explanation": "cp はファイルをコピーします。"
+    },
+    {
+      "id": "thm-c-009",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコマンドでは何が分かりますか？\nwhoami",
+      "options": [
+        "現在のIPアドレス",
+        "Linuxの種類",
+        "現在ログインしているユーザー名",
+        "CPU使用率"
+      ],
+      "answer": 2,
+      "explanation": "whoami は現在操作しているユーザー名を表示します。"
+    },
+    {
+      "id": "thm-c-010",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコマンドでは何ができますか？\nsudo",
+      "options": [
+        "一般ユーザー権限で実行",
+        "管理者権限でコマンド実行",
+        "ファイル検索",
+        "パスワード変更"
+      ],
+      "answer": 1,
+      "explanation": "sudo を付けると、一時的に管理者権限でコマンドを実行できます。"
+    }
+  ]
+}
