@@ -49,16 +49,9 @@
     "timeLimit": 600
   },
   {
-    "id": "java-se17-p1",
-    "name": "Java SE 17 Programmer I",
-    "description": "Java SE 17 Programmer I 対策。データ型・制御構文・OOP・例外処理・Java新機能を出題。",
-    "defaultStyle": "oneshot",
-    "timeLimit": 5400
-  },
-  {
     "id": "java-silver",
-    "name": "Java Silver SE 17",
-    "description": "Java SE 17 Silver（1Z0-825-JPN）対策。基礎構文・OOP・例外・コレクション・ラムダ・Java 17新機能を網羅。",
+    "name": "Java Silver SE 17（Programmer I / 1Z0-825-JPN）",
+    "description": "Java SE 17 Silver（1Z0-825-JPN / Programmer I）対策。基礎構文・OOP・例外・コレクション・ラムダ・Java 17新機能を全125問で網羅。",
     "defaultStyle": "oneshot",
     "timeLimit": 5400
   }
