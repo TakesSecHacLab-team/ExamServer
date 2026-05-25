@@ -85,7 +85,7 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetail> = {
   },
   "java-silver": {
     overview:
-      "Oracle認定資格 Java SE 17 Silver / Programmer I（試験番号: 1Z0-825-JPN）対策問題集。合格ライン65%、制限時間90分。基本構文・OOP・例外処理・コレクション・ラムダ・Stream・Java 17新機能を網羅した全125問。",
+      "Oracle認定資格 Java SE 17 Silver / Programmer I（試験番号: 1Z0-825-JPN）対策問題集。合格ライン65%、制限時間90分。基本構文・OOP・例外処理・コレクション・ラムダ・Stream・Java 17新機能を網羅した全100問。",
     domains: [
       { name: "基本文法・データ型・演算子", description: "数値昇格・型変換・演算子優先順位・String・StringBuilder・StringPool" },
       { name: "制御構文・配列", description: "if・switch式・yield・for・while・do-while・拡張for・配列・ArrayList" },
