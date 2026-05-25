@@ -310,8 +310,8 @@
       "text": "次のコードの出力はどれか。\n\n```java\nString s = \"  Hello World  \";\nSystem.out.println(s.strip().toLowerCase());\n```",
       "options": [
         "hello world",
-        "  hello world  ",
         "Hello World",
+        "helloworld",
         "HELLO WORLD"
       ],
       "answer": 0,
