@@ -1,0 +1,5 @@
+{
+  "categoryId": "java-se17-p1",
+  "passingScore": 65,
+  "description": "Java SE 17 Programmer I 対策問題集です。データ型・演算子・制御構文・OOP・例外処理・Java 14〜17 の新機能（switch式・テキストブロック・record・sealed class・パターンマッチング）を出題します。"
+}
