@@ -22,15 +22,15 @@
   },
   {
     "id": "sg",
-    "name": "情報セキュリティマネジメント",
-    "description": "SG 科目A・科目B対策",
+    "name": "セキュリティマネジメント",
+    "description": "SG 午前A・午前B対策",
     "defaultStyle": "oneshot",
     "timeLimit": 5400
   },
   {
     "id": "sc",
     "name": "情報処理安全確保支援士",
-    "description": "セキスペ 午前II・午後対策",
+    "description": "セキュスペ 午前II・午後対策",
     "defaultStyle": "scenario",
     "timeLimit": 5400
   },
@@ -44,8 +44,15 @@
   {
     "id": "thm-basics",
     "name": "THM基礎",
-    "description": "TryHackMe初学者向けLinux基礎コマンド小テスト（状況設定10問＋コマンド確認10問）",
+    "description": "TryHackMe初学者向けLinux基礎コマンドテスト（状況設定10問・コマンド確認10問）",
     "defaultStyle": "oneshot",
     "timeLimit": 600
+  },
+  {
+    "id": "java-se17-p1",
+    "name": "Java SE 17 Programmer I",
+    "description": "Java SE 17 Programmer I 対策。データ型・制御構文・OOP・例外処理・Java新機能を出題。",
+    "defaultStyle": "oneshot",
+    "timeLimit": 5400
   }
 ]
