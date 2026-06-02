@@ -60,29 +60,29 @@
       "id": "silver-005",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "String 連結の左結合と型昇格。複合式の評価順序。\n\n```java\nint a = 5, b = 3;\nString s1 = \"\" + a + b;\nString s2 = \"\" + (a + b);\nString s3 = a + b + \"\";\nint s4 = a + b;\nSystem.out.println(s1 + \"|\" + s2 + \"|\" + s3 + \"|\" + s4);\n```",
+      "text": "String 連結、数値加算、オーバーロード解決を組み合わせた次のコードの出力はどれか。\n\n```java\nvoid call(String s) { System.out.println(\"S:\" + s); }\nvoid call(Object o) { System.out.println(\"O:\" + o); }\n\nint a = 1, b = 2;\ncall(\"\" + a + b);\ncall(a + b + \"\");\ncall(a + b);\n```",
       "options": [
-        "53|8|8|8",
-        "53|8|53|8",
-        "8|8|8|8",
-        "53|8|53|コンパイルエラー"
+        "S:12 / S:3 / O:3",
+        "S:12 / O:3 / O:3",
+        "O:12 / S:3 / O:3",
+        "コンパイルエラー。int は Object に渡せない"
       ],
-      "answer": 1,
-      "explanation": "s1: \"\"→a→\"5\"、\"5\"→b→\"53\"（左結合）。s2: (a+b)=8→\"\"→\"8\"（括弧で整数計算先）。s3: a+b=8、8→\"\"→\"8\"。s4: a+b=8（整数）。出力「53|8|8|8」。String 連結は左から順に評価され、String に触れたら以降も String 連結。演算順序と型昇格の融合。"
+      "answer": 0,
+      "explanation": "最初の式は空文字列と連結した時点で String 連結になり `\"12\"`。2つ目は `a+b` が先に数値加算されて 3 になり、その後 String 連結で `\"3\"`。どちらも `call(String)` が選ばれる。3つ目の `a+b` は int で、`call(int)` はないため boxing されて Integer となり、`call(Object)` に渡される。"
     },
     {
       "id": "silver-006",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "短絡評価と副作用（インクリメント）の複合。複雑な条件式。\n\n```java\nint counter = 0;\nboolean result = (++counter > 0) && (counter++ < 10) || (++counter > 5);\nSystem.out.println(result + \" \" + counter);\n```",
+      "text": "短絡評価、演算子優先順位、前置/後置インクリメントを追跡する。次のコードの出力はどれか。\n\n```java\nint x = 0;\nboolean a = (++x == 1) || (++x == 2) && (++x == 3);\nboolean b = (x++ == 1) && (++x == 3) || (x++ == 3);\nSystem.out.println(a + \":\" + b + \":\" + x);\n```",
       "options": [
-        "true 1",
-        "true 2",
-        "true 3",
-        "false 2"
+        "true:true:3",
+        "true:false:4",
+        "false:true:3",
+        "true:true:4"
       ],
-      "answer": 1,
-      "explanation": "Step 1: ++counter → counter=1。Step 2: 1>0 → true（&&左辺）。Step 3: &&が true なので counter++ < 10 評価 → counter は 1、その後 counter=2。1<10 → true。Step 4: &&両辺 true なので || 右辺は評価されず。Step 5: result=true、counter=2。前置・後置インクリメント、短絡評価の正確な順序。"
+      "answer": 0,
+      "explanation": "`&&` は `||` より優先順位が高いが、評価自体は左から進む。a は `++x == 1` が true になった時点で `||` 右辺を評価しないため x=1。b は `(x++ == 1)` が true で x=2、続く `++x == 3` も true で x=3。`||` 右辺は短絡される。結果は `true:true:3`。"
     },
     {
       "id": "silver-007",
@@ -102,29 +102,29 @@
       "id": "silver-008",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "String メソッドの複合使用。indexOf・lastIndexOf・substring の正確な動作。\n\n```java\nString text = \"HelloWorld\";\nint idx1 = text.indexOf('o');\nint idx2 = text.lastIndexOf('o');\nint idx3 = text.indexOf(\"o\", idx1 + 1);\nString sub = text.substring(idx1, idx2 + 1);\nSystem.out.println(idx1 + \" \" + idx2 + \" \" + idx3 + \" \" + sub);\n```",
+      "text": "String の検索、substring、StringBuilder の破壊的変更を組み合わせた次のコードの出力はどれか。\n\n```java\nString s = \"abcaBcabc\";\nint first = s.indexOf(\"bc\");\nint last = s.lastIndexOf(\"bc\");\nString middle = s.substring(first + 1, last).replace('a', 'X');\nStringBuilder sb = new StringBuilder(middle);\nsb.reverse().delete(1, 3);\nSystem.out.println(first + \":\" + last + \":\" + middle + \":\" + sb);\n```",
       "options": [
-        "4 7 7 oWorld",
-        "4 7 7 oWor",
-        "4 8 8 oWorld",
-        "5 8 7 World"
+        "1:7:cXBcX:XXc",
+        "1:7:cXBcX:XBX",
+        "2:8:aBc:XcX",
+        "1:6:cXB:XXc"
       ],
-      "answer": 1,
-      "explanation": "text=\"HelloWorld\"。idx1=indexOf('o')=4。idx2=lastIndexOf('o')=7。idx3=indexOf('o', idx1+1)=indexOf('o',5)=7（位置5以降で最初のo）。sub=substring(idx1, idx2+1)=substring(4,8)=[4,8)の4文字→\"oWor\"。【罠】选択肢0の\"oWorld\"はsubstring(4,10)相当で8文字だが、idx2+1=8なので正しくはsubstring(4,8)=4文字。Stringのsubstring(a,b)はa以上b未満の半開区間が仕様。"
+      "answer": 0,
+      "explanation": "`\"bc\"` は最初が index 1、最後が index 7。`substring(first + 1, last)` は index 2 以上 7 未満なので `caBca`。`replace` で `cXBcX` になる。String は不変なので middle はその値のまま。StringBuilder は可変で、`reverse()` 後は `XcBXc`。`delete(1,3)` は index 1 と 2、つまり `cB` を削除するため `XXc` になる。"
     },
     {
       "id": "silver-009",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "char・int・String の型関係と暗黙変換。複数ケースの混在。\n\n```java\nchar c = 'A';\nint n = c;\nchar c2 = 'B' + 1;\nchar c3 = c + 1;      // explicit cast 必須?\nString s = c + \"B\";\nSystem.out.println(n + \" \" + (int)c2 + \" \" + s);\n```",
+      "text": "char、数値昇格、switch 式を組み合わせた次のコードの出力はどれか。\n\n```java\nchar c = 'A';\nint n = c + 2;\nchar d = (char) n;\nString result = switch (d) {\n    case 'A', 'B' -> \"low\";\n    case 'C' -> \"hit\";\n    default -> \"other\";\n};\nSystem.out.println(n + \":\" + d + \":\" + result);\n```",
       "options": [
-        "65 66 AB",
-        "65 66 コンパイルエラー。c3 がない",
-        "コンパイルエラー。c + 1 は char に代入不可",
-        "コンパイルエラー。char から String への自動変換不可"
+        "67:C:hit",
+        "66:B:low",
+        "67:C:other",
+        "コンパイルエラー。char は switch 式に使えない"
       ],
-      "answer": 2,
-      "explanation": "char c='A'→int n=c（widening）OK。'B'+1は char+int→int計算でリテラル式。char c2='B'+1 はコンパイル時評価で暗黙キャスト可。char c3=c+1 は c（変数）+1（int）→int結果を char に代入は narrowing で explicit cast 必須。c+\"B\" は String 連結で \"A\" となり OK。c3 がコンパイルエラーのため該当コード全体がエラーになる場合がある。"
+      "answer": 0,
+      "explanation": "`c + 2` では char が int に数値昇格し、`A` の 65 に 2 を足して 67 になる。67 を char にキャストすると `C`。switch 式は char に使え、case `C` に一致して `hit` を返す。従来の switch 文ではなく式なので、結果を String 変数に代入できる。"
     },
     {
       "id": "silver-010",
@@ -158,29 +158,29 @@
       "id": "silver-012",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "ArrayList の複合操作。add（位置指定）・remove（値指定）・for-each。\n\n```java\nArrayList<String> items = new ArrayList<>(Arrays.asList(\"X\", \"Y\", \"Z\"));\nitems.add(1, \"A\");      // 位置 1 に挿入\nitems.remove(\"Y\");      // 値 \"Y\" を削除\nfor (String item : items) {\n    System.out.print(item);\n}\n```",
+      "text": "ArrayList を index ループで削除した場合の状態変化を追跡する。次のコードの出力はどれか。\n\n```java\nimport java.util.*;\nArrayList<Integer> nums = new ArrayList<>(Arrays.asList(1, 2, 3, 2));\nfor (int i = 0; i < nums.size(); i++) {\n    if (nums.get(i) == 2) {\n        nums.remove(i);\n    }\n}\nSystem.out.println(nums);\n```",
       "options": [
-        "XYZ",
-        "XAZ",
-        "AXYZ",
-        "XAYZ"
+        "[1, 3]",
+        "[1, 3, 2]",
+        "[1, 2, 3]",
+        "ConcurrentModificationException"
       ],
-      "answer": 1,
-      "explanation": "初期: [X, Y, Z]。add(1, \"A\") で位置 1 に \"A\" を挿入 → [X, A, Y, Z]。remove(\"Y\") は値 \"Y\" を削除 → [X, A, Z]。for-each で \"XAZ\" 出力。add(index, value) と remove(Object) の正確な動作。"
+      "answer": 0,
+      "explanation": "通常の index ループで `remove(i)` しているので、拡張 for と違い ConcurrentModificationException にはならない。i=1 で最初の 2 を削除し `[1,3,2]`、その後 i は 2 へ進み、現在の index 2 の 2 を削除して `[1,3]`。要素削除で詰まる index と i++ の動きを追う必要がある。"
     },
     {
       "id": "silver-013",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "ジェネリクスと型パラメータ。参照型・プリミティブ型の区別。\n\n```java\nArrayList<int[]> list1 = new ArrayList<>();     // (1) 配列（参照型）\nArrayList<Integer> list2 = new ArrayList<>();   // (2) ラッパー型\nArrayList<int> list3 = new ArrayList<>();       // (3) プリミティブ型\nint[] arr = {1, 2, 3};\nlist1.add(arr);\nlist2.add(10);       // autobox\n```",
+      "text": "ArrayList に配列を格納した場合の参照共有と clone の違いはどれか。\n\n```java\nimport java.util.*;\nArrayList<int[]> list = new ArrayList<>();\nint[] base = {1, 2};\nlist.add(base);\nlist.add(base.clone());\nbase[0] = 9;\nlist.get(1)[1] = 8;\nSystem.out.println(list.get(0)[0] + \":\" + list.get(0)[1] + \":\"\n        + list.get(1)[0] + \":\" + list.get(1)[1]);\n```",
       "options": [
-        "(3) のみコンパイルエラー。int はプリミティブ型",
-        "(1)(3) がエラー。配列・プリミティブはジェネリクス化不可",
-        "(1) コンパイル可。(2)(3) エラー",
-        "コンパイル可。(1)(2) OK、(3) エラー"
+        "9:2:1:8",
+        "9:8:9:8",
+        "1:2:1:8",
+        "9:2:9:8"
       ],
-      "answer": 3,
-      "explanation": "(1) int[] は参照型（配列）なのでジェネリクス化可。(2) Integer リテラル 10 は自動ボックス → OK。(3) int はプリミティブ型でジェネリクス化不可 → エラー。配列は参照型だが int はプリミティブ型。型システムの明確な区別。"
+      "answer": 0,
+      "explanation": "1つ目の要素は base 配列そのものへの参照なので、`base[0]=9` の変更が反映される。2つ目は `base.clone()` による別配列なので、base の変更は反映されない。一方 `list.get(1)[1]=8` は clone 側の配列を直接変更する。結果は 1つ目が `[9,2]`、2つ目が `[1,8]`。"
     },
     {
       "id": "silver-014",
@@ -242,15 +242,15 @@
       "id": "silver-018",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "オーバーロード解決の優先順位。widening vs boxing。\n\n```java\nclass Test {\n    void show(int x) { System.out.println(\"int\"); }\n    void show(long x) { System.out.println(\"long\"); }\n    void show(Object x) { System.out.println(\"Object\"); }\n}\nTest t = new Test();\nt.show((byte) 5);\n```",
+      "text": "オーバーロード解決で widening、boxing、null の最具体型を同時に見る。次のコードの出力はどれか。\n\n```java\nvoid show(long x) { System.out.println(\"long\"); }\nvoid show(Integer x) { System.out.println(\"Integer\"); }\nvoid show(Object x) { System.out.println(\"Object\"); }\n\nshow((byte) 5);\nshow(5);\nshow(null);\n```",
       "options": [
-        "int（widening を優先）",
-        "long（より広い型を優先）",
-        "Object（boxing を優先）",
-        "コンパイルエラー。曖昧性で決定不可"
+        "long / long / Integer",
+        "Integer / Integer / Integer",
+        "long / Integer / Object",
+        "コンパイルエラー。show(null) が曖昧"
       ],
       "answer": 0,
-      "explanation": "オーバーロード解決の優先順位: 1. exact match、2. widening（byte→int→long）、3. boxing（byte→Byte）。byte 5 は show(int) へ widening が最優先 → \"int\" 出力。boxing より widening が前に評価される。"
+      "explanation": "`byte` は widening により long へ渡せる。int リテラル 5 も boxing より widening が優先されるため long。`null` は参照型にだけ適用可能で、Integer と Object の両方に渡せるが、Integer の方が Object より具体的なので `show(Integer)` が選ばれる。"
     },
     {
       "id": "silver-019",
@@ -326,15 +326,15 @@
       "id": "silver-024",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "var 型推論。メソッド戻り値・キャスト式・配列の推論可能性。\n\n```java\nvar s = \"Hello\";\nvar n = s.length();\nvar list = new java.util.ArrayList<String>();\nvar first = list.isEmpty() ? \"empty\" : \"notEmpty\";\nvar ch = s.charAt(0);\nvar arr = new int[3];  // (1) 配列\nvar obj = (String) s;  // (2) キャスト後\n```",
+      "text": "var 型推論、配列参照共有、Object への代入を組み合わせた次の出力はどれか。\n\n```java\nvar a = new int[] {1, 2};\nvar b = a;\nb[0] = 5;\nvar c = a[0] + a[1];\nObject ref = b;\nSystem.out.println(a[0] + \":\" + c + \":\" + ref.getClass().isArray());\n```",
       "options": [
-        "すべて推論可能でコンパイル可",
-        "(1) arr は int[] で OK、(2) obj は String で OK",
-        "(1) で推論不可。int[] は要素型が曖昧",
-        "(2) で推論不可。キャスト式の型推論は不可"
+        "5:7:true",
+        "1:3:true",
+        "5:7:false",
+        "コンパイルエラー。var は配列に使えない"
       ],
       "answer": 0,
-      "explanation": "var はすべての箇所で型推論可能。(1) new int[3] は明確に int[] に推論。(2) (String) s は String 型にキャストされ var obj は String に推論。メソッド戻り値、生成式、キャスト後の型もすべて推論可能。Java 10 以降の var の柔軟性。"
+      "explanation": "`var a` は `int[]` と推論される。`b=a` は同じ配列参照なので、`b[0]=5` は `a[0]` にも反映される。`c` は int 加算で 7。配列は参照型なので Object に代入でき、`getClass().isArray()` は true を返す。"
     },
     {
       "id": "silver-025",
@@ -354,43 +354,43 @@
       "id": "silver-026",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "do-while ループ。break と条件評価。ループ脱出。\n\n```java\nint count = 5;\ndo {\n    if (count == 3) break;\n    System.out.print(count + \" \");\n    count--;\n} while (count >= 0);\n```",
+      "text": "do-while、ラベル付き break、内側 for の評価順を追跡する。次の出力はどれか。\n\n```java\nint i = 0;\nint total = 0;\nouter:\ndo {\n    i++;\n    for (int j = 0; j < 3; j++) {\n        if (i * j > 2) break outer;\n        total += i + j;\n    }\n} while (i < 3);\nSystem.out.println(i + \":\" + total);\n```",
       "options": [
-        "5 4 3（break 時に 3 も出力）",
-        "5 4（count==3 で break）",
-        "5 4 3 2 1 0（break が実行されない）",
-        "何も出力されない"
+        "2:11",
+        "3:18",
+        "2:8",
+        "コンパイルエラー"
       ],
-      "answer": 1,
-      "explanation": "count=5: count==3 は false→\"5 \" 出力、count=4。count=4: count==3 は false→\"4 \" 出力、count=3。count=3: count==3 は true→break。ループ終了。出力「5 4」。break は直ちにループを脱出し残りのステップ（System.out.print、count--）は実行されない。"
+      "answer": 0,
+      "explanation": "do-while なので最初は必ず実行。i=1 のとき j=0,1,2 はすべて条件を満たさず、total は 1+2+3=6。次に i=2。j=0 で +2、j=1 で +3 され total=11。j=2 では i*j=4 > 2 なので outer を break し、出力は `2:11`。"
     },
     {
       "id": "silver-027",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "配列と length・インデックス。整数除算による中点計算。\n\n```java\nint[] data = {10, 20, 30, 40, 50};\nint mid = data.length / 2;\nint midValue = data[mid];\nint lastIdx = data.length - 1;\nint lastValue = data[lastIdx];\nSystem.out.println(midValue + \" \" + lastValue);\n```",
+      "text": "2次元配列の行参照を別の行に代入した場合、出力はどれか。\n\n```java\nint[][] table = { {1, 2}, {3, 4} };\nint[] row = table[0];\nrow[1] = 9;\ntable[1] = row;\ntable[0][0] = 7;\nSystem.out.println(table[1][0] + \":\" + table[1][1] + \":\"\n        + table.length + \":\" + table[0].length);\n```",
       "options": [
-        "30 50",
-        "25 50",
-        "30 40",
-        "コンパイルエラー"
+        "7:9:2:2",
+        "1:9:2:2",
+        "3:4:2:2",
+        "7:4:2:2"
       ],
       "answer": 0,
-      "explanation": "data.length=5。mid=5/2=2（整数除算）。midValue=data[2]=30。lastIdx=5-1=4。lastValue=data[4]=50。出力「30 50」。配列のインデックスと length、整数除算ルール。"
+      "explanation": "`row` は `table[0]` と同じ int 配列を参照する。`row[1]=9` で1行目は `[1,9]`。`table[1]=row` により2行目も同じ配列を参照する。さらに `table[0][0]=7` で共有配列の先頭が 7 になり、`table[1]` から見ても `[7,9]`。外側長は2、内側長は2。"
     },
     {
       "id": "silver-028",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "String Pool と new String()。参照比較と内容比較。メモリ配置。\n\n```java\nString a = \"ABC\";\nString b = \"ABC\";\nString c = new String(\"ABC\");\nString d = c;         // d は c と同じ参照\n\nSystem.out.println((a == b) + \" \" + (a == c) + \" \" + (c == d) + \" \" + a.equals(c));\n```",
+      "text": "String Pool、実行時生成文字列、intern() を組み合わせた次の出力はどれか。\n\n```java\nString a = \"Ja\" + \"va\";\nString b = \"Java\";\nString c = new String(\"Java\");\nString d = c.intern();\nSystem.out.println((a == b) + \":\" + (b == c) + \":\" + (b == d) + \":\" + a.equals(c));\n```",
       "options": [
-        "true false true true",
-        "true true true true",
-        "false false true false",
-        "true false false false"
+        "true:false:true:true",
+        "false:false:true:true",
+        "true:false:false:true",
+        "true:true:true:true"
       ],
       "answer": 0,
-      "explanation": "a=\"ABC\" と b=\"ABC\" はリテラルなので String Pool の同じ参照→a==b は true。c=new String(\"ABC\") はヒープ上の新規オブジェクト→a==c は false。d=c は同じ参照→c==d は true。equals() は内容比較→a.equals(c) は true。String Pool と new String() の本質的な違い。"
+      "explanation": "`\"Ja\" + \"va\"` はコンパイル時定数なので `\"Java\"` と同じ文字列プール上の参照になる。`new String(\"Java\")` は別オブジェクトなので `b==c` は false。`intern()` はプール上の同じ文字列を返すため `b==d` は true。`equals` は内容比較なので true。"
     },
     {
       "id": "silver-029",
@@ -424,15 +424,15 @@
       "id": "silver-031",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "instanceof と型チェック。プリミティブ型とラッパー型。参照型のみサポート。\n\n```java\nint x = 10;\nInteger iObj = 20;\nlong l = 30L;\nLong lObj = 40L;\n\nSystem.out.println((x instanceof int) + \" \" + (iObj instanceof Integer) + \" \" + (l instanceof long) + \" \" + (lObj instanceof Long));\n```",
+      "text": "instanceof パターンマッチングで変数を書き換えた後の出力はどれか。\n\n```java\nObject obj = \"silver\";\nif (obj instanceof String s && s.length() > 4) {\n    obj = s.substring(1, 4).toUpperCase();\n}\nSystem.out.println(obj);\nSystem.out.println(obj instanceof String);\n```",
       "options": [
-        "true true true true",
-        "false true false true",
-        "コンパイルエラー。instanceof はプリミティブ型に使えない",
-        "false false false true"
+        "ILV / true",
+        "silver / true",
+        "ILV / false",
+        "コンパイルエラー。s は if ブロック内で使えない"
       ],
-      "answer": 2,
-      "explanation": "instanceof は参照型のみサポート。x（int）・l（long）はプリミティブ型なので instanceof 使用はコンパイルエラー。iObj instanceof Integer・lObj instanceof Long はコンパイル可能（ラッパー型は参照型）。プリミティブ型とラッパー型の型チェック方法の違い。"
+      "answer": 0,
+      "explanation": "`obj` の実体は String で、長さも 4 より大きいので if 本体に入る。パターン変数 s は `&&` 右辺と if 本体で使える。`substring(1,4)` は `ilv`、`toUpperCase()` で `ILV`。obj にはその String が再代入されるため、出力は `ILV` と true。"
     },
     {
       "id": "silver-032",
@@ -452,29 +452,29 @@
       "id": "silver-033",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "複合代入演算子と型の自動キャスト。narrow conversion。\n\n```java\nbyte b = 10;\nb += 5;           // b = (byte)(b + 5)\nint x = 100;\nx += 20;          // x = x + 20\n\nSystem.out.println(b + \" \" + x);\n```",
+      "text": "複合代入、byte のオーバーフロー、char の加算を組み合わせた出力はどれか。\n\n```java\nbyte b = 1;\nb += 129;\nchar c = 'A';\nc += 2;\nSystem.out.println(b + \":\" + (int) c + \":\" + c);\n```",
       "options": [
-        "15 120",
-        "コンパイルエラー。byte に += は使えない",
-        "コンパイルエラー。型の混在で曖昧",
-        "15.0 120.0"
+        "-126:67:C",
+        "130:67:C",
+        "コンパイルエラー。b += 129 は不可",
+        "-126:65:A"
       ],
       "answer": 0,
-      "explanation": "複合代入演算子 += は自動的に型キャストを行う。b+=5 は b=(byte)(b+5)=(byte)15=15。x+=20 は x=(int)(x+20)=120。単純な + 演算では byte+int=int だが、+= 演算子が型キャストを自動化するため成功。"
+      "explanation": "`b += 129` は `b = (byte)(b + 129)` と同じように暗黙キャストを含む。1+129=130 だが byte 範囲を超えるため -126 になる。`c += 2` も複合代入なので char へ戻され、`A`(65)+2=67、つまり `C`。単純代入 `b = b + 129` ならコンパイルエラー。"
     },
     {
       "id": "silver-034",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "複数の初期化式と代入チェーン。参照の流れと右結合性。\n\n```java\nint a, b, c;\na = b = c = 10;\na += 5;\nb -= 3;\nc *= 2;\nSystem.out.println(a + \" \" + b + \" \" + c);\n```",
+      "text": "StringBuilder の参照代入と破壊的変更を追跡する。次の出力はどれか。\n\n```java\nStringBuilder a = new StringBuilder(\"A\");\nStringBuilder b = new StringBuilder(\"B\");\nStringBuilder c = a;\na = b.append(\"1\");\nc.append(\"2\");\nSystem.out.println(a + \":\" + b + \":\" + c);\n```",
       "options": [
-        "15 7 20",
-        "10 10 10",
-        "15 10 20",
-        "コンパイルエラー。複数初期化は不許可"
+        "B1:B1:A2",
+        "A2:B1:A2",
+        "B1:B:A2",
+        "A:B1:A2"
       ],
       "answer": 0,
-      "explanation": "a=b=c=10 は右から左に評価。c=10→b=10→a=10。a+=5→a=15。b-=3→b=7。c*=2→c=20。出力「15 7 20」。代入演算子の右結合性。"
+      "explanation": "最初に c は a と同じ `\"A\"` の StringBuilder を参照する。`b.append(\"1\")` は b 自身を `\"B1\"` に変更し、その戻り値を a に代入するため、a と b は同じ `\"B1\"` を参照する。c は元の `\"A\"` 側を参照し続け、`append(\"2\")` で `\"A2\"` になる。"
     },
     {
       "id": "silver-035",
@@ -508,15 +508,15 @@
       "id": "silver-037",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "ArrayList.remove()のオーバーロード + null処理 + autoboxing。次のコードの出力はどれか。\n\n```java\nArrayList<Integer> list = new ArrayList<>(List.of(10, 20, 30, null, 50));\nlist.remove(Integer.valueOf(30));\nlist.remove(null);\nlist.remove(1);\nSystem.out.println(list);\n```",
+      "text": "ArrayList<Integer> の `remove` が index と value のどちらを選ぶか追跡する。\n\n```java\nimport java.util.*;\nArrayList<Integer> nums = new ArrayList<>(Arrays.asList(0, 1, 2, 3));\nInteger value = 1;\nnums.remove(value);\nnums.remove(1);\nnums.add(nums.get(0) + nums.size());\nSystem.out.println(nums);\n```",
       "options": [
-        "[10, 50]",
-        "[10, 20, 50]",
-        "[20, 50]",
-        "NullPointerException"
+        "[0, 3, 2]",
+        "[0, 2, 3]",
+        "[0, 3, 3]",
+        "[0, 1, 3]"
       ],
       "answer": 0,
-      "explanation": "【オーバーロード解決】remove(Object)とremove(int)の区別がcritical。ステップ1: remove(Integer.valueOf(30))：Objectオーバーロード→値30を探して削除→[10, 20, null, 50]。ステップ2: remove(null)：Objectオーバーロード→nullを探して削除→[10, 20, 50]。ステップ3: remove(1)：intオーバーロード→インデックス1の要素（20）を削除→[10, 50]。Result: [10, 50]。【仕様】ArrayListのオーバーロード優先順位：remove(intindex)はint型、remove(Objecto)はequals()で比較"
+      "explanation": "`nums.remove(value)` は引数が Integer なので `remove(Object)` が選ばれ、値 1 を削除して `[0,2,3]`。次の `nums.remove(1)` は int なので index 1 を削除し、値 2 が消えて `[0,3]`。最後に `nums.get(0)+nums.size()` は 0+2=2 なので `[0,3,2]`。"
     },
     {
       "id": "silver-038",
@@ -620,71 +620,71 @@
       "id": "silver-045",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "制御文のブレース省略とローカルスコープの複雑な相互作用。次のコードはコンパイルできるか。\n\n```java\nint x = 10;\nif (x > 5) {\n    int y = 20;\n    System.out.println(y);\n}\nint y = 30;  // 新しい y\nSystem.out.println(y);\n```",
+      "text": "ブレース省略時の dangling else と後置インクリメントを追跡する。次の出力はどれか。\n\n```java\nint x = 0;\nif (x++ == 0)\n    if (x++ == 1)\n        x += 10;\n    else\n        x += 100;\nSystem.out.println(x);\n```",
       "options": [
-        "コンパイルできる。出力は 20, 30",
-        "コンパイルできる。出力は 20, 20",
-        "コンパイルエラー。y の重複定義",
-        "コンパイルエラー。y はスコープ外"
+        "12",
+        "102",
+        "11",
+        "コンパイルエラー。else の対応先が曖昧"
       ],
       "answer": 0,
-      "explanation": "【スコープ管理と変数の生存期間】ステップ1: if (x > 5) { int y = 20; }→yはブロック内でのみ有効。ステップ2: ブロック外のint y = 30は新しい変数→異なるscopeなのでコンパイル可。ステップ3: ifブロック内のprintln(y)→20出力。ステップ4: ifブロック外のprintln(y)→30出力。【Java仕様】ブロックスコープは独立し、異なるブロックの同名変数はdistinctとみなされる"
+      "explanation": "Java の `else` は最も近い未対応の `if` に結び付く。外側の `x++ == 0` は true で x は 1。内側の `x++ == 1` も true で x は 2。そのため inner if の then 側で `x += 10` が実行され、最終的に 12。文法的に曖昧ではない。"
     },
     {
       "id": "silver-046",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "型昇格（numerictype promotion）とObject代入。次のコードの出力はどれか。\n\n```java\nint a = 5;\nlong b = 3L;\nObject result = Math.max(a, b);\nSystem.out.println(result);\nSystem.out.println(result.getClass().getSimpleName());\nSystem.out.println(result instanceof Long);\n```",
+      "text": "数値昇格、boxing、Object 代入を組み合わせた出力はどれか。\n\n```java\nObject o = 10 + 'A';\nSystem.out.println(o.getClass().getSimpleName() + \":\" + o);\nLong l = 10 + 20L;\nSystem.out.println(l.getClass().getSimpleName() + \":\" + l);\n```",
       "options": [
-        "5 / Long / true",
-        "5 / Long / false",
-        "3 / Integer / true",
-        "コンパイルエラー"
+        "Integer:75 / Long:30",
+        "Character:K / Long:30",
+        "Integer:75 / Integer:30",
+        "コンパイルエラー。プリミティブ計算結果は Object に代入できない"
       ],
       "answer": 0,
-      "explanation": "【型昇格の仕様とObject へのボックス化】ステップ1: Math.max(int, long)→longに昇格（WideningPrimitiveConversion）。a = 5は5Lにアップキャスト。b = 3Lはそのまま。Math.max(5L, 3L) = 5L（long型の値）。ステップ2: Object result = 5L→5Lはボックス化（autoboxing）→Long(5)オブジェクト。ステップ3: result.getClass().getSimpleName()→「Long」。ステップ4: result instanceof Long→true（Longオブジェクト）。出力：5 / Long / true。【Java仕様】int + longはlongに昇格し、戻り値はLongでボックス化される"
+      "explanation": "`10 + 'A'` では char が int に昇格し、65+10=75 の int になる。Object へ代入されると Integer に boxing される。`10 + 20L` は long 演算になり、Long へ boxing される。したがって `Integer:75` と `Long:30`。"
     },
     {
       "id": "silver-047",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "String の `replace` は元の文字列を変更するか。次のコードの出力はどれか。\n\n```java\nString s = \"banana\";\nString t = s.replace('a', 'o');\nSystem.out.println(s);\nSystem.out.println(t.substring(1, 4));\n```",
+      "text": "String と StringBuilder の変更可否を比較する。次の出力はどれか。\n\n```java\nString s = \"ab\";\nString t = s.concat(\"c\");\nStringBuilder sb = new StringBuilder(s);\nsb.append(\"d\").insert(1, t.charAt(2));\nSystem.out.println(s + \":\" + t + \":\" + sb);\n```",
       "options": [
-        "bonono / ono",
-        "banana / ono",
-        "banana / ana",
-        "コンパイルエラー"
+        "ab:abc:acbd",
+        "abc:abc:acbd",
+        "ab:abc:abcd",
+        "ab:ab:acbd"
       ],
-      "answer": 1,
-      "explanation": "String は不変なので `replace` は元の `s` を変更せず、新しい文字列を返す。`t` は `bonono`、`s` は `banana` のまま。`substring(1, 4)` は開始インデックスを含み、終了インデックスを含まない半開区間なので、`bonono` の 1〜3 番目、つまり `ono` が返る。"
+      "answer": 0,
+      "explanation": "String は不変なので `concat` は新しい文字列 `abc` を返し、元の s は `ab` のまま。StringBuilder は可変で、最初は `ab`。`append(\"d\")` で `abd`、`t.charAt(2)` は `c`、それを index 1 に挿入して `acbd` になる。"
     },
     {
       "id": "silver-048",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "StringBuilderのメソッドチェーンとreverse() + substring()。次のコードの出力はどれか。\n\n```java\nStringBuilder sb = new StringBuilder(\"Hello\");\nsb.append(\"World\").reverse();\nString result = sb.substring(0, 3);\nSystem.out.println(result);\n```",
+      "text": "StringBuilder のメソッドチェーンで、可変オブジェクトと戻り値を追跡する。\n\n```java\nStringBuilder sb = new StringBuilder(\"abcdef\");\nString part = sb.delete(1, 4)\n                .insert(1, \"XY\")\n                .reverse()\n                .substring(1, 4);\nSystem.out.println(sb);\nSystem.out.println(part);\n```",
       "options": [
-        "dlro",
-        "Hel",
-        "dlr",
-        "コンパイルエラー"
+        "feYXa / eYX",
+        "aXYef / XYe",
+        "feYXa / eY",
+        "コンパイルエラー。substring は StringBuilder を返す"
       ],
-      "answer": 2,
-      "explanation": "【StringBuilderの可変性とメソッドチェーン】ステップ1: new StringBuilder(\"Hello\")→「Hello」。ステップ2: append(\"World\")→「HelloWorld」(sbが変更される)。ステップ3: reverse()→「dlroWolleH」(sbが逆順に変更される、戻り値はsb自身)。ステップ4: substring(0, 3)→sbの0から3未満の範囲→「dlr」。Result: dlr。【仕様】StringBuilder.reverse()は対象オブジェクトを直接変更し、thisを返す（メソッドチェーン対応）"
+      "answer": 0,
+      "explanation": "`delete(1,4)` は index 1,2,3 の `bcd` を削除して `aef`。`insert(1,\"XY\")` で `aXYef`。`reverse()` は同じ StringBuilder を `feYXa` に変更する。最後の `substring(1,4)` は String を返し、index 1〜3 の `eYX`。sb 自体は reverse 後の `feYXa` のまま。"
     },
     {
       "id": "silver-049",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "負の整数での除算と剰余の挙動。ゼロに向かう切り捨てと符号の扱い。次のコードの出力はどれか。\n\n```java\nint a = -7;\nint b = 3;\nint c = 7;\nint d = -3;\nSystem.out.println((a / b) + \" \" + (a % b));\nSystem.out.println((c / d) + \" \" + (c % d));\n```",
+      "text": "負数の除算・剰余を配列ループで合算する。次の出力はどれか。\n\n```java\nint[] values = {-7, 7};\nint total = 0;\nfor (int v : values) {\n    total += v / 3;\n    total += v % 3;\n}\nSystem.out.println(total);\n```",
       "options": [
-        "-2 -1 / -2 1",
-        "-3 2 / -2 1",
-        "-2 1 / -2 -1",
+        "0",
+        "-1",
+        "1",
         "コンパイルエラー"
       ],
       "answer": 0,
-      "explanation": "Java の整数除算はゼロ方向へ切り捨てる。`-7 / 3` は -2、`-7 % 3` は `-7 = (-2 * 3) + (-1)` を満たすので -1。`7 / -3` もゼロ方向へ切り捨てて -2、`7 % -3` は `7 = (-2 * -3) + 1` を満たすので 1。剰余の符号は被除数側に従う点が罠。"
+      "explanation": "Java の整数除算はゼロ方向へ切り捨てる。-7/3 は -2、-7%3 は -1 なので合計 -3。7/3 は 2、7%3 は 1 なので合計 3。両方を足すと 0。剰余は `(a/b)*b + (a%b) == a` を満たし、符号は被除数側に従う。"
     },
     {
       "id": "silver-050",
@@ -704,57 +704,57 @@
       "id": "silver-051",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "型昇格、autoboxing、instanceofの複雑な相互作用。次のコードの出力はどれか。\n\n```java\nbyte b = 50;\nshort s = 100;\nObject result = Math.max((int)b, (int)s);\nSystem.out.println(result);\nSystem.out.println(result instanceof Integer);\nSystem.out.println(result instanceof Object);\n```",
+      "text": "ラッパー型の参照比較とアンボクシングの違いとして、次の出力はどれか。\n\n```java\nInteger x = null;\nInteger y = 0;\ntry {\n    System.out.println(x == y);\n    System.out.println(x == 0);\n} catch (Exception e) {\n    System.out.println(e.getClass().getSimpleName());\n}\n```",
       "options": [
-        "100 / true / true",
-        "100 / false / true",
-        "150 / true / false",
-        "コンパイルエラー"
+        "false / NullPointerException",
+        "NullPointerException のみ",
+        "false / false",
+        "コンパイルエラー。Integer と int は比較できない"
       ],
       "answer": 0,
-      "explanation": "【型昇格とボックス化の順序】ステップ1: Math.max((int)b, (int)s)→byteとshortを明示的にintに昇格。ステップ2: Math.max(50, 100)→100（int型プリミティブ）。ステップ3: Object result = 100→100はautoboxingによりInteger(100)オブジェクトに変換。ステップ4: result instanceof Integer→true（Integerオブジェクト）。ステップ5: result instanceof Object→true（IntegerはObjectのサブクラス）。Result: 100 / true / true。【Java仕様】プリミティブの計算結果をObjectに代入すると自動boxingされる"
+      "explanation": "`x == y` は両方とも参照型なので参照比較になり、x は null、y は Integer オブジェクトなので false。次の `x == 0` は Integer と int の比較なので x がアンボクシングされる。null に対して `intValue()` を呼ぶ形になるため NullPointerException。"
     },
     {
       "id": "silver-052",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "charのコードポイント演算と型キャスト。次のコードの出力はどれか。\n\n```java\nchar start = 'A';\nchar end = (char)(start + 5);\nSystem.out.println(start);\nSystem.out.println(end);\nSystem.out.println((int)start + \" \" + (int)end);\n```",
+      "text": "char 配列、複合代入、数値昇格を組み合わせた次の出力はどれか。\n\n```java\nchar[] chars = {'A', 66};\nchars[0] += 2;\nint sum = chars[0] + chars[1];\nSystem.out.println((int) chars[0] + \":\" + chars[1] + \":\" + sum);\n```",
       "options": [
-        "A / F / 65 70",
-        "A / E / 65 69",
-        "65 / 70 / 65 70",
-        "コンパイルエラー"
+        "67:B:133",
+        "67:66:133",
+        "65:B:131",
+        "コンパイルエラー。char に整数 66 は代入できない"
       ],
       "answer": 0,
-      "explanation": "【char算術演算とキャスト】ステップ1: start = 'A'→char。'A'はUnicodeコードポイント65。ステップ2: start + 5→charはintに自動昇格→65 + 5 = 70。ステップ3: (char)70→charにキャスト→end = 'F'（70は'F'）。ステップ4: System.out.println(start)→「A」(charをprint)。ステップ5: System.out.println(end)→「F」(charをprint)。ステップ6: (int)start + \" \" + (int)end→「65 70」。Result: A / F / 65 70。【Java仕様】charはintにwidening conversion され、演算後はcharにキャスト必須"
+      "explanation": "`66` は char の範囲内の定数なので char 要素として代入でき、文字としては `B`。`chars[0] += 2` は複合代入なので char に戻され、`A`(65)+2=67、つまり `C`。`chars[0] + chars[1]` は int へ数値昇格して 67+66=133。"
     },
     {
       "id": "silver-053",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "ジャグ配列の初期化状態を追跡する。次のコードの出力はどれか。\n\n```java\nint[][] data = new int[2][];\ndata[0] = new int[] { 1, 2 };\nSystem.out.println(data.length);\nSystem.out.println(data[0].length);\nSystem.out.println(data[1]);\n```",
+      "text": "ジャグ配列で未初期化行と共有行を同時に扱う。次の出力はどれか。\n\n```java\nint[][] a = new int[3][];\na[0] = new int[] {1};\na[2] = a[0];\na[2][0]++;\nSystem.out.println(a[0][0] + \":\" + (a[1] == null) + \":\" + a.length);\n```",
       "options": [
-        "2 / 2 / null",
-        "2 / 0 / null",
-        "2 / 2 / 0",
-        "実行時に ArrayIndexOutOfBoundsException"
+        "2:true:3",
+        "1:true:3",
+        "2:false:3",
+        "実行時に NullPointerException"
       ],
       "answer": 0,
-      "explanation": "`new int[2][]` は外側配列だけを作る。外側の長さは 2 だが、各内側配列はまだ null。`data[0]` に長さ 2 の int 配列を代入したため `data[0].length` は 2。`data[1]` は代入していないので null。`data[1].length` なら NullPointerException だが、このコードは参照値を出力するだけ。"
+      "explanation": "`new int[3][]` は外側配列だけを作るため a[1] は null。a[2] に a[0] と同じ配列参照を代入しているので、`a[2][0]++` は a[0][0] も増やす。結果は 2、a[1]==null は true、外側配列の length は 3。"
     },
     {
       "id": "silver-054",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "Stringの参照比較と内容比較、インターン池の影響。次のコードの出力はどれか。\n\n```java\nString a = new String(\"Java\");\nString b = new String(\"Java\");\nString c = \"Java\";\nString d = \"Java\";\nSystem.out.println((a == b) + \" \" + (a.equals(b)));\nSystem.out.println((c == d) + \" \" + (c.equals(d)));\nSystem.out.println((a == c) + \" \" + (a.equals(c)));\n```",
+      "text": "final 変数によるコンパイル時連結と intern() を比較する。次の出力はどれか。\n\n```java\nString a = \"ab\";\nfinal String b = \"a\";\nString c = b + \"b\";\nString d = new String(\"ab\");\nString e = d.intern();\nSystem.out.println((a == c) + \":\" + (a == d) + \":\" + (a == e));\n```",
       "options": [
-        "false true / true true / false true",
-        "false true / false true / false true",
-        "true true / true true / true true",
-        "コンパイルエラー"
+        "true:false:true",
+        "false:false:true",
+        "true:true:true",
+        "true:false:false"
       ],
       "answer": 0,
-      "explanation": "【Stringの参照とインターン池】ステップ1: a = new String(\"Java\")→ヒープに新規オブジェクト（インターン池外）。ステップ2: b = new String(\"Java\")→別の新規オブジェクト。ステップ3: a == b→参照比較→false（異なるオブジェクト）。ステップ4: a.equals(b)→内容比較→true（どちらも「Java」）。ステップ5: c = \"Java\"→インターン池から同じStringオブジェクトを参照。ステップ6: d = \"Java\"→同じインターン池オブジェクトを参照。ステップ7: c == d→true（同じオブジェクト参照）。ステップ8: c.equals(d)→true（内容同じ）。ステップ9: a == c→false（aはヒープ、cはインターン池）。ステップ10: a.equals(c)→true（内容同じ）。Result: false true / true true / false true。【Java仕様】Stringliteralsは自動インターン。newString()で生成したものはインターン池外"
+      "explanation": "final な String 定数 b とリテラルの連結 `b + \"b\"` はコンパイル時定数になり、文字列プールの `\"ab\"` と同じ参照になる。`new String(\"ab\")` は別オブジェクトなので `a==d` は false。`intern()` はプール上の参照を返すので `a==e` は true。"
     },
     {
       "id": "silver-055",
@@ -788,15 +788,15 @@
       "id": "silver-057",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "Stringの空白処理メソッド。strip()、trim()、isBlank()の違い。次のコードの出力はどれか。\n\n```java\nString s1 = \"  \\t hello \\n \";\nString s2 = \"   \";\nSystem.out.println(s1.strip().length());\nSystem.out.println(s1.trim().length());\nSystem.out.println(s2.isBlank());\nSystem.out.println(s2.isEmpty());\n```",
+      "text": "trim、strip、isBlank の違いを Unicode 空白で確認する。次の出力はどれか。\n\n```java\nString ascii = \" \t\n\";\nString wide = \"　\";\nSystem.out.println(ascii.isBlank() + \":\" + ascii.trim().isEmpty());\nSystem.out.println(wide.trim().isEmpty() + \":\" + wide.strip().isEmpty());\n```",
       "options": [
-        "5 / 5 / true / false",
-        "5 / 7 / true / false",
-        "11 / 11 / false / false",
-        "コンパイルエラー"
+        "true:true / false:true",
+        "true:false / true:true",
+        "false:true / false:true",
+        "true:true / true:true"
       ],
       "answer": 0,
-      "explanation": "【String空白処理メソッド】ステップ1: s1 = \"  \\t hello \\n \"(タブ、改行を含む)。ステップ2: s1.strip()→leading/trailingのUnicodewhitespaceを除去（\\t, \\nを含む）→「hello」(5)。ステップ3: s1.trim()→Java1.0のtrim()（' ', \\t, \\nのみ）→「hello」(5)。ステップ4: s2.isBlank()→空白のみで構成→true。ステップ5: s2.isEmpty()→長さ0か→false（3文字スペース）。Result: 5 / 5 / true / false。【Java仕様】strip()はUnicodewhitespace。trim()はlegacy（ASCIIwhitespace）。isBlank()はwhitespaceonly check"
+      "explanation": "`isBlank()` は空白文字だけなら true。ASCII の空白は trim でも除去できるので `ascii.trim().isEmpty()` は true。一方、全角スペース `　` は trim の対象外だが、strip は Unicode の空白判定を使うため除去できる。したがって `false:true`。"
     },
     {
       "id": "silver-058",
@@ -816,29 +816,29 @@
       "id": "silver-059",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "String.valueOf()による連結とInteger.parseInt()による変換。次のコードの出力はどれか。\n\n```java\nint x = 42;\nint y = 8;\nString s = String.valueOf(x) + String.valueOf(y);\nint result = Integer.parseInt(s);\nSystem.out.println(s);\nSystem.out.println(result);\nSystem.out.println(result == (x + y));\n```",
+      "text": "String.valueOf(char[], offset, count) と配列変更後の文字列を比較する。\n\n```java\nchar[] data = {'J', 'a', 'v', 'a'};\nString first = String.valueOf(data, 1, 2);\ndata[1] = 'X';\nString second = String.valueOf(data);\nSystem.out.println(first + \":\" + second);\n```",
       "options": [
-        "428 / 428 / false",
-        "50 / 50 / true",
-        "428 / 50 / false",
+        "av:JXva",
+        "Xv:JXva",
+        "av:Java",
         "コンパイルエラー"
       ],
       "answer": 0,
-      "explanation": "【文字列連結 vs 数値演算】ステップ1: String.valueOf(42)→「42」。ステップ2: String.valueOf(8)→「8」。ステップ3: 「42」+「8」→文字列連結→「428」。ステップ4: Integer.parseInt(「428」)→「428」をintに変換→428。ステップ5: result == (x + y)→428==(42+8)→428==50→false。Result: 428 / 428 / false。【Java仕様】文字列連結（+）はconcatenation。数値演算（+）はarithmeticaddition"
+      "explanation": "`String.valueOf(data,1,2)` は index 1 から 2 文字、つまり `av` の新しい String を作る。その後 char 配列を変更しても、作成済みの first は変わらない。`String.valueOf(data)` は変更後の配列全体から作るため `JXva`。String と配列の参照共有は起きない。"
     },
     {
       "id": "silver-060",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "StringBuilderの複数操作メソッド。delete(int, int)、insert(int, String)、replace(int, int, String)。次のコードの出力はどれか。\n\n```java\nStringBuilder sb = new StringBuilder(\"abcdef\");\nsb.delete(1, 4);  // インデックス 1 から 4 未満を削除\nsb.insert(1, \"XY\");\nString result = sb.toString();\nSystem.out.println(result);\n```",
+      "text": "StringBuilder の replace/delete/append の評価順を追跡する。次の出力はどれか。\n\n```java\nStringBuilder sb = new StringBuilder(\"012345\");\nString s = sb.replace(1, 4, \"AB\")\n             .delete(2, 3)\n             .append(sb.length())\n             .toString();\nSystem.out.println(sb);\nSystem.out.println(s);\n```",
       "options": [
-        "aXYef",
-        "aXYbcdef",
-        "XYbcdef",
-        "コンパイルエラー"
+        "0A454 / 0A454",
+        "0AB45 / 0A454",
+        "0A45 / 0A454",
+        "コンパイルエラー。append 内で sb.length() は呼べない"
       ],
       "answer": 0,
-      "explanation": "【StringBuilderのmutation操作】ステップ1: sb = \"abcdef\"。ステップ2: delete(1, 4)→インデックス1, 2, 3（1～4未満）を削除→「a」+「ef」=「aef」。ステップ3: insert(1, \"XY\")→インデックス1に「XY」を挿入→「a」+「XY」+「ef」=「aXYef」。Result: aXYef。【Java仕様】delete(start, end)は[start, end)の範囲を削除。insert(offset, str)はoffset位置に挿入"
+      "explanation": "`replace(1,4,\"AB\")` は index 1〜3 の `123` を `AB` に置き換え、`0AB45`。`delete(2,3)` は index 2 の `B` を削除し、`0A45`。この時点の length は 4 なので append で `4` が付き、`0A454`。StringBuilder は同じオブジェクトを変更するため sb と s の内容は同じ。"
     },
     {
       "id": "silver-061",
@@ -858,71 +858,71 @@
       "id": "silver-062",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "デフォルトコンストラクタの暗黙的な引数ありコンストラクタへの変換と継承でのsuper()呼び出し。次のコードはコンパイルできるか。\n\n```java\nclass Vehicle {\n    Vehicle(String model) { System.out.println(model); }\n}\nclass Car extends Vehicle {\n    Car() { }  // super() 暗黙か？\n}\nnew Car();\n```",
+      "text": "親クラスにデフォルトコンストラクタがない場合、次のコードはどうなるか。\n\n```java\nclass Parent {\n    Parent(int id) { System.out.println(\"P\" + id); }\n}\nclass Child extends Parent {\n    Child() {\n        System.out.println(\"C\");\n    }\n}\nnew Child();\n```",
       "options": [
-        "コンパイルできる。Car()は暗黙にsuper()を呼ぶ",
-        "コンパイルエラー。Carはsuper(String)を明示する必要がある",
-        "コンパイルできるが実行時にNoSuchMethodError",
-        "警告が出るが、コンパイル可"
+        "P0 / C が出力される",
+        "C のみ出力される",
+        "コンパイルエラー。Child() の先頭で呼ぶ super() が存在しない",
+        "実行時に NoSuchMethodError が発生する"
       ],
-      "answer": 1,
-      "explanation": "【デフォルトコンストラクタの生成とスーパー呼び出し】ステップ1: Vehicleは引数ありコンストラクタのみ→デフォルトコンストラクタ（引数なし）がない。ステップ2: Car()は定義されているが、super()を明示していない→暗黙的にsuper()を呼びたい。ステップ3: 暗黙のsuper()はVehicle()を呼ぼうとするが、Vehicle()は存在しない→コンパイルエラー。ステップ4: Car()を定義するなら、明示的にsuper(String)かsuper(String)相当を呼ぶ必要がある。【Java仕様】親クラスにデフォルトコンストラクタがないなら、子クラスはスーパーコンストラクタを明示的に指定必須"
+      "answer": 2,
+      "explanation": "コンストラクタの先頭では、明示しなければ `super()` が暗黙挿入される。しかし Parent には `Parent(int)` しかなく、引数なしの `Parent()` は存在しない。そのため Child のコンストラクタはコンパイルエラー。`super(値)` を明示すれば解決できる。"
     },
     {
       "id": "silver-063",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "3段階の継承チェーンとスーパー呼び出しの明示 / 暗黙。次のコードの出力はどれか。\n\n```java\nclass L1 { L1() { System.out.println(\"L1\"); } }\nclass L2 extends L1 { L2() { System.out.println(\"L2\"); } }\nclass L3 extends L2 { L3() { super(); System.out.println(\"L3\"); } }\nnew L3();\n```",
+      "text": "継承時のフィールド初期化、インスタンス初期化子、コンストラクタの順序はどれか。\n\n```java\nclass A {\n    int x = mark(\"A-field\");\n    { mark(\"A-init\"); }\n    A() { mark(\"A-ctor\"); }\n    int mark(String s) { System.out.print(s + \" \"); return 1; }\n}\nclass B extends A {\n    int y = mark(\"B-field\");\n    { mark(\"B-init\"); }\n    B() { mark(\"B-ctor\"); }\n}\nnew B();\n```",
       "options": [
-        "L1 L2 L3",
-        "L2 L3",
-        "L1 L3",
+        "A-field A-init A-ctor B-field B-init B-ctor",
+        "B-field B-init A-field A-init A-ctor B-ctor",
+        "A-ctor A-field A-init B-ctor B-field B-init",
         "コンパイルエラー"
       ],
       "answer": 0,
-      "explanation": "【3段階継承でのsuper()遡上】ステップ1: new L3()→L3()コンストラクタ呼び出し。ステップ2: L3()内のsuper()→L2()を呼び出し。ステップ3: L2()内でsuper()は暗黙（指定なし）→L1()を呼び出し。ステップ4: L1()実行→「L1」出力。ステップ5: L1()終了、L2()再開→「L2」出力。ステップ6: L2()終了、L3()再開→「L3」出力。Result: L1 L2 L3。【Java仕様】各レベルのコンストラクタでsuper()が暗黙に追加される（スーパークラスチェーンを遡上）"
+      "explanation": "new B() ではまず親 A の初期化が行われる。A のフィールド初期化、A のインスタンス初期化子、A コンストラクタ。その後、B のフィールド初期化、B のインスタンス初期化子、B コンストラクタ。static がない場合でも、親インスタンス部分が先に完成する点が重要。"
     },
     {
       "id": "silver-064",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "finalクラスの継承不可の仕様。次のコードはコンパイルできるか。\n\n```java\nfinal class Sealed { }\nclass SubClass extends Sealed { }\n```",
+      "text": "final static メソッドをサブクラスで隠蔽しようとするとどうなるか。\n\n```java\nclass Parent {\n    final static void log() { System.out.println(\"P\"); }\n}\nclass Child extends Parent {\n    static void log() { System.out.println(\"C\"); }\n}\nParent p = new Child();\np.log();\n```",
       "options": [
-        "コンパイルできる。finalはaccess修飾子ではない",
-        "コンパイルエラー。finalクラスはextends不可",
-        "コンパイルできるが実行時エラー",
-        "警告が出るがコンパイル可"
+        "P が出力される",
+        "C が出力される",
+        "コンパイルエラー。final static メソッドは隠蔽できない",
+        "実行時に IllegalAccessError が発生する"
       ],
-      "answer": 1,
-      "explanation": "【finalクラスの仕様】final修飾子をクラスに付与すると、そのクラスはsubclass化できない（extends禁止）。ステップ1: final class Sealed→Sealedはサブクラス化不可。ステップ2: class SubClass extends Sealed→Sealedをextendしようとする→コンパイルエラー。理由：finalによる封印（sealed）。String、Integerなど多くの標準クラスがfinal。【Java仕様】finalclassはinheritableではない。コンパイルエラー：「Thetype SubClass cannot subclass the final class Sealed」"
+      "answer": 2,
+      "explanation": "static メソッドはオーバーライドではなく隠蔽だが、final static メソッドはサブクラスで同じシグネチャの static メソッドとして再宣言できない。したがって Child の `log()` 宣言時点でコンパイルエラー。実行時ディスパッチの話に進む前に落ちる。"
     },
     {
       "id": "silver-065",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "finalメソッドのオーバーライド禁止。次のコードはコンパイルできるか。\n\n```java\nclass Parent {\n    final void process() { System.out.println(\"Parent\"); }\n}\nclass Child extends Parent {\n    @Override\n    void process() { System.out.println(\"Child\"); }\n}\n```",
+      "text": "final インスタンスメソッドとオーバーライド判定について、次のコードはどうなるか。\n\n```java\nclass Parent {\n    final void run() { System.out.println(\"P\"); }\n    void call() { run(); }\n}\nclass Child extends Parent {\n    void run(int x) { System.out.println(\"C\" + x); }\n}\nParent p = new Child();\np.call();\n```",
       "options": [
-        "コンパイルできる。@Overrideは単なるannotation",
-        "コンパイルエラー。finalメソッドはoverride不可",
-        "コンパイルできるが実行時にOverrideエラー",
-        "警告が出るがコンパイル可"
+        "P が出力される",
+        "C0 が出力される",
+        "コンパイルエラー。final メソッドは overload もできない",
+        "コンパイルエラー。p.call() が曖昧"
       ],
-      "answer": 1,
-      "explanation": "【finalメソッドの仕様】final修飾子をメソッドに付与すると、サブクラスでオーバーライドできない。ステップ1: Parent.process()がfinal→override禁止。ステップ2: Childがprocess()をオーバーライドしようとする→コンパイルエラー。ステップ3: @OverrideアnotationはoverrideをIを宣言するだけで、finalをoverrideすることはできない。【Java仕様】コンパイルエラー：「Cannot override the final method from Parent」"
+      "answer": 0,
+      "explanation": "Child の `run(int)` は引数が違うため、Parent の `final void run()` をオーバーライドしていない。final が禁止するのは同じシグネチャでのオーバーライドであり、オーバーロードは可能。`p.call()` は Parent の call を実行し、その中の `run()` は final な Parent.run() を呼ぶため `P`。"
     },
     {
       "id": "silver-066",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "sealed クラスの `permits` とサブクラス宣言について、次のコードはどうなるか。\n\n```java\nsealed class Shape permits Circle { }\nfinal class Circle extends Shape { }\nfinal class Square extends Shape { }\n```",
+      "text": "sealed クラス階層で、直接サブクラスの修飾子として正しいものはどれか。\n\n```java\nsealed class Node permits Leaf, Branch { }\nfinal class Leaf extends Node { }\nsealed class Branch extends Node permits Twig { }\nfinal class Twig extends Branch { }\n```",
       "options": [
-        "コンパイルできる。Square も Shape のサブクラスになれる",
-        "コンパイルエラー。Square は permits に列挙されていない",
-        "コンパイルエラー。sealed class に final サブクラスは書けない",
-        "実行時に IllegalAccessError が発生する"
+        "すべてコンパイルできる",
+        "Branch は final でなければならない",
+        "Twig も Node の permits に列挙しなければならない",
+        "sealed class は別の sealed class を継承できない"
       ],
-      "answer": 1,
-      "explanation": "sealed クラスを継承できる直接サブクラスは `permits` に列挙された型だけ。`Circle` は許可されているので OK。一方 `Square` は `permits Circle` に含まれていないため、直接 `Shape` を継承できずコンパイルエラー。sealed は Java 17 の Silver チェックリスト範囲。"
+      "answer": 0,
+      "explanation": "sealed 型の直接サブクラスは `final`、`sealed`、`non-sealed` のいずれかで宣言する必要がある。Leaf は final、Branch は sealed なので合法。Twig は Branch の直接サブクラスであり、Node の直接サブクラスではないため Node の permits に列挙する必要はない。"
     },
     {
       "id": "silver-067",
@@ -942,15 +942,15 @@
       "id": "silver-068",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "ArrayList の `remove` オーバーロードを追跡する。次のコードの出力はどれか。\n\n```java\nimport java.util.*;\nArrayList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3, 2));\nlist.remove(1);\nlist.remove(Integer.valueOf(2));\nSystem.out.println(list);\n```",
+      "text": "拡張 for 文の中で ArrayList を直接変更した場合、次のコードはどうなるか。\n\n```java\nimport java.util.*;\nArrayList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3, 4));\nfor (Integer n : list) {\n    if (n == 2) {\n        list.remove(n);\n    }\n}\nSystem.out.println(list);\n```",
       "options": [
-        "[1, 3, 2]",
-        "[1, 2, 3]",
-        "[1, 3]",
+        "[1, 3, 4] が出力される",
+        "[1, 2, 3, 4] が出力される",
+        "実行時に ConcurrentModificationException が発生する",
         "コンパイルエラー"
       ],
       "answer": 2,
-      "explanation": "`remove(1)` は引数が int なのでインデックス 1 の要素を削除し、最初の 2 が消えて `[1, 3, 2]` になる。次の `remove(Integer.valueOf(2))` は `remove(Object)` を呼び、値 2 の最初の要素を削除する。よって最終的な list は `[1, 3]`。`ArrayList<Integer>` では `remove(int index)` と `remove(Object o)` の区別が頻出の罠。"
+      "explanation": "拡張 for は内部的に Iterator を使う。Iterator 以外の経路で ArrayList を構造変更すると、次の反復で変更検出され ConcurrentModificationException が発生する。この例では 2 を削除した後も残り要素があるため、次の next() 相当で例外になる。削除したい場合は Iterator.remove() を使う。"
     },
     {
       "id": "silver-069",
@@ -970,15 +970,15 @@
       "id": "silver-070",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "var キーワドの型推論と Integer/int のボクシング・アンボクシングの相互作用。次のコードの出力はどれか。\n\n```java\nInteger a = 10;\nvar b = a;  // var は何に推論される？\nint c = b + 5;  // アンボクシングされるか\nvar d = c;  // var は何に推論される？\nboolean b1 = (d instanceof Integer);\nboolean b2 = (d instanceof int);  // これはコンパイルエラー\nSystem.out.println(b1 + \"/\" + c);\n```",
+      "text": "var で推論されたプリミティブ型とラッパー型を overload に渡す。出力はどれか。\n\n```java\nvoid show(long x) { System.out.println(\"long\"); }\nvoid show(Object x) { System.out.println(\"Object\"); }\n\nvar a = 10;\nvar b = Integer.valueOf(10);\nshow(a);\nshow(b);\n```",
       "options": [
-        "true/15 / コンパイルエラー（intはinstanceofできない）",
-        "false/15 / コンパイルエラー（intはinstanceofできない）",
-        "コンパイルエラー（var b = a で曖昧）",
-        "true/20 / コンパイルエラー（intはinstanceofできない）"
+        "long / Object",
+        "Object / Object",
+        "long / long",
+        "コンパイルエラー。var の型が不明"
       ],
-      "answer": 1,
-      "explanation": "var b = a：Integer a なので b は Integer に推論。b + 5 では b がアンボクシングされて（Integer→int）int になり、c=15。var d = c：int c だから d は int に推論（プリミティブ）。d instanceof Integer は false（プリミティブ型）。d instanceof int はコンパイルエラー（instanceof はプリミティブ型に使えない）。出力は「false/15」と「コンパイルエラー」。"
+      "answer": 0,
+      "explanation": "`var a = 10` は int と推論され、show(a) は int から long への widening で `show(long)`。`var b = Integer.valueOf(10)` は Integer と推論される。メソッド呼び出しでは boxing/unboxing より前の段階で Integer から Object への widening reference が適用できるため `show(Object)` が選ばれる。"
     },
     {
       "id": "silver-071",
@@ -1026,15 +1026,15 @@
       "id": "silver-074",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "インターフェース多重実装での default メソッド衝突と解決。次のコードはコンパイルできるか。\n\n```java\ninterface Left { default String show() { return \"Left\"; } }\ninterface Right { default String show() { return \"Right\"; } }\nclass Both implements Left, Right {\n    // default メソッドの衝突をどう解決するか\n}\nnew Both();\n```",
+      "text": "クラスメソッドと interface default メソッドが同じシグネチャを持つ場合、出力はどれか。\n\n```java\ninterface Named {\n    default String name() { return \"I\"; }\n}\nclass Base {\n    public String name() { return \"B\"; }\n}\nclass Child extends Base implements Named { }\nSystem.out.println(new Child().name());\n```",
       "options": [
-        "コンパイルできる。Left が優先される",
-        "コンパイルエラー。衝突解決が必須",
-        "コンパイルできる。Left.super.show() で自動解決",
-        "コンパイルできるが実行時に例外"
+        "I",
+        "B",
+        "コンパイルエラー。default メソッドが競合する",
+        "実行時に IncompatibleClassChangeError"
       ],
       "answer": 1,
-      "explanation": "インターフェース多重実装で同一シグネチャの default メソッドは衝突。解決方法: 実装クラスで明示的にオーバーライド（例: @Override public String show() { return Left.super.show(); }）。解決なしではコンパイルエラー（ダイヤモンド問題への Java 対応）。"
+      "explanation": "クラスのインスタンスメソッドは interface の default メソッドより優先される。`Child` は `Base` から public な `name()` を継承しているため、`Named` の default `name()` と競合せず、クラス側の `B` が使われる。いわゆる class wins のルール。"
     },
     {
       "id": "silver-075",
@@ -1054,15 +1054,15 @@
       "id": "silver-076",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "var 型推論とメソッド戻り値型、アンボクシングの複合。次のコードの出力はどれか。\n\n```java\nInteger getValue() { return 42; }\nvar x = getValue();  // var は Integer に推論\nint y = x;  // アンボクシング可能\nvar z = y;  // var は int に推論\nboolean b1 = (x instanceof Integer);\nboolean b2 = (z instanceof int);  // コンパイルエラー\nSystem.out.println(b1 + \" / \" + y);\n```",
+      "text": "var、ラッパー型、アンボクシングによる実行時例外を追跡する。次のコードはどうなるか。\n\n```java\nInteger source = null;\nvar boxed = source;\nint value = boxed;\nSystem.out.println(value);\n```",
       "options": [
-        "true / 42 / コンパイルエラー（intはinstanceofできない）",
-        "false / 42 / コンパイルエラー",
-        "true / 42 / コンパイルエラー（varの推論失敗）",
-        "コンパイルエラー（var x = getValue() で曖昧）"
+        "0 が出力される",
+        "null が出力される",
+        "実行時に NullPointerException が発生する",
+        "コンパイルエラー。var に null 参照は代入できない"
       ],
-      "answer": 0,
-      "explanation": "getValue() が Integer を返すので var x は Integer に推論。x をint yに代入でアンボクシング（Integer→int、42）。var z = y なので z は int に推論。b1 = (x instanceof Integer) は true。b2 = (z instanceof int) はコンパイルエラー（プリミティブ型は instanceof 対象外）。出力は「true / 42」とエラー。"
+      "answer": 2,
+      "explanation": "`var boxed = source` は右辺 source の静的型から Integer と推論される。source の値が null でも、型情報はあるため var 宣言自体は合法。次の `int value = boxed` で Integer から int へのアンボクシングが発生し、boxed が null なので NullPointerException。"
     },
     {
       "id": "silver-077",
@@ -1138,15 +1138,15 @@
       "id": "silver-082",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "String での indexOf() / lastIndexOf() と部分文字列の位置追跡。次のコードの出力はどれか。\n\n```java\nString text = \"abracadabra\";\nint idx1 = text.indexOf(\"ab\");  // 最初の \"ab\"\nint idx2 = text.lastIndexOf(\"ab\");  // 最後の \"ab\"\nint idx3 = text.indexOf(\"ra\");  // 最初の \"ra\"\nint idx4 = text.indexOf(\"ra\", idx3 + 2);  // idx3+2 から開始して \"ra\" を探す\nSystem.out.println(idx1 + \":\" + idx2 + \":\" + idx3 + \":\" + idx4);\n```",
+      "text": "String の indexOf / lastIndexOf / substring / replace を複合した出力はどれか。\n\n```java\nString s = \"abcaBcabc\";\nint p = s.indexOf(\"bc\");\nint q = s.lastIndexOf(\"bc\");\nString r = s.substring(p + 1, q).replace('a', 'X');\nSystem.out.println(p + \":\" + q + \":\" + r);\n```",
       "options": [
-        "0:7:2:9",
-        "0:8:2:9",
-        "1:8:3:9",
-        "0:7:2:5"
+        "1:7:cXBcX",
+        "1:7:caBca",
+        "2:8:cXBcX",
+        "1:6:cXBc"
       ],
       "answer": 0,
-      "explanation": "abracadabra の構造: a(0)b(1)r(2)a(3)c(4)a(5)d(6)a(7)b(8)r(9)a(10)。idx1=indexOf(\"ab\")=0（位置0-1）。idx2=lastIndexOf(\"ab\")=7（位置7-8）。idx3=indexOf(\"ra\")=2（位置2-3）。idx4=indexOf(\"ra\", idx3+2)=indexOf(\"ra\", 4): 位置4以降でraを探す → 位置9（r(9)a(10)）。最終出力: \"0:7:2:9\"。【罠】選択肢1はlastIndexOf(\"ab\")=8と誤認。位置8はbなのでabの開始は7。【仕様】indexOf(str, fromIndex)はfromIndex以降で最初にstrが始まる位置を返す。"
+      "explanation": "`\"bc\"` は最初が index 1、最後が index 7。`substring(p+1, q)` は index 2 以上 7 未満なので `caBca`。その後 `replace('a', 'X')` により `cXBcX` になる。substring の終了位置は含まれない点が罠。"
     },
     {
       "id": "silver-083",
@@ -1166,29 +1166,29 @@
       "id": "silver-084",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "List.subList() が返す view の仕様と元リストとの結合性。次のコードの出力はどれか。\n\n```java\nimport java.util.*;\nList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));\nList<Integer> sub = list.subList(1, 4);  // [2, 3, 4]\nsub.set(1, 99);  // sub[1] = 99 に変更 → list[2] も変更される（view）\nSystem.out.println(\"sub: \" + sub);\nSystem.out.println(\"list: \" + list);\nSystem.out.println(\"size: \" + sub.size());\n```",
+      "text": "subList 取得後に元リストを構造変更した場合、次のコードはどうなるか。\n\n```java\nimport java.util.*;\nArrayList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3, 4));\nList<Integer> sub = list.subList(1, 3);\nlist.add(5);\nSystem.out.println(sub.size());\n```",
       "options": [
-        "sub: [2, 99, 4] / list: [1, 2, 99, 4, 5] / size: 3",
-        "sub: [2, 3, 4] / list: [1, 2, 3, 4, 5] / size: 3",
-        "sub: [2, 99, 4] / list: [1, 2, 3, 4, 5] / size: 4",
+        "2 が出力される",
+        "3 が出力される",
+        "実行時に ConcurrentModificationException が発生する",
         "コンパイルエラー"
       ],
-      "answer": 0,
-      "explanation": "subList() は view（元リストへの「窓」）を返す。sub.set(1, 99) は sub[1]=99 だが、元の list の対応インデックス [2]=99 も変更される。sub.size()=3（1〜4の範囲なので3要素）。結果: sub=[2,99,4], list=[1,2,99,4,5]。subList() の view セマンティクスが核（コピーでなく参照）。"
+      "answer": 2,
+      "explanation": "`subList` はコピーではなく元リストへの view。subList 作成後に元の list を `add` で構造変更すると、sub の期待する変更回数と元リストの状態がずれる。その後 `sub.size()` など sub を使おうとすると ConcurrentModificationException が発生する。"
     },
     {
       "id": "silver-085",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "record と通常クラスの `equals` の違いとして、次の出力はどれか。\n\n```java\nrecord Box(int value) { }\nclass Crate {\n    int value;\n    Crate(int value) { this.value = value; }\n}\nSystem.out.println(new Box(5).equals(new Box(5)));\nSystem.out.println(new Crate(5).equals(new Crate(5)));\n```",
+      "text": "record のコンパクトコンストラクタで値を正規化する。次の出力はどれか。\n\n```java\nrecord Range(int min, int max) {\n    public Range {\n        if (min > max) {\n            int tmp = min;\n            min = max;\n            max = tmp;\n        }\n    }\n}\nSystem.out.println(new Range(5, 2));\n```",
       "options": [
-        "true / true",
-        "true / false",
-        "false / true",
-        "false / false"
+        "Range[min=2, max=5]",
+        "Range[min=5, max=2]",
+        "Range(2, 5)",
+        "コンパイルエラー。record のコンポーネントは変更できない"
       ],
-      "answer": 1,
-      "explanation": "record はコンポーネントに基づく `equals`、`hashCode`、`toString` を自動生成するため、`new Box(5).equals(new Box(5))` は true。通常クラス `Crate` は `equals` をオーバーライドしていないので Object の参照比較が使われ、別インスタンス同士は false。record は Silver SE 17 の範囲。"
+      "answer": 0,
+      "explanation": "コンパクトコンストラクタでは、パラメータ min/max を検証・加工した後、末尾でコンポーネントフィールドへ自動代入される。min > max なので値を入れ替え、最終的に min=2、max=5。record の自動生成 toString は `Range[min=2, max=5]` の形式。"
     },
     {
       "id": "silver-086",
