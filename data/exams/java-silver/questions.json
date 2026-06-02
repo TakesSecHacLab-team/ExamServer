@@ -1371,6 +1371,34 @@
       ],
       "answer": 0,
       "explanation": "process(b)：byte は int に昇格 → int オーバーロード呼び出し → 5*2=10。process(10L)：long リテラル → long オーバーロード → 10*3=30。答：10:30。"
+    },
+    {
+      "id": "silver-099",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "try-with-resources と複数リソースの close() 呼び出し順。次のコードの出力はどれか。\n\n```java\nimport java.io.*;\nclass Manager implements AutoCloseable {\n    private String name;\n    Manager(String name) { this.name = name; }\n    public void test() { System.out.println(\"Using \" + name); }\n    @Override\n    public void close() { System.out.println(\"Close \" + name); }\n}\n\ntry (Manager m1 = new Manager(\"A\");\n     Manager m2 = new Manager(\"B\")) {\n    m1.test();\n    m2.test();\n}\n```",
+      "options": [
+        "Using A / Using B / Close A / Close B",
+        "Using A / Using B / Close B / Close A",
+        "Close A / Close B / Using A / Using B",
+        "Using B / Using A / Close B / Close A"
+      ],
+      "answer": 1,
+      "explanation": "try-with-resources で複数リソースは「逆順」でclose()が呼ばれる。m1, m2の順でopenされても、closeはm2 → m1（後入れ先出し）。出力：Using A → Using B → Close B → Close A。"
+    },
+    {
+      "id": "silver-100",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "アンボクシングと null の危険性。次のコードの実行結果はどれか。\n\n```java\nInteger x = null;\nInteger y = 5;\nint z;\ntry {\n    z = x + 1;\n    System.out.println(\"z = \" + z);\n} catch (NullPointerException e) {\n    System.out.println(\"x is null\");\n}\nint w = y;\nSystem.out.println(\"w = \" + w);\n```",
+      "options": [
+        "z = null / w = 5",
+        "x is null / w = 5",
+        "x is null / w = null",
+        "コンパイルエラー"
+      ],
+      "answer": 1,
+      "explanation": "Integer null + 1：null をint にアンボクシングしようとして NullPointerException 発生。catch で \"x is null\" 出力。Integer y = 5 は問題なくint wへ代入で5。"
     }
   ]
 }
