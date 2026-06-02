@@ -550,29 +550,29 @@
       "id": "silver-040",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "Stream の filter・map・count の連鎖と遅延評価。次のコードの出力はどれか。\n\n```java\nList<Integer> nums = List.of(3, 1, 4, 1, 5, 9, 2, 6);\nlong result = nums.stream()\n    .filter(n -> n > 3)\n    .map(n -> n * 2)\n    .count();\nSystem.out.println(result);\n```",
+      "text": "static 初期化ブロック + インスタンス初期化ブロックの実行順序。次のコードの出力はどれか。\n\n```java\nclass Order {\n    static {\n        System.out.println(\"S1\");\n    }\n    {\n        System.out.println(\"I1\");\n    }\n    Order() {\n        System.out.println(\"C1\");\n    }\n    static {\n        System.out.println(\"S2\");\n    }\n    {\n        System.out.println(\"I2\");\n    }\n}\nnew Order();\nnew Order();\n```",
       "options": [
-        "2",
-        "4",
-        "8",
-        "16"
+        "S1 S2 I1 I2 C1 I1 I2 C1",
+        "S1 I1 I2 C1 S2 I1 I2 C1",
+        "S1 S2 I1 C1 I2 I1 C1 I2",
+        "I1 I2 C1 S1 S2 I1 I2 C1"
       ],
-      "answer": 1,
-      "explanation": "filter(n > 3) は [4, 5, 9, 6] (4 要素)。map の結果は使用されない。count() はフィルタを通った要素数で 4。"
+      "answer": 0,
+      "explanation": "クラスロード時にすべての static ブロック（S1, S2）が順番に実行。その後、各インスタンス生成でインスタンス初期化ブロック（I1, I2）→ コンストラクタ（C1）。2 回目の new でも I1 I2 C1。計：S1 S2 I1 I2 C1 I1 I2 C1。"
     },
     {
       "id": "silver-041",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "Stream の map と reduce による累積計算。次のコードの出力はどれか。\n\n```java\nList<Integer> nums = List.of(1, 2, 3);\nint result = nums.stream()\n    .map(n -> n + 1)\n    .reduce(1, (a, b) -> a + b);\nSystem.out.println(result);\n```",
+      "text": "try-catch-finally + 戻り値の上書き。次のコードの出力はどれか。\n\n```java\nint getValue() {\n    try {\n        return 10;\n    } catch (Exception e) {\n        return 20;\n    } finally {\n        System.out.println(\"Finally\");\n    }\n}\nSystem.out.println(getValue());\n```",
       "options": [
-        "6",
-        "7",
-        "9",
-        "10"
+        "Finally 10 が出力される",
+        "Finally 20 が出力される",
+        "10 Finally が出力される",
+        "コンパイルエラー"
       ],
-      "answer": 3,
-      "explanation": "map(n + 1): [1, 2, 3] → [2, 3, 4]。reduce(1, +): 初期値 1 + 2 + 3 + 4 = 10。"
+      "answer": 0,
+      "explanation": "try で return 10 だが、finally は必ず実行。finally が System.out.println() を実行してから、10 が戻される。出力順：\"Finally\" → 10。"
     },
     {
       "id": "silver-042",
@@ -760,29 +760,29 @@
       "id": "silver-055",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "Stream の遅延評価と短絡終端操作。次のコードの出力はどれか。\n\n```java\nList<Integer> nums = List.of(1, 2, 3, 4, 5);\nboolean result = nums.stream()\n    .peek(n -> System.out.println(\"peek: \" + n))\n    .anyMatch(n -> n > 3);\nSystem.out.println(\"result: \" + result);\n```",
+      "text": "protected アクセスと異パッケージ継承の制約。次のコードで com.main.SubClass から protected フィールドにアクセスできるのはどれか。パッケージは異なる。\n\n```java\n// com.base パッケージ\nclass BaseClass {\n    protected int value = 100;\n    protected void method() { System.out.println(\"base\"); }\n}\n\n// com.main パッケージ\nclass SubClass extends BaseClass {\n    void test() {\n        // A: this.value\n        // B: this.method()\n        // C: new BaseClass().value\n        // D: new SubClass().method()\n    }\n}\n```",
       "options": [
-        "peek: 1 / peek: 2 / peek: 3 / peek: 4 / result: true",
-        "peek: 1 / peek: 2 / peek: 3 / result: true",
-        "peek: 4 / result: true",
-        "result: true（peek 出力なし）"
+        "A と B のみ",
+        "A, B, D のみ",
+        "A, B, C, D すべて",
+        "C と D のみ"
       ],
-      "answer": 0,
-      "explanation": "anyMatch(n > 3) は最初にマッチした要素で true を返す短絡操作。peek は 1, 2, 3, 4 をすべて出力（4 で短絡）。"
+      "answer": 1,
+      "explanation": "protected は同一パッケージ OR 継承関係。A（this.value）は OK（SubClass のインスタンス）。B（this.method()）は OK。C（new BaseClass()）は異パッケージの別クラスなので NG。D（new SubClass()）は自クラスなので OK。答：A, B, D。"
     },
     {
       "id": "silver-056",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "startsWith / endsWith / contains と正規表現 matches() の複合。次のコードの出力はどれか。\n\n```java\nString s = \"test@example.com\";\nboolean a = s.startsWith(\"test\");\nboolean b = s.contains(\"@\");\nboolean c = s.endsWith(\".com\");\nboolean d = s.matches(\".*@.*\\\\..*\");\nSystem.out.println(a && b && c && d);\n```",
+      "text": "ArrayList + Iterator の削除操作。次のコードの出力はどれか。\n\n```java\nList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));\nIterator<Integer> it = list.iterator();\nwhile (it.hasNext()) {\n    int val = it.next();\n    if (val == 3) {\n        it.remove();\n    }\n}\nSystem.out.println(list);\n```",
       "options": [
-        "false",
-        "true",
-        "コンパイルエラー",
-        "null"
+        "[1, 2, 3, 4, 5]",
+        "[1, 2, 4, 5]",
+        "[1, 2, 3, 4]",
+        "ConcurrentModificationException"
       ],
       "answer": 1,
-      "explanation": "a=true（\"test\" で始まる）、b=true（\"@\" を含む）、c=true（\".com\" で終わる）、d=true（正規表現マッチ）。全て true → true。"
+      "explanation": "Iterator の remove() は安全にリストから要素を削除。val == 3 で it.remove() を呼ぶと 3 が削除される。最終結果は [1, 2, 4, 5]。"
     },
     {
       "id": "silver-057",
@@ -1054,29 +1054,29 @@
       "id": "silver-076",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "Optional と map()・orElse() の連鎖。次のコードの出力はどれか。\n\n```java\nimport java.util.Optional;\nString str = null;\nOptional<String> opt = Optional.ofNullable(str);\nString result = opt\n    .map(s -> s.toUpperCase())\n    .orElse(null);\nboolean isPresent = opt.isPresent();\nSystem.out.println(isPresent + \":\" + result);\n```",
+      "text": "var キーワードの型推論と制約。次のうち var を使うとコンパイルエラーになる場所はどれか。",
       "options": [
-        "true:null",
-        "false:null",
-        "true:UPPERCASE",
-        "false:UPPERCASE"
+        "ローカル変数で初期化ありの場合 `var x = getValue();`",
+        "拡張 for ループのカウンタ `for (var s : list) {}`",
+        "メソッド戻り値型 `var method() { return 5; }`",
+        "try-with-resources `try (var br = new BufferedReader(...)) {}`"
       ],
-      "answer": 1,
-      "explanation": "ofNullable(null)=空Optional。isPresent()=false。map()=空Optionalなので実行されない。orElse(null)=null。"
+      "answer": 2,
+      "explanation": "var は戻り値型に使えない（API シグネチャが不明確になる）。ローカル・for・try-with-resources では型推論されるため OK。"
     },
     {
       "id": "silver-077",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "Optional.get() と NoSuchElementException。次のコードはどうなるか。\n\n```java\nimport java.util.Optional;\nOptional<Integer> empty = Optional.empty();\ntry {\n    int val = empty.get();\n} catch (Exception e) {\n    System.out.println(e.getClass().getSimpleName());\n}\n```",
+      "text": "enum + switch-case の実行順。次のコードの出力はどれか。\n\n```java\nenum Size { SMALL, MEDIUM, LARGE }\nSize sz = Size.MEDIUM;\nString result = switch (sz) {\n    case SMALL -> \"小\";\n    case MEDIUM -> { yield \"中\"; }\n    case LARGE -> \"大\";\n};\nSystem.out.println(result);\n```",
       "options": [
-        "NullPointerException が出力される",
-        "NoSuchElementException が出力される",
-        "RuntimeException が出力される",
-        "例外は発生しない（val=0）"
+        "小",
+        "中",
+        "大",
+        "コンパイルエラー"
       ],
       "answer": 1,
-      "explanation": "empty.get()=NoSuchElementException。java.util.NoSuchElementException（NPE ではない）。"
+      "explanation": "sz は MEDIUM → case MEDIUM で yield \"中\" を実行。result = \"中\"。出力は \"中\"。"
     },
     {
       "id": "silver-078",
@@ -1334,71 +1334,43 @@
       "id": "silver-096",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "Stream の filter・map・reduce の複合。次のコードの出力はどれか。\n\n```java\nimport java.util.stream.*;\nint result = Stream.of(1, 2, 3, 4, 5)\n    .filter(n -> n % 2 == 1)\n    .map(n -> n * n)\n    .reduce(0, Integer::sum);\nSystem.out.println(result);\n```",
+      "text": "コンストラクタチェーン + this() と super() の制約。次のコードはコンパイルできるか。\n\n```java\nclass Base {\n    Base(int x) { System.out.println(\"Base: \" + x); }\n}\nclass Derived extends Base {\n    Derived() {\n        this(10);\n    }\n    Derived(int y) {\n        super(y);\n        System.out.println(\"Derived: \" + y);\n    }\n}\nnew Derived();\n```",
       "options": [
-        "15",
-        "25",
-        "35",
-        "55"
+        "コンパイルできる。Derived() → this(10) → super(10)",
+        "コンパイルエラー。super() が明示的に呼ばれていない",
+        "コンパイルエラー。this() と super() を混在させられない",
+        "コンパイルできるが出力が \"Derived: 10\" のみ"
       ],
-      "answer": 2,
-      "explanation": "filter(奇数): 1,3,5。map(n*n): 1,9,25。reduce(初期値0, 加算): 0+1+9+25=35。"
+      "answer": 0,
+      "explanation": "Derived() で this(10) → Derived(int) で super(10) を呼び出す。正しいコンストラクタチェーン。出力は \"Base: 10\" → \"Derived: 10\"。"
     },
     {
       "id": "silver-097",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "Stream の filter・count。次のコードの出力はどれか。\n\n```java\nimport java.util.stream.*;\nlong cnt = Stream.of(\"a\", \"bb\", \"ccc\", \"d\")\n    .filter(s -> s.length() > 1)\n    .count();\nSystem.out.println(cnt);\n```",
+      "text": "String / StringBuilder の不変性と参照更新。次のコードの出力はどれか。\n\n```java\nString str = \"Start\";\nstr = str + \"-Middle\" + \"-End\";\nStringBuilder sb = new StringBuilder(\"Start\");\nsb.append(\"-Middle\").append(\"-End\");\nboolean b1 = str.equals(sb.toString());\nboolean b2 = str == sb.toString();\nSystem.out.println(b1 + \":\" + b2);\n```",
       "options": [
-        "1",
-        "2",
-        "3",
-        "4"
+        "true:true",
+        "true:false",
+        "false:true",
+        "false:false"
       ],
       "answer": 1,
-      "explanation": "length() > 1: \"bb\"(2)・\"ccc\"(3)。count=2。"
+      "explanation": "str と sb.toString() は内容が同じ \"Start-Middle-End\"。equals()=true（内容比較）。== は参照比較で false（毎回新しいオブジェクト）。"
     },
     {
       "id": "silver-098",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "Stream の遅延評価（終端操作がない場合）。次のコードで何が出力されるか。\n\n```java\nimport java.util.stream.*;\nList<Integer> list = Arrays.asList(10, 20, 30);\nlist.stream()\n    .filter(x -> {\n        System.out.println(\"check: \" + x);\n        return x > 15;\n    })\n    .peek(x -> System.out.println(\"peek: \" + x))\n    // 終端操作がない\n    ;\n```",
+      "text": "numeric promotion + overload 解決の複合。次のコードの出力はどれか。\n\n```java\nint process(int x) { return x * 2; }\nint process(long x) { return (int)(x * 3); }\nbyte b = 5;\nint r1 = process(b);\nint r2 = process(10L);\nSystem.out.println(r1 + \":\" + r2);\n```",
       "options": [
-        "check: 10 / check: 20 / check: 30",
-        "check: 20 / check: 30 / peek: 20 / peek: 30",
-        "何も出力されない",
-        "コンパイルエラー"
+        "10:30",
+        "15:30",
+        "10:20",
+        "15:20"
       ],
-      "answer": 2,
-      "explanation": "Stream は遅延評価。終端操作（forEach, collect, count など）がないと中間操作（filter, peek）は実行されない。"
-    },
-    {
-      "id": "silver-099",
-      "style": "oneshot",
-      "type": "single-choice",
-      "text": "例外の連鎖（exception chaining）。次のうち、正しい書き方はどれか。",
-      "options": [
-        "throw new RuntimeException(original.getMessage());",
-        "throw new RuntimeException(\"msg\", originalException);",
-        "throw new RuntimeException(); originalException.initCause(new RuntimeException());",
-        "例外の連鎖は Java ではサポートされていない"
-      ],
-      "answer": 1,
-      "explanation": "例外の連鎖は `new SomeException(\"message\", cause)` コンストラクタで Throwable を包む。getMessage() だけ渡すとスタックトレース情報が消える。"
-    },
-    {
-      "id": "silver-100",
-      "style": "oneshot",
-      "type": "single-choice",
-      "text": "Integer null のアンボクシングと NullPointerException。次のコードはどうなるか。\n\n```java\nInteger a = null;\nint b;\ntry {\n    b = a;  // null を int にアンボクシング\n    System.out.println(\"b: \" + b);\n} catch (NullPointerException e) {\n    System.out.println(\"NPE caught\");\n}\n```",
-      "options": [
-        "b: 0",
-        "b: -1",
-        "NPE caught",
-        "コンパイルエラー"
-      ],
-      "answer": 2,
-      "explanation": "Integer null のアンボクシング（a.intValue() 自動呼び出し）で NullPointerException。コンパイルは通るが実行時エラー。"
+      "answer": 0,
+      "explanation": "process(b)：byte は int に昇格 → int オーバーロード呼び出し → 5*2=10。process(10L)：long リテラル → long オーバーロード → 10*3=30。答：10:30。"
     }
   ]
 }
