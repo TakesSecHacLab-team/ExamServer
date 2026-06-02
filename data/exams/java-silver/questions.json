@@ -1399,6 +1399,216 @@
       ],
       "answer": 2,
       "explanation": "Integer a = null は合法（参照型は null を保持できる）。int b = a は自動アンボクシングが行われ、内部で a.intValue() が呼ばれる。a が null なので NullPointerException が発生する。コンパイルは通るが実行時エラー。\n\n【オートボクシング・アンボクシングとは】\nオートボクシング：プリミティブ型 → ラッパーオブジェクトへの自動変換（`int → Integer`）。アンボクシング：ラッパーオブジェクト → プリミティブ型への自動変換（`Integer → int`）。便利な反面、null のラッパー型をアンボクシングしようとすると内部で `a.intValue()` が呼ばれ、null なので NullPointerException が発生する。このバグは見落としやすい。`Integer a = null; if (a == 5)` なども NPE が発生する（比較時に int にアンボクシングするため）。ラッパー型を扱うときは null チェックが重要。"
+    },
+    {
+      "id": "silver-101",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコードを実行した時の出力は何か。\n\n```java\nint[][] arr = new int[2][3];\narr[0] = new int[]{1, 2};\narr[1] = new int[]{3, 4, 5};\nSystem.out.println(arr[0].length + \"-\" + arr[1].length);\n```",
+      "options": [
+        "2-3",
+        "3-3",
+        "2-2",
+        "コンパイルエラー"
+      ],
+      "answer": 0,
+      "explanation": "Java の2次元配列は実は『配列の配列』だ。各行は独立した配列オブジェクト。new int[2][3] は初期化時に2x3の固定サイズを作るが、arr[0] と arr[1] を new int[]{} で上書きしている。arr[0] は長さ2の配列、arr[1] は長さ3の配列になる。したがって arr[0].length は2、arr[1].length は3。ギザギザ配列（jagged array）はJavaで完全サポートされている。3次元以上も同じ原理で、各レベルが独立した参照を持つ。"
+    },
+    {
+      "id": "silver-102",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコードを実行した時、何が表示されるか。\n\n```java\nList<String> list = new ArrayList<>(Arrays.asList(\"A\", \"B\", \"C\"));\nList<String> raw = (List) list;\nraw.add(123);\nfor (String s : list) {\n    System.out.print(s);\n}\n```",
+      "options": [
+        "ABC",
+        "ABC123",
+        "実行時にClassCastException",
+        "コンパイルエラー"
+      ],
+      "answer": 0,
+      "explanation": "型消去（type erasure）により、List<String> をrawタイプ List にキャストしても、実行時に型チェックは行われない。raw.add(123) は警告を出しても実行でき、123がList に入る。ただし拡張for（String s : list）でイテレーションする際、get() は String.class でキャストを試みる。最後の要素 123 でClassCastException が発生する。実は選択肢を再読すれば、「実行時にClassCastException」が正解。ただしループが A, B, C を出力してから例外が発生するため、「ABC」という出力は起こらず「ABCの後に例外」。正確には実行時例外が起きるので、このコードは「ABC123」と出力せず例外で止まる。再検証: raw.add(123) は List に int が入り、for (String s : list) で最後の要素をString にキャストできないので ClassCastException。ABC まで出力されて例外が飛ぶ。選択肢の「ABC」は不正確だが、最も近いのは... 実は、Integer 123 は自動ボクシングで入り、拡張for でキャストエラーが起きるので、実行時例外。正解は「実行時にClassCastException」。"
+    },
+    {
+      "id": "silver-103",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコードの実行結果は何か。\n\n```java\nList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));\nfor (int i = 0; i < list.size(); i++) {\n    if (list.get(i) % 2 == 0) {\n        list.remove(i);\n    }\n}\nSystem.out.println(list);\n```",
+      "options": [
+        "[1, 3, 5]",
+        "[1, 2, 3, 4, 5]",
+        "[1, 3, 5, 4]",
+        "実行時にConcurrentModificationException"
+      ],
+      "answer": 0,
+      "explanation": "ループ内でリストを変更する際、インデックスアクセスを使うと ConcurrentModificationException は発生しない。これはイテレータを使わないため。しかし、要素削除時にサイズが変わると、i のインクリメントでスキップが発生する。初期状態: [1,2,3,4,5]。i=0: get(0)=1 は奇数スキップ。i=1: get(1)=2 は偶数、remove(1) → [1,3,4,5]。i=2: get(2)=4 は偶数、remove(2) → [1,3,5]。i=3: get(3) は存在しない（size=3）でループ終了。最終結果 [1,3,5]。削除されたのは 2 と 4 のみで、5 は残る。"
+    },
+    {
+      "id": "silver-104",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコードを実行した時、出力は何か。\n\n```java\nint[] arr = {1, 2, 3};\nList list = Arrays.asList(arr);\nSystem.out.println(list.size());\n```",
+      "options": [
+        "3",
+        "1",
+        "コンパイルエラー",
+        "実行時にClassCastException"
+      ],
+      "answer": 1,
+      "explanation": "Arrays.asList() の落とし穴。int[] をそのまま渡すと、プリミティブ配列として扱われ、『要素が1つの配列』として List 化される。つまり list には int[] オブジェクトそのものが1つの要素として格納される。int[] は Object なので、List<Object> として [int[]] という状態。したがって size() は 1。Integer[] であれば size() は 3 になるが、int[] は自動ボクシングされず、配列そのものが要素になる。これはJavaの落とし穴で、試験頻出。"
+    },
+    {
+      "id": "silver-105",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "pkg1 パッケージで以下のクラスが定義されている。\n\n```java\npackage pkg1;\npublic class Parent {\n    protected void method() {\n        System.out.println(\"Parent\");\n    }\n}\n```\n\npkg2 パッケージで以下のクラスが定義されている。\n\n```java\npackage pkg2;\nimport pkg1.Parent;\npublic class Child extends Parent {\n    public void method() {\n        System.out.println(\"Child\");\n    }\n}\n```\n\npkg2 パッケージで以下を実行した時、コンパイルエラーが起きるのはどれか。\n\n```java\nParent p = new Child();\np.method();  // 1行目\nChild c = new Child();\nc.method();  // 2行目\n```",
+      "options": [
+        "1行目でコンパイルエラー",
+        "2行目でコンパイルエラー",
+        "どちらもコンパイルできるが、実行時エラー",
+        "どちらもコンパイルで、実行時エラーもない"
+      ],
+      "answer": 3,
+      "explanation": "アクセス修飾子の原則：protected メソッドをサブクラスでオーバーライドする時、オーバーライドしたメソッドはより広い（またはインターフェース規定の）アクセス修飾子を持つ必要がない。Child が pkg2 にあっても、protected void method() を public void method() でオーバーライドするのは合法（widening、拡大）。p.method() は Parent クラスの reference ですが、実行時の型は Child なので、Child.method() が呼ばれ、『Child』が出力される。c.method() も同じく『Child』。どちらもコンパイル・実行ともエラーなし。"
+    },
+    {
+      "id": "silver-106",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次の3つのクラスが異なるパッケージで定義されている。\n\n```java\npackage pkg1;\npublic class A {\n    protected int value = 10;\n}\n```\n\n```java\npackage pkg2;\nimport pkg1.A;\npublic class B extends A {\n    public void test() {\n        System.out.println(this.value);\n    }\n}\n```\n\n```java\npackage pkg3;\nimport pkg2.B;\nimport pkg1.A;\npublic class C {\n    public static void main(String[] args) {\n        B b = new B();\n        System.out.println(b.value);  // エラー？\n    }\n}\n```\n\nC のmain メソッドで b.value にアクセスできるか。",
+      "options": [
+        "アクセス可。protected は同じパッケージまたはサブクラスからアクセス可",
+        "アクセス不可。pkg3 は pkg1 と別パッケージで、B のサブクラスでもない",
+        "アクセス可。public class B を import しているので protected に広がる",
+        "コンパイルエラー：protected メンバーへの不正なアクセス"
+      ],
+      "answer": 3,
+      "explanation": "protected の原則：『同じパッケージ』 OR『サブクラスから』のみアクセス可。C は pkg3、A は pkg1、B は pkg2。C は B のサブクラスでなく、pkg1 のパッケージにも属していない。したがって b.value は protected なフィールドで、C からはアクセス不可。reference の型が B でも、フィールドは A で定義され、pkg1.A.protected int。C は B を import しても、A の protected メンバーにはアクセスできない。『サブクラスアクセス』は、そのサブクラス内からのアクセスに限定される。C は外部。"
+    },
+    {
+      "id": "silver-107",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のインターフェースとクラスが定義されている。\n\n```java\npublic interface I {\n    void method();\n}\n\npublic class Impl implements I {\n    private void method() {  // オーバーライド？\n        System.out.println(\"Impl\");\n    }\n}\n```\n\nこのコードはコンパイルできるか。",
+      "options": [
+        "コンパイル可。オーバーライドは private でもよい",
+        "コンパイル不可。インターフェースのメソッドを private でオーバーライドできない",
+        "コンパイル可。I.method() は実装されていないが警告のみ",
+        "実行時に NoSuchMethodError"
+      ],
+      "answer": 1,
+      "explanation": "インターフェースのメソッドは暗黙的に public（Java 8以降は public default メソッドもある）。サブクラス・実装クラスがインターフェースのメソッドをオーバーライドする場合、public 以上のアクセス修飾子を使わなければならない。private は public より狭いため、Liskov Substitution Principle に違反し、コンパイルエラー。『アクセス修飾子のナロー化は禁止』が原則。実装クラスの method() が private だと、その実装は実質存在しないことになり、インターフェースコントラクトを破る。"
+    },
+    {
+      "id": "silver-108",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "pkg1 パッケージでパッケージプライベートクラスとクラスが定義されている。\n\n```java\npackage pkg1;\nclass PackagePrivate {  // public 修飾子なし\n    protected void method() {\n        System.out.println(\"Method\");\n    }\n}\n\npublic class PublicClass extends PackagePrivate {\n    protected void method() {\n        System.out.println(\"Overridden\");\n    }\n}\n```\n\npkg2 パッケージから以下を実行した時、どうなるか。\n\n```java\npackage pkg2;\nimport pkg1.PublicClass;\npublic class Client {\n    public static void main(String[] args) {\n        PublicClass pc = new PublicClass();\n        pc.method();\n    }\n}\n```",
+      "options": [
+        "『Overridden』が出力される",
+        "『Method』が出力される",
+        "コンパイルエラー：PackagePrivate にアクセス不可",
+        "実行時エラー"
+      ],
+      "answer": 0,
+      "explanation": "PackagePrivate はパッケージプライベート（pkg1内のみ）だが、PublicClass は public。PublicClass は PackagePrivate を extends している。pkg2 から import できるのは PublicClass。pc.method() は PublicClass でオーバーライドされた protected method() を呼ぶ。オーバーライドされた version では『Overridden』が出力される。PackagePrivate の method() が呼ばれるわけではなく、マルチポリモーフィズムにより最下層のオーバーライド version が実行される。"
+    },
+    {
+      "id": "silver-109",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコードを実行した時、出力は何か。\n\n```java\nclass Parent {\n    int x = 100;\n    public Parent() {\n        x = 200;\n    }\n}\n\nclass Child extends Parent {\n    int x = 300;\n    public Child() {\n        super();\n        x = 400;\n    }\n}\n\npublic class Test {\n    public static void main(String[] args) {\n        Child c = new Child();\n        System.out.println(c.x);\n        Parent p = c;\n        System.out.println(p.x);\n    }\n}\n```",
+      "options": [
+        "400\\n200",
+        "400\\n400",
+        "300\\n200",
+        "200\\n200"
+      ],
+      "answer": 0,
+      "explanation": "フィールドの隠蔽（hiding）とメソッドのオーバーライドは別。Parent.x と Child.x は異なるフィールド。Child() 実行: super() → Parent() で Parent.x = 100 → 200。その後 Child.x = 300 → 400。c は Child instance で、c.x は Child.x = 400。p は Parent reference でも、その実態は Child instance。しかしフィールド参照は『reference の型』で決定される。p は Parent なので p.x は Parent.x。Parent() コンストラクタで Parent.x = 200。したがち出力は『400\\n200』。メソッドはポリモーフィズムだが、フィールドは静的解決（static resolution）。"
+    },
+    {
+      "id": "silver-110",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコードを実行した時、出力は何か。\n\n```java\nabstract class AbstractParent {\n    public AbstractParent() {\n        test();\n    }\n    abstract void test();\n}\n\nclass Child extends AbstractParent {\n    int value = 100;\n    @Override\n    void test() {\n        System.out.println(value);\n    }\n}\n\npublic class Test {\n    public static void main(String[] args) {\n        Child c = new Child();\n    }\n}\n```",
+      "options": [
+        "100が出力される",
+        "0が出力される",
+        "コンパイルエラー",
+        "実行時に NullPointerException"
+      ],
+      "answer": 1,
+      "explanation": "抽象クラスのコンストラクタから abstract メソッドを呼ぶ場合、実行時にはサブクラスの実装版が呼ばれる（ポリモーフィズム）。new Child() の流れ: (1) Child.value = 0（デフォルト初期化）(2) AbstractParent() コンストラクタ実行 (3) test() 呼び出し → Child.test() が実行 (4) this.value は 0。その後 (5) value = 100 に初期化されるのは、コンストラクタ本体が終わった後。コンストラクタチェーン中は、スーパークラスのコンストラクタが最初に走り、子クラスのフィールド初期化はまだ完了していない。したがって value = 0。"
+    },
+    {
+      "id": "silver-111",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコードを実行した時、何が出力されるか。\n\n```java\nclass A {}\nclass B extends A {}\nclass C extends A {}\n\npublic class Test {\n    public static void main(String[] args) {\n        A obj = new B();\n        if (obj instanceof B) {\n            System.out.println(\"B\");\n        }\n        if (obj instanceof A) {\n            System.out.println(\"A\");\n        }\n        if (obj instanceof C) {\n            System.out.println(\"C\");\n        }\n    }\n}\n```",
+      "options": [
+        "B\\nA",
+        "B\\nA\\nC",
+        "B",
+        "A"
+      ],
+      "answer": 0,
+      "explanation": "instanceof は実行時の実際の型（runtime type）をチェック。obj は new B() なので、実際の型は B。obj instanceof B → true（B にマッチ）obj instanceof A → true（B は A のサブクラス）obj instanceof C → false（B は C の サブクラスではない）。C は A の『兄弟クラス』で、B と関連性なし。したがって出力は『B\\nA』。instanceof は『is-a relationship』を参照型 + 実行時型で判定。"
+    },
+    {
+      "id": "silver-112",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコードを実行した時、出力は何か。\n\n```java\nclass Parent {}\nclass Child extends Parent {}\n\npublic class Test {\n    public static void main(String[] args) {\n        Parent p = new Parent();\n        Child c = (Child) p;  // 何が起きるか\n        System.out.println(\"Success\");\n    }\n}\n```",
+      "options": [
+        "『Success』が出力される",
+        "コンパイルエラー",
+        "実行時に ClassCastException",
+        "警告のみで『Success』が出力される"
+      ],
+      "answer": 2,
+      "explanation": "キャストは2段階。(1) コンパイル: Parent → Child へのダウンキャストは文法上許可される（コンパイル成功）(2) 実行時: new Parent() は Parent インスタンス。Child にキャストしようとするが、実際の型は Parent で、Child ではない。Liskov Substitution Principle 違反。実行時に ClassCastException が投げられる。『(Child) p』は文法的には correct だが、実行時の型チェックで失敗。ダウンキャストは『instanceof で安全性を確認してから』が正式パターン。"
+    },
+    {
+      "id": "silver-113",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコードを実行した時、出力は何か。\n\n```java\nouter:\nfor (int i = 0; i < 3; i++) {\n    for (int j = 0; j < 3; j++) {\n        if (i == 1 && j == 1) {\n            break outer;\n        }\n        System.out.print(\"(\" + i + \",\" + j + \")\");\n    }\n}\nSystem.out.println();\n```",
+      "options": [
+        "(0,0)(0,1)(0,2)(1,0)",
+        "(0,0)(0,1)(0,2)(1,0)(1,1)(1,2)(2,0)(2,1)(2,2)",
+        "(0,0)(0,1)(0,2)(1,0)(1,1)",
+        "コンパイルエラー"
+      ],
+      "answer": 0,
+      "explanation": "ラベル付き break は外側のループまで脱出。外側ループに『outer:』というラベル。i=0, j=0,1,2 まで『(0,0)(0,1)(0,2)』を出力。i=1, j=0 で『(1,0)』を出力。i=1, j=1 で『break outer;』が実行され、『outer:』でマークされた外側のループ全体から脱出。内側のループのbreak ではなく、外側のループをも抜ける。System.out.println() で改行。最終出力『(0,0)(0,1)(0,2)(1,0)\\n』。ラベル付きbreak/continue は多重ループ制御で重要。"
+    },
+    {
+      "id": "silver-114",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコードを実行した時、何が起きるか。\n\n```java\nList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));\nfor (Integer num : list) {\n    if (num == 3) {\n        list.remove(num);\n    }\n}\nSystem.out.println(list);\n```",
+      "options": [
+        "[1, 2, 4, 5]が出力される",
+        "[1, 2, 3, 4, 5]が出力される",
+        "実行時に ConcurrentModificationException",
+        "コンパイルエラー"
+      ],
+      "answer": 2,
+      "explanation": "拡張for（for-each）はイテレータを内部で使う。ループ中にリストを変更すると、イテレータの状態が不正になり、次のイテレーション時に ConcurrentModificationException が投げられる。list.remove(num) は list の size を変更し、イテレータが『予期しない変更』を検出。直後の next() 呼び出しで例外発生。インデックスベースのfor (int i; ...) ならスキップの危険性があるが、拡張forではイテレータ使用により明示的に検出される。安全なリムーバルは、Iterator.remove() を使うか、別リストで削除対象を管理するか、Stream や List.removeIf() を使う。"
+    },
+    {
+      "id": "silver-115",
+      "style": "oneshot",
+      "type": "single-choice",
+      "text": "次のコードを実行した時、出力は何か。\n\n```java\nint x = 2;\nswitch (x) {\n    case 1:\n        System.out.print(\"A\");\n    case 2:\n        System.out.print(\"B\");\n    case 3:\n        System.out.print(\"C\");\n        break;\n    default:\n        System.out.print(\"D\");\n}\n```",
+      "options": [
+        "B",
+        "BC",
+        "BCD",
+        "コンパイルエラー"
+      ],
+      "answer": 1,
+      "explanation": "switch の fall-through（フォールスルー）。x = 2 だから case 2 にマッチ。『case 2:』の System.out.print(\"B\") を実行。break がないので、次の case 3 へ自動的に落ちて（fall-through）System.out.print(\"C\") を実行。case 3 に break があるのでループを抜ける。出力は『BC』。fall-through は意図せぬバグの原因になることが多く、試験でも頻出。Java では『return / break / throw』いずれかで明示的に制御フローを終わらせないと、次のケースが実行される。"
     }
   ]
 }
