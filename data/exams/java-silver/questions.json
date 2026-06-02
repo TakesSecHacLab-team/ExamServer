@@ -108,8 +108,8 @@
       "4 8 8 oWorld",
       "5 8 7 World"
     ],
-    "answer": 0,
-    "explanation": "text=\"HelloWorld\"。idx1=indexOf('o')=4（位置4の'o'）。idx2=lastIndexOf('o')=7（位置7の'o'）。idx3=indexOf('o', 5)=7（位置5以降の最初の'o'）。substring(4, 8)は [4,8) なので \"oWor\" に見えるが、実は \"oWor\"... あ、修正: idx1=4, idx2+1=8 で substring(4,8) なので位置4,5,6,7の文字=\"oWor\"。選択肢「oWorld」は境界値の違い。実際には「4 7 7 oWor」だが、仕様確認して選択肢に合わせる場合もある。試験での正確性。"
+    "answer": 1,
+    "explanation": "text=\"HelloWorld\"。idx1=indexOf('o')=4。idx2=lastIndexOf('o')=7。idx3=indexOf('o', idx1+1)=indexOf('o',5)=7（位置5以降で最初のo）。sub=substring(idx1, idx2+1)=substring(4,8)=[4,8)の4文字→\"oWor\"。【罠】选択肢0の\"oWorld\"はsubstring(4,10)相当で8文字だが、idx2+1=8なので正しくはsubstring(4,8)=4文字。Stringのsubstring(a,b)はa以上b未満の半開区間が仕様。"
   },
   {
     "id": "silver-009",
@@ -145,13 +145,13 @@
     "type": "single-choice",
     "text": "static 初期化ブロック・インスタンス初期化ブロック・コンストラクタの実行順。複数オブジェクト生成時。\n\n```java\nclass Order {\n    static int count = 0;\n    static { System.out.println(\"S1\"); count++; }\n    int id = ++count;\n    { System.out.println(\"I\" + id); }\n    static { System.out.println(\"S2\"); count++; }\n    Order() { System.out.println(\"C\" + id); }\n}\nOrder o1 = new Order();\nOrder o2 = new Order();\n```",
     "options": [
+      "S1 S2 I3 C3 I4 C4",
       "S1 S2 I1 C1 I2 C2",
-      "S1 I1 C1 S2 I2 C2",
-      "S1 S2 I2 C2 I2 C2",
-      "I1 C1 I2 C2（static ブロックはクラスロード時実行）"
+      "S1 I3 C3 S2 I4 C4",
+      "S1 S2 I1 C1 I3 C3"
     ],
     "answer": 0,
-    "explanation": "クラスロード時: static ブロックをファイル順に実行 → \"S1\"（count=1）、\"S2\"（count=2）。o1 = new Order(): 初期化ブロック → id=++count=3、\"I3\"出力 → コンストラクタ → \"C3\"出力。o2 では id=4、\"I4\"「C4」出力。選択肢が id=1,2 となっているのは仕様検証用。実際の出力「S1 S2 I3 C3 I4 C4」に最も近い選択肢は (0)。"
+    "explanation": "クラスロード時にstaticブロックをファイル順で全て実行: S1（count=1）→ S2（count=2）。o1=new Order(): id=++count=3 → インスタンス初期化子\"I3\" → コンストラクタ\"C3\"。o2=new Order(): id=++count=4 → \"I4\" → \"C4\"。【罠】選択肢1はstaticブロックがcount=0から始まるとして id=1,2 と誤認。staticブロックは2つありcount=2まで進んでからインスタンス生成開始。【仕様】staticブロックは宣言順に1回だけ、クラスロード時に実行。"
   },
   {
     "id": "silver-012",
@@ -486,8 +486,8 @@
       "SA IA CA SB IB CB IC CC",
       "SA SB IA CA IB CB IC CC"
     ],
-    "answer": 0,
-    "explanation": "【実行順序の仕様：Class Initialization → Instance Creation】ステップ1: クラスロード時にstatic ブロック実行。A（SA）→ B（SB）。ステップ2: new C()でC のインスタンス初期化開始。ステップ3: super()→ B()→ super()→ A()へ遡上。A()実行時：IA、CA。B()実行時：IB、CB。ステップ4: C()の初期化ブロックIC、コンストラクタCC。最終順序：SA SB IA IB IC CA CB CC。【Java Language Specification】継承チェーンでは親の初期化→子の初期化"
+    "answer": 3,
+    "explanation": "【実行順序の仕様: Class Initialization → Instance Creation】Step1: クラスロード時にstaticブロック実行(親→子)。A: SA → B: SB（Cにstaticなし）。Step2: new C() → C()コンストラクタ開始 → super()でB() → super()でA()へ遡上。A()実行: インスタンス初期化子IA → コンストラクタ本体CA。B()に戻る: インスタンス初期化子IB → コンストラクタ本体CB。C()に戻る: インスタンス初期化子IC → コンストラクタ本体CC。最終順序: SA SB IA CA IB CB IC CC。【罠】選択肢0はIA CA IB CBの間にICを挟む誤り。インスタンス初期化子はそのコンストラクタ直前に実行される。【JLS仕様】各コンストラクタはsuper()返却後、自クラスのインスタンス初期化子を実行してから本体を実行。"
   },
   {
     "id": "silver-036",
@@ -962,8 +962,8 @@
       "false/true/true / 2",
       "true/false/true / 3"
     ],
-    "answer": 0,
-    "explanation": "Step1: cache.put(\"key1\",100) → prev=null（初回）→ b1=true。Step2: cache.put(\"key1\",200) → x=100（古い値）→ b2=true。Step3: cache.put(\"key2\",150) → y=null（初回）→ (y==150)はfalse。Step4: cache.put(\"key2\",150) → z=150（上書き）→ (z==150)はtrue。最終: {key1:200, key2:150}のサイズ=2。前のput()は「古い値」を返すこと（Hashmap#put仕様）が核。"
+    "answer": 1,
+    "explanation": "Step1: cache.put(\"key1\",100) → prev=null（初回）→ b1=(null==null)=true。Step2: cache.put(\"key1\",200) → x=Integer(100) → b2=(x==100)はunboxingでtrue（100は整数リテラルとInteger比較）。Step3: cache.put(\"key2\",150) → y=null（初回）→ (y==150)はfalse（使用しない）。Step4: cache.put(\"key2\",150) → z=Integer(150)（古い値150を返す）→ (z==150)はIntegerとintの比較 → unboxingで150==150=true。最終出力: \"true/true/true\" / size=2。【罠】選択肢0は(z==150)=falseだが、Integer==intはunboxingされる仕様。Integer同士のz==yならfalse（150はキャッシュ範囲外）。【仕様】プリミティブとの比較では必ずunboxingが発生。"
   },
   {
     "id": "silver-070",
@@ -1137,7 +1137,7 @@
     "id": "silver-082",
     "style": "oneshot",
     "type": "single-choice",
-    "text": "String での indexOf() / lastIndexOf() と部分文字列の位置追跡。次のコードの出力はどれか。\n\n```java\nString text = \"abracadabra\";\nint idx1 = text.indexOf(\"ab\");  // 最初の \"ab\"\nint idx2 = text.lastIndexOf(\"ab\");  // 最後の \"ab\"\nint idx3 = text.indexOf(\"ra\");  // 最初の \"ra\"\nint idx4 = text.indexOf(\"ra\", idx1 + 2);  // idx1+2 から開始して \"ra\" を探す\nSystem.out.println(idx1 + \":\" + idx2 + \":\" + idx3 + \":\" + idx4);\n```",
+    "text": "String での indexOf() / lastIndexOf() と部分文字列の位置追跡。次のコードの出力はどれか。\n\n```java\nString text = \"abracadabra\";\nint idx1 = text.indexOf(\"ab\");  // 最初の \"ab\"\nint idx2 = text.lastIndexOf(\"ab\");  // 最後の \"ab\"\nint idx3 = text.indexOf(\"ra\");  // 最初の \"ra\"\nint idx4 = text.indexOf(\"ra\", idx3 + 2);  // idx3+2 から開始して \"ra\" を探す\nSystem.out.println(idx1 + \":\" + idx2 + \":\" + idx3 + \":\" + idx4);\n```",
     "options": [
       "0:7:2:9",
       "0:8:2:9",
@@ -1145,7 +1145,7 @@
       "0:7:2:5"
     ],
     "answer": 0,
-    "explanation": "\"abracadabra\" で: indexOf(\"ab\")=0（位置0）。lastIndexOf(\"ab\")=7（位置7）。indexOf(\"ra\")=2（位置2）。indexOf(\"ra\", 2)=位置2から\"ra\"を探すと位置2（即座）... ではなく次の\"ra\"は位置9（\"abra\"）。答: 0:7:2:9。String メソッドの部分検索開始位置パラメータの挙動が核。"
+    "explanation": "abracadabra の構造: a(0)b(1)r(2)a(3)c(4)a(5)d(6)a(7)b(8)r(9)a(10)。idx1=indexOf(\"ab\")=0（位置0-1）。idx2=lastIndexOf(\"ab\")=7（位置7-8）。idx3=indexOf(\"ra\")=2（位置2-3）。idx4=indexOf(\"ra\", idx3+2)=indexOf(\"ra\", 4): 位置4以降でraを探す → 位置9（r(9)a(10)）。最終出力: \"0:7:2:9\"。【罠】選択肢1はlastIndexOf(\"ab\")=8と誤認。位置8はbなのでabの開始は7。【仕様】indexOf(str, fromIndex)はfromIndex以降で最初にstrが始まる位置を返す。"
   },
   {
     "id": "silver-083",
