@@ -214,15 +214,15 @@
       "id": "silver-016",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "複数の catch ブロック。例外型の継承関係と順序。catch の型チェック。\n\n```java\ntry {\n    // ...\n} catch (FileNotFoundException e) {      // (1) IOException のサブクラス\n    System.out.println(\"FNF\");\n} catch (IOException e) {                  // (2)\n    System.out.println(\"IO\");\n} catch (Exception e) {                    // (3)\n    System.out.println(\"Exc\");\n}\n```",
+      "text": "複数の catch ブロック。例外型の継承関係と順序。次のコードの出力はどれか。\n\n```java\nimport java.io.*;\n\nvoid read() throws IOException {\n    throw new FileNotFoundException();\n}\ntry {\n    read();\n} catch (FileNotFoundException e) {\n    System.out.println(\"FNF\");\n} catch (IOException e) {\n    System.out.println(\"IO\");\n} catch (Exception e) {\n    System.out.println(\"Exc\");\n}\n```",
       "options": [
-        "順序の問題なし。すべて正しい",
-        "この順序が正しい。具体的な例外から抽象的な例外へ",
-        "(2) を先に書くと (1) が unreachable に成る",
-        "(3) が最初に来なければ他の catch は実行されない"
+        "FNF が出力される",
+        "IO が出力される",
+        "Exc が出力される",
+        "コンパイルエラー。IOException の catch が先でなければならない"
       ],
-      "answer": 1,
-      "explanation": "catch は上から順に型をチェック。FileNotFoundException ⊂ IOException ⊂ Exception の継承関係。(2) を先に書くと FileNotFoundException は (2) で catch されて (1) が unreachable エラーになる。正しい順は「具体的→抽象的」。この例は (1)→(2)→(3) で正しい。"
+      "answer": 0,
+      "explanation": "`read()` の宣言は `throws IOException` なので、IOException 系の例外が try から送出され得る。実際に投げている実体は FileNotFoundException。catch は上から順に評価され、FileNotFoundException は最初の catch に一致するため `FNF` が出力される。FileNotFoundException は IOException のサブクラスなので、IOException を先に書くと FileNotFoundException の catch が到達不能になりコンパイルエラー。"
     },
     {
       "id": "silver-017",
@@ -284,7 +284,7 @@
       "id": "silver-021",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "protected アクセス修飾子と異パッケージ継承。スコープの正確な理解。\n\n```java\n// package a\npublic class Parent {\n    protected int secret = 100;\n}\n\n// package b\nimport a.Parent;\npublic class Child extends Parent {\n    void show() {\n        System.out.println(secret);             // (1) this.secret\n        Parent p = new Parent();\n        System.out.println(p.secret);           // (2) Parent インスタンス\n    }\n}\n```",
+      "text": "protected アクセス修飾子と異パッケージ継承。スコープの正確な理解。\n\n```java\n// package a, Parent.java\npublic class Parent {\n    protected int secret = 100;\n}\n\n// package b, Child.java\nimport a.Parent;\npublic class Child extends Parent {\n    void show() {\n        System.out.println(secret);             // (1) this.secret\n        Parent p = new Parent();\n        System.out.println(p.secret);           // (2) Parent インスタンス\n    }\n}\n```",
       "options": [
         "コンパイル可。(1)(2) とも OK。protected は継承で visible",
         "コンパイルエラー。(2) で p.secret にアクセス不可",
@@ -594,13 +594,13 @@
       "type": "single-choice",
       "text": "instanceofパターンマッチングのスコープと型キャスト自動化。次のコードの出力はどれか。\n\n```java\nObject obj = new String(\"Hello\");\nif (obj instanceof String s) {\n    System.out.println(s.length());\n    System.out.println(s.toUpperCase());\n} else {\n    System.out.println(0);\n}\nSystem.out.println(s);  // s はここでアクセス可能か？\n```",
       "options": [
-        "5, HELLO, s が出力される",
-        "5, HELLO, コンパイルエラー（スコープ外）",
-        "5, HELLO, null",
-        "コンパイルエラー（s の定義）"
+        "5 と HELLO が出力される",
+        "コンパイルエラー。if ブロック外の s はスコープ外",
+        "0 が出力される",
+        "実行時に NullPointerException が発生する"
       ],
       "answer": 1,
-      "explanation": "【instanceofパターンマッチングのスコープ】ステップ1: obj instanceof String s→String型判定と自動キャスト、変数sに束縛。ステップ2: ifブロック内でsはアクセス可能→s.length()=5, s.toUpperCase()=\"HELLO\"。ステップ3: ifブロック外（elseブロック含む）ではsはスコープ外→アクセス不可。ステップ4: System.out.println(s)はifブロック外なので→コンパイルエラー。【Java仕様】パターン変数のscopeは宣言されたブロック内に限定される（controlflowanalysis）"
+      "explanation": "`obj instanceof String s` が true の場合、if ブロック内では s を String として使える。しかしパターン変数 s のスコープは、このコードでは if ブロック内に限られる。最後の `System.out.println(s)` は if ブロック外なので、変数 s を解決できずコンパイルエラー。コンパイルエラーなので、5 や HELLO が実際に出力されるわけではない。"
     },
     {
       "id": "silver-044",
@@ -774,7 +774,7 @@
       "id": "silver-056",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "Iteratorの安全な削除とlist.remove()の副作用。次のコードの出力はどれか。\n\n```java\nList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));\nIterator<Integer> it = list.iterator();\nwhile (it.hasNext()) {\n    int val = it.next();\n    if (val % 2 == 0) {\n        it.remove();  // Iterator の remove()\n    }\n}\nSystem.out.println(list);\n```",
+      "text": "Iteratorの安全な削除とlist.remove()の副作用。次のコードの出力はどれか。\n\n```java\nimport java.util.*;\nList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));\nIterator<Integer> it = list.iterator();\nwhile (it.hasNext()) {\n    int val = it.next();\n    if (val % 2 == 0) {\n        it.remove();  // Iterator の remove()\n    }\n}\nSystem.out.println(list);\n```",
       "options": [
         "[1, 2, 3, 4, 5]",
         "[1, 3, 5]",
@@ -1362,7 +1362,7 @@
       "id": "silver-098",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "var が使えない宣言と、使える宣言の型推論を見分ける。次のコードについて正しい説明はどれか。\n\n```java\nA: var a = 10;\nB: var b = (String) null;\nC: var c = null;\nD: for (var s : new String[] {\"a\", \"b\"}) {\n       System.out.print(s);\n   }\nE: var e = new int[] {1, 2};\nF: var f = new StringBuilder(\"x\");\n```",
+      "text": "var が使えない宣言と、使える宣言の型推論を見分ける。次のコードについて正しい説明はどれか。\n\n```java\n// A\nvar a = 10;\n// B\nvar b = (String) null;\n// C\nvar c = null;\n// D\nfor (var s : new String[] {\"a\", \"b\"}) {\n    System.out.print(s);\n}\n// E\nvar e = new int[] {1, 2};\n// F\nvar f = new StringBuilder(\"x\");\n```",
       "options": [
         "C のみコンパイルエラー",
         "B と C がコンパイルエラー",
@@ -1370,13 +1370,13 @@
         "すべてコンパイルできる"
       ],
       "answer": 0,
-      "explanation": "var は右辺から型推論できるローカル変数宣言で使える。A は int、B はキャストにより String、D は拡張 for の要素型から String、E は int[]、F は StringBuilder と推論できる。C の null 単独は具体的な型情報がないため推論できずコンパイルエラー。"
+      "explanation": "var は右辺から型推論できるローカル変数宣言で使える。A は int、B はキャストにより String、D は拡張 for の要素型から String、E は int[]、F は StringBuilder と推論できる。C の null 単独は具体的な型情報がないため推論できずコンパイルエラー。A/B/C の表記は Java ラベルではなくコメントによる設問番号である点にも注意。"
     },
     {
       "id": "silver-099",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "アクセス修飾子（package-private と protected）の継承時の可視性。次のコードはコンパイルできるか（別パッケージ）。\n\n```java\n// pkg1:\npublic class Parent {\n    protected int x = 10;\n    int y = 20;  // package-private\n}\n\n// pkg2 (別パッケージ):\npublic class Child extends Parent {\n    void test() {\n        System.out.println(x);  // protected は継承で OK\n        System.out.println(y);  // package-private は別パッケージで見えない → コンパイルエラー\n    }\n}\n```",
+      "text": "アクセス修飾子（package-private と protected）の継承時の可視性。次のコードはコンパイルできるか（別パッケージ）。\n\n```java\n// pkg1, Parent.java\npublic class Parent {\n    protected int x = 10;\n    int y = 20;  // package-private\n}\n\n// pkg2, Child.java（別パッケージ）:\npublic class Child extends Parent {\n    void test() {\n        System.out.println(x);  // protected は継承で OK\n        System.out.println(y);  // package-private は別パッケージで見えない → コンパイルエラー\n    }\n}\n```",
       "options": [
         "コンパイルできる。両方見える",
         "コンパイルエラー。y は package-private なので別パッケージで見えない",
