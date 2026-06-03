@@ -12,7 +12,7 @@
         "red:0 / 1:RED:blue"
       ],
       "answer": 0,
-      "explanation": "args と copy は同じ配列を参照する。三項演算子は条件が true なので pick(copy, n++) を評価し、引数 i には 0 が渡ったあと n は 1 になる。pick 内の s は変更前の a[0] である red を保持し、その後 a[0] は RED に置き換わる。i++ はローカル変数 i だけを 1 にするため戻り値は red:1。String 自体は不変だが配列要素の参照代入は args に反映される。"
+      "explanation": "args と copy は同じ配列を参照する。三項演算子は条件が true なので pick(copy, n++) を評価し、引数 i には 0 が渡ったあと n は 1 になる。pick 内の s は変更前の a[0] である red を保持し、その後 a[0] は RED に置き換わる。i++ はローカル変数 i だけを 1 にするため戻り値は red:1。String 自体は不変だが配列要素の参照代入は args に反映される。 ここでの誤答は、`local.toUpperCase()` が元の String や配列要素を変更すると考えるもの、または `n++` の更新が pick 内の i にも影響すると考えるもの。String の不変性と、プリミティブ引数は値渡しである点を分けて追う必要がある。"
     },
     {
       "id": "silver-002",
@@ -40,7 +40,7 @@
         "コンパイルエラー。var では配列型を受け取れない"
       ],
       "answer": 0,
-      "explanation": "ref の実体は A[] なので (A[]) ref は成功し、var same の型は A[] と推論される。A[] には C インスタンスを格納できるため ArrayStoreException は起きない。その後 data[0] の実体は C になっているため、B へのダウンキャストで ClassCastException が発生する。catch では data[0].id() が動的ディスパッチで C を返す。"
+      "explanation": "ref の実体は A[] なので (A[]) ref は成功し、var same の型は A[] と推論される。A[] には C インスタンスを格納できるため ArrayStoreException は起きない。その後 data[0] の実体は C になっているため、B へのダウンキャストで ClassCastException が発生する。catch では data[0].id() が動的ディスパッチで C を返す。 `array` を選ぶ誤りは、A[] に C を格納できることを見落としている。`B` を選ぶ誤りは、same[0] への代入で data[0] の実体が B から C に変わっている点を追えていない。"
     },
     {
       "id": "silver-004",
@@ -68,7 +68,7 @@
         "3edc / false"
       ],
       "answer": 0,
-      "explanation": "a と b は同じ StringBuilder。substring(1,4) は bcd という String を返すだけで元は変えない。delete(0,2) で abcde は cde、append(3) で cde3、reverse で 3edc になり、その同じ参照が c。c.substring(1,3) は ed。a も同じ可変オブジェクトなので append(ed) により 3edced。edit は同じ StringBuilder を返すため b == c は true。"
+      "explanation": "a と b は同じ StringBuilder。substring(1,4) は bcd という String を返すだけで元は変えない。delete(0,2) で abcde は cde、append(3) で cde3、reverse で 3edc になり、その同じ参照が c。c.substring(1,3) は ed。a も同じ可変オブジェクトなので append(ed) により 3edced。edit は同じ StringBuilder を返すため b == c は true。 `3edcde` は、substring の範囲や append される文字列を取り違えた誤答。`ed` は c の現在状態 `3edc` から取り出されるので、最後は `3edc` + `ed` になる。"
     },
     {
       "id": "silver-006",
@@ -82,7 +82,7 @@
         "コンパイルエラー。b += s は不可"
       ],
       "answer": 0,
-      "explanation": "a[0] += ++s では s が 2 になり、a[0] は 129。配列要素は int なので丸め込みはない。b += s は複合代入なので暗黙に byte へキャストされ、127 + 2 は byte として -127 になる。式 x では b++ が -127 を返して b は -126、a[0]-- が 129 を返して a[0] は 128、--a[1] は 0 を返す。合計は -127 + 129 + 0 = 2。"
+      "explanation": "a[0] += ++s では s が 2 になり、a[0] は 129。配列要素は int なので丸め込みはない。b += s は複合代入なので暗黙に byte へキャストされ、127 + 2 は byte として -127 になる。式 x では b++ が -127 を返して b は -126、a[0]-- が 129 を返して a[0] は 128、--a[1] は 0 を返す。合計は -127 + 129 + 0 = 2。 大きな値の選択肢は、byte への複合代入で丸め込まれる点を落としている。コンパイルエラーを選ぶ誤りは、`b = b + s` と `b += s` を同じに扱っている。複合代入は暗黙のキャストを含む。"
     },
     {
       "id": "silver-007",
@@ -96,7 +96,7 @@
         "コンパイルエラー。switch 式ではブロックを使えない"
       ],
       "answer": 0,
-      "explanation": "switch のセレクタは n++ なので判定値は 2、評価後の n は 3。case 2 のブロックに入り、sb.append(n) で A3 になる。その後 reverse して 3A になり、その文字列を yield する。StringBuilder 自体も reverse 済みなので、r も sb も 3A。switch 式の矢印ラベルは fall-through しない。"
+      "explanation": "switch のセレクタは n++ なので判定値は 2、評価後の n は 3。case 2 のブロックに入り、sb.append(n) で A3 になる。その後 reverse して 3A になり、その文字列を yield する。StringBuilder 自体も reverse 済みなので、r も sb も 3A。switch 式の矢印ラベルは fall-through しない。 `A3` 系の誤答は、`reverse()` が戻り値だけでなく StringBuilder 本体も反転することを見落としている。switch 式のブロックでは `yield` で値を返せるので、ブロック使用自体はコンパイルエラーではない。"
     },
     {
       "id": "silver-008",
@@ -110,7 +110,7 @@
         "ABBCD"
       ],
       "answer": 1,
-      "explanation": "i=0 では case 0 に入り A を追加し、break がないので case 1 に落ちて B を追加、continue で次のループへ進む。i=1 では case 1 から B を追加して continue。i=2 では case 2 で C を追加し、break outer で外側 for 全体を抜ける。switch の後の D は一度も実行されないため ABBC。"
+      "explanation": "i=0 では case 0 に入り A を追加し、break がないので case 1 に落ちて B を追加、continue で次のループへ進む。i=1 では case 1 から B を追加して continue。i=2 では case 2 で C を追加し、break outer で外側 for 全体を抜ける。switch の後の D は一度も実行されないため ABBC。 `ABC` は i=1 のループを落とした誤答、`D` を含む選択肢は continue と labeled break の位置を誤読したもの。case 0 から case 1 への fall-through と、case 1 の continue が鍵。"
     },
     {
       "id": "silver-009",
@@ -124,7 +124,7 @@
         "コンパイルエラー。n は || の右辺では使えない"
       ],
       "answer": 0,
-      "explanation": "最初の if では obj は String なので s が導入され、短絡せず s.length() が 6 を代入する。ブロック内で obj を Integer へ再代入しても、既に導入された s はそのブロック内で有効なので SILVER を出力する。次の if は obj instanceof Integer n が true なので || 右辺は評価されず len++ は実行されない。len は 6 のまま、obj の実体型は Integer。"
+      "explanation": "最初の if では obj は String なので s が導入され、短絡せず s.length() が 6 を代入する。ブロック内で obj を Integer へ再代入しても、既に導入された s はそのブロック内で有効なので SILVER を出力する。次の if は obj instanceof Integer n が true なので || 右辺は評価されず len++ は実行されない。len は 6 のまま、obj の実体型は Integer。 コンパイルエラー系の誤答は、パターン変数が元変数 obj と完全に連動すると考えている。導入済みの s/t は、それぞれのスコープ内で別のローカル変数として扱われるため、obj の再代入だけで無効にはならない。"
     },
     {
       "id": "silver-010",
@@ -138,7 +138,7 @@
         "9:11 / 1:3:false"
       ],
       "answer": 0,
-      "explanation": "a.clone() は外側配列だけの浅いコピーなので b[0] と a[0] は同じ row を指す。b[0][0]=9 は a[0][0] にも反映される。拡張 for の r は各行参照のコピーであり、null のとき r に新配列を代入しても a[2] は null のまま。非 null 行では配列の中身を変更するので a[0][1] は 2+9=11、a[1][1] は 2+1=3。"
+      "explanation": "a.clone() は外側配列だけの浅いコピーなので b[0] と a[0] は同じ row を指す。b[0][0]=9 は a[0][0] にも反映される。拡張 for の r は各行参照のコピーであり、null のとき r に新配列を代入しても a[2] は null のまま。非 null 行では配列の中身を変更するので a[0][1] は 2+9=11、a[1][1] は 2+1=3。 `a[2] == false` 系の誤答は、拡張 for のループ変数に新しい配列を代入しても元配列の要素は差し替わらない点を見落としている。clone も外側だけの浅いコピーなので、行配列の共有は残る。"
     },
     {
       "id": "silver-011",
@@ -152,7 +152,7 @@
         "true:1:null"
       ],
       "answer": 0,
-      "explanation": "remove(x) は引数が Integer なので remove(Object) が選ばれ、最初の 1 を削除して true を返す。残りは [2, 1, null]。remove(y) は int なので remove(int index) が選ばれ、index 1 の要素 1 を削除してその値を返す。残りは [2, null]。list.get(1) は null で、int へ代入する際にアンボクシングされ NullPointerException になる。"
+      "explanation": "remove(x) は引数が Integer なので remove(Object) が選ばれ、最初の 1 を削除して true を返す。残りは [2, 1, null]。remove(y) は int なので remove(int index) が選ばれ、index 1 の要素 1 を削除してその値を返す。残りは [2, null]。list.get(1) は null で、int へ代入する際にアンボクシングされ NullPointerException になる。 `true:2` のような誤答は、2回目の remove も値削除だと思い込んでいる。`Integer x` と `int y` で overload 解決が変わるため、同じ数値 1 でも呼ばれる remove が異なる。"
     },
     {
       "id": "silver-012",
@@ -166,7 +166,7 @@
         "UnsupportedOperationException が捕捉されず終了する"
       ],
       "answer": 0,
-      "explanation": "Arrays.asList が返すリストは固定長だが、元配列を背後に持つ。arr[1] = B は list.get(1) にも反映される。list.set(2, aB) は要素置換なので可能で、arr[2] も aB になる。list.add はサイズ変更なので UnsupportedOperationException。catch 内で copy に list.get(2) を追加する。copy は作成時点の [a,b,c] を独立して保持しているため、最後は [a,b,c,aB]。"
+      "explanation": "Arrays.asList が返すリストは固定長だが、元配列を背後に持つ。arr[1] = B は list.get(1) にも反映される。list.set(2, aB) は要素置換なので可能で、arr[2] も aB になる。list.add はサイズ変更なので UnsupportedOperationException。catch 内で copy に list.get(2) を追加する。copy は作成時点の [a,b,c] を独立して保持しているため、最後は [a,b,c,aB]。 `[a, B, c]` 系の誤答は、Arrays.asList のリストが元配列と要素を共有する点を落としている。一方で copy は new ArrayList による独立コピーなので、後から fixed 側を変更しても既存要素は変わらない。"
     },
     {
       "id": "silver-013",
@@ -180,7 +180,7 @@
         "broken:[bb, dd]"
       ],
       "answer": 2,
-      "explanation": "最初の a は長さ1なので Iterator.remove() で安全に削除され、リストは [bb,c,dd]。次に Iterator は bb を返し、else で list.remove(s) を直接呼ぶため構造変更が Iterator に通知されない。bb は削除され、リストは [c,dd] になる。その次の hasNext または next で ConcurrentModificationException が発生し、catch で broken:[c, dd] が出力される。"
+      "explanation": "最初の a は長さ1なので Iterator.remove() で安全に削除され、リストは [bb,c,dd]。次に Iterator は bb を返し、else で list.remove(s) を直接呼ぶため構造変更が Iterator に通知されない。bb は削除され、リストは [c,dd] になる。その次の hasNext または next で ConcurrentModificationException が発生し、catch で broken:[c, dd] が出力される。 `broken:[bb, c, dd]` は list.remove の効果が出る前に例外が起きると考えた誤答。実際には直接削除そのものは行われ、その後 Iterator が次の整合性確認をした時点で例外になる。"
     },
     {
       "id": "silver-014",
@@ -194,7 +194,7 @@
         "[1, 2, 3, 4, 5]"
       ],
       "answer": 0,
-      "explanation": "subList は元リストのビューなので sub.set(0,20) は base の index 1 を 20 に変える。その後 base.add(5) で元リストを構造変更すると、既存の sub は整合性を失う。sub.add(30) を実行しようとした時点で ConcurrentModificationException が発生する。catch では元リスト base を表示するため、set と add が反映された [1,20,3,4,5] になる。"
+      "explanation": "subList は元リストのビューなので sub.set(0,20) は base の index 1 を 20 に変える。その後 base.add(5) で元リストを構造変更すると、既存の sub は整合性を失う。sub.add(30) を実行しようとした時点で ConcurrentModificationException が発生する。catch では元リスト base を表示するため、set と add が反映された [1,20,3,4,5] になる。 `[20, 3, 30]` は subList が独立リストだと考えた誤答。subList はビューなので元リスト変更の影響を受け、元リスト側の構造変更後に sub を操作すると破損検出される。"
     },
     {
       "id": "silver-015",
@@ -208,7 +208,7 @@
         "F1C3I2D6:6"
       ],
       "answer": 0,
-      "explanation": "new Trace() の本体には `this(3)` があるため、引数なしコンストラクタの通常処理より先に Trace(int) へ委譲される。委譲先のコンストラクタでは、Object のコンストラクタ呼び出し後に Trace のフィールド初期化とインスタンス初期化子が宣言順に実行されるので、`F1` で x=1、`I2` で x=3。そこから Trace(int) の本体に入り、`add(\"C\", 3)` を足して x=6。委譲元に戻って `D6` を追加するため、ログは `F1I2C3D6`、x は 6。"
+      "explanation": "new Trace() の本体には `this(3)` があるため、引数なしコンストラクタの通常処理より先に Trace(int) へ委譲される。委譲先のコンストラクタでは、Object のコンストラクタ呼び出し後に Trace のフィールド初期化とインスタンス初期化子が宣言順に実行されるので、`F1` で x=1、`I2` で x=3。そこから Trace(int) の本体に入り、`add(\"C\", 3)` を足して x=6。委譲元に戻って `D6` を追加するため、ログは `F1I2C3D6`、x は 6。 `C3` が先頭に来る誤答は、`this(3)` の引数評価と委譲先コンストラクタの実行開始を混同している。インスタンスフィールド初期化は、最終的に到達したコンストラクタで super() が戻った後に実行される。"
     },
     {
       "id": "silver-016",
@@ -222,7 +222,7 @@
         "コンパイルエラー。初期化前の name を参照している"
       ],
       "answer": 0,
-      "explanation": "Child 生成時、まず Parent のフィールド初期化で Parent.name は P になる。その後 Parent コンストラクタが show() を呼ぶが、メソッドは動的ディスパッチされ Child.show() が呼ばれる。この時点では Child のフィールド初期化はまだなので Child.name は null、n は 0。Parent コンストラクタ後に Child.name が C、n が 1 になり、Child コンストラクタで :1。最後の p.show() は Child.show() なので C1。"
+      "explanation": "Child 生成時、まず Parent のフィールド初期化で Parent.name は P になる。その後 Parent コンストラクタが show() を呼ぶが、メソッドは動的ディスパッチされ Child.show() が呼ばれる。この時点では Child のフィールド初期化はまだなので Child.name は null、n は 0。Parent コンストラクタ後に Child.name が C、n が 1 になり、Child コンストラクタで :1。最後の p.show() は Child.show() なので C1。 `P:1C1` や `C1:1C1` は、親コンストラクタ中の override 呼び出し時点で子フィールドが初期化済みだと考えた誤答。実際には子側の name と n はまだデフォルト値。"
     },
     {
       "id": "silver-017",
@@ -236,7 +236,7 @@
         "1:1:3"
       ],
       "answer": 0,
-      "explanation": "a.v はフィールドなので参照型 A で静的に解決され 1。a.get() はインスタンスメソッドなので B.get() が呼ばれ、B.v の 10。a.call() も B.call()。B.call 内の super.call() は A.call を実行するが、A.call 内の get() は動的ディスパッチで B.get() になり 10、A.call 内の v は A.v なので 1、super.call() は 11。そこに super.v の 1 と B.v の 10 を足して 22。"
+      "explanation": "a.v はフィールドなので参照型 A で静的に解決され 1。a.get() はインスタンスメソッドなので B.get() が呼ばれ、B.v の 10。a.call() も B.call()。B.call 内の super.call() は A.call を実行するが、A.call 内の get() は動的ディスパッチで B.get() になり 10、A.call 内の v は A.v なので 1、super.call() は 11。そこに super.v の 1 と B.v の 10 を足して 22。 `31` 系の誤答は、super.call() の中の get() まで A.get() になると考えている。super で A.call() を選んでも、その内部の仮想メソッド呼び出し get() は実体型 B に動的ディスパッチされる。"
     },
     {
       "id": "silver-018",
@@ -250,7 +250,7 @@
         "コンパイルエラー。null 参照から static は呼べない"
       ],
       "answer": 0,
-      "explanation": "p.tag() は static メソッドなので参照型 P で解決され P。p.name() はインスタンスメソッドなので C.name() が呼ばれ、その中の tag() は C.tag()、super.tag() は P.tag() となり CP。c は null だが static メソッド呼び出しは実行時の参照先を使わず、C.tag() として解決されるため C が出力される。"
+      "explanation": "p.tag() は static メソッドなので参照型 P で解決され P。p.name() はインスタンスメソッドなので C.name() が呼ばれ、その中の tag() は C.tag()、super.tag() は P.tag() となり CP。c は null だが static メソッド呼び出しは実行時の参照先を使わず、C.tag() として解決されるため C が出力される。 NullPointerException を選ぶ誤りは、static メソッド呼び出しを通常のインスタンスメソッド呼び出しと同じに扱っている。`c.tag()` は書けてしまうが、解決先は C.tag() であり、c の実体参照は使われない。"
     },
     {
       "id": "silver-019",
@@ -264,7 +264,7 @@
         "コンパイルエラー。m(null) が曖昧"
       ],
       "answer": 0,
-      "explanation": "byte と short はまず widening により long へ渡せるため、boxing より widening が優先されて L になる。Integer.valueOf(2) はそのまま Integer overload が最も具体的。(Object)null は Object に明示キャストしているので Object overload。引数なしは通常の固定長メソッドに該当せず varargs の m(int...) が選ばれ、長さ0の配列として V0。"
+      "explanation": "byte と short はまず widening により long へ渡せるため、boxing より widening が優先されて L になる。Integer.valueOf(2) はそのまま Integer overload が最も具体的。(Object)null は Object に明示キャストしているので Object overload。引数なしは通常の固定長メソッドに該当せず varargs の m(int...) が選ばれ、長さ0の配列として V0。 `I` から始まる誤答は、byte が Byte に boxing されてから Object/Integer 系に行くと考えたもの。overload 解決では widening が boxing より優先される。null も今回は `(Object)` キャストで曖昧さを消している。"
     },
     {
       "id": "silver-020",
@@ -278,7 +278,7 @@
         "コンパイルエラー。throws を FileNotFoundException にできない"
       ],
       "answer": 0,
-      "explanation": "Child.read は Parent.read を正しくオーバーライドしている。アクセスは protected から public へ広げているので合法。戻り値 Integer は Number のサブタイプなので共変戻り値として合法。throws も IOException からそのサブクラス FileNotFoundException に狭めているため合法。実行時は Child.read が呼ばれ、Integer 2 が返る。"
+      "explanation": "Child.read は Parent.read を正しくオーバーライドしている。アクセスは protected から public へ広げているので合法。戻り値 Integer は Number のサブタイプなので共変戻り値として合法。throws も IOException からそのサブクラス FileNotFoundException に狭めているため合法。実行時は Child.read が呼ばれ、Integer 2 が返る。 コンパイルエラー系の誤答は、override で戻り値型や throws を完全一致させる必要があると考えている。実際には戻り値は共変で狭められ、checked 例外も親メソッドより狭い型にできる。"
     },
     {
       "id": "silver-021",
@@ -334,7 +334,7 @@
         "コンパイルエラー。Hammer.id が private id を弱く上書きしている"
       ],
       "answer": 0,
-      "explanation": "interface の private メソッドは継承もオーバーライドもされない。Tool.run 内の id() は Tool 自身の private id に解決され、Hammer.id は関係しない。private static s() も Tool 内からだけ使われる。したがって t.run() は IS。キャスト後に Hammer.id() を直接呼ぶと H、Tool.call() は S を返す。"
+      "explanation": "interface の private メソッドは継承もオーバーライドもされない。Tool.run 内の id() は Tool 自身の private id に解決され、Hammer.id は関係しない。private static s() も Tool 内からだけ使われる。したがって t.run() は IS。キャスト後に Hammer.id() を直接呼ぶと H、Tool.call() は S を返す。 `HS` を選ぶ誤りは、Hammer.id() が Tool の private id() を上書きすると考えている。interface private メソッドは実装クラスへ継承されないため、default メソッド内の呼び出しは Tool 内で閉じている。"
     },
     {
       "id": "silver-025",
@@ -362,7 +362,7 @@
         "コンパイルエラー。record の compact constructor で引数を変更できない"
       ],
       "answer": 0,
-      "explanation": "compact constructor では、コンポーネントフィールドへの代入はブロック終了時に自動で行われる。a は name が trim と upper で AB になり、code は 1 + 2 = 3。b は name が AB のままで、code は 3 + 2 = 5。record の equals は全コンポーネントを比較するため、name は同じでも code が 3 と 5 で異なり false。created は2回生成されたので 2。"
+      "explanation": "compact constructor では、コンポーネントフィールドへの代入はブロック終了時に自動で行われる。a は name が trim と upper で AB になり、code は 1 + 2 = 3。b は name が AB のままで、code は 3 + 2 = 5。record の equals は全コンポーネントを比較するため、name は同じでも code が 3 と 5 で異なり false。created は2回生成されたので 2。 `true` を選ぶ誤答は、b の code に name.length() が加算されることを落としている。compact constructor では引数を書き換えた後の値が record component に入るため、equals は正規化後の全 component で判定される。"
     },
     {
       "id": "silver-027",
@@ -390,7 +390,7 @@
         "openAopenBbodycloseBcloseAfinallycatch"
       ],
       "answer": 0,
-      "explanation": "try-with-resources のリソースは宣言順に生成され、close は逆順に呼ばれる。body で RuntimeException が投げられると、catch に移る前に b、a の順で close される。その後 RuntimeException の catch が実行され、最後に finally。したがって openA openB body closeB closeA catch finally の順。"
+      "explanation": "try-with-resources のリソースは宣言順に生成され、close は逆順に呼ばれる。body で RuntimeException が投げられると、catch に移る前に b、a の順で close される。その後 RuntimeException の catch が実行され、最後に finally。したがって openA openB body closeB closeA catch finally の順。 close 順を逆にする誤答は、リソースを宣言順に閉じると考えている。try-with-resources はスタックのように、最後に開いたリソースから先に閉じる。catch は close 完了後に実行される。"
     },
     {
       "id": "silver-029",
@@ -404,7 +404,7 @@
         "コンパイルエラー。finally で return は書けない"
       ],
       "answer": 0,
-      "explanation": "try の return 式 a[0]++ は値 1 を返す予定で評価され、その副作用で a[0] は 2 になる。しかしメソッドを抜ける前に finally が実行され、++a[0] により 3 になった値を return する。finally の return が try 側の戻り値を上書きするため、結果は 3:3。"
+      "explanation": "try の return 式 a[0]++ は値 1 を返す予定で評価され、その副作用で a[0] は 2 になる。しかしメソッドを抜ける前に finally が実行され、++a[0] により 3 になった値を return する。finally の return が try 側の戻り値を上書きするため、結果は 3:3。 `1:3` は try 側の return 値がそのまま返ると考えた誤答。try の return 式の評価と副作用は起きるが、finally に return がある場合は最終的な戻り値が上書きされる。"
     },
     {
       "id": "silver-030",
@@ -474,7 +474,7 @@
         "false:false / false"
       ],
       "answer": 0,
-      "explanation": "record はコンポーネント値に基づく equals を自動生成するため、2つの Point(1,2) は equals で true。Pair は equals をオーバーライドしていないので Object.equals の参照比較となり、別インスタンス同士は false。配列自体も equals をオーバーライドしておらず参照比較なので、a.equals(b) は false。"
+      "explanation": "record はコンポーネント値に基づく equals を自動生成するため、2つの Point(1,2) は equals で true。Pair は equals をオーバーライドしていないので Object.equals の参照比較となり、別インスタンス同士は false。配列自体も equals をオーバーライドしておらず参照比較なので、a.equals(b) は false。 `true:true` は Pair も値比較されると考えた誤答。record は equals を自動生成するが、通常クラス Pair は equals を書かない限り Object の参照比較のまま。"
     },
     {
       "id": "silver-035",
@@ -488,7 +488,7 @@
         "コンパイルエラー。テキストブロックは String に代入できない"
       ],
       "answer": 0,
-      "explanation": "テキストブロックは共通インデントが除去され、末尾改行を含む文字列になる。strip() により前後の空白と末尾改行が取り除かれ、内容は A 改行 二つ空白+B。indent(1) は各行の先頭に空白を1つ加え、末尾に改行も付ける。split(\"\\R\") は末尾空文字を捨てるため2要素。1行目は空白+Aで長さ2、2行目を trim すると B。"
+      "explanation": "テキストブロックは共通インデントが除去され、末尾改行を含む文字列になる。strip() により前後の空白と末尾改行が取り除かれ、内容は A 改行 二つ空白+B。indent(1) は各行の先頭に空白を1つ加え、末尾に改行も付ける。split(\"\\R\") は末尾空文字を捨てるため2要素。1行目は空白+Aで長さ2、2行目を trim すると B。 `3:0:B` は indent 後の末尾空行が split 結果に残ると考えた誤答。String.split は末尾の空文字列を捨てるため、ここでは2要素になる。"
     },
     {
       "id": "silver-036",
@@ -502,7 +502,7 @@
         "2:4:nana:ana / -1"
       ],
       "answer": 0,
-      "explanation": "banana で \"na\" の最初の位置は 2、最後の位置は 4。substring(2,6) は nana。そこから substring(1,4) は ana。compareTo は辞書順比較で、同じ文字列 ana と比較しているため 0。substring の終了位置は含まれない点が重要。"
+      "explanation": "banana で \"na\" の最初の位置は 2、最後の位置は 4。substring(2,6) は nana。そこから substring(1,4) は ana。compareTo は辞書順比較で、同じ文字列 ana と比較しているため 0。substring の終了位置は含まれない点が重要。 `nan` や index 1/3 の誤答は、indexOf の開始位置と substring の終了位置を取り違えている。substring の第2引数は含まれず、lastIndexOf(\"na\") は最後に現れる n の位置を返す。"
     },
     {
       "id": "silver-037",
@@ -516,7 +516,7 @@
         "ConcurrentModificationException"
       ],
       "answer": 0,
-      "explanation": "拡張 for の v は各要素参照のコピー。Integer は不変で、v++ はアンボクシング、加算、ボクシングにより v 変数が新しい Integer を指すだけで、list の要素は置き換わらない。sum には 2、3、4 が足されて 9。リスト構造は変更していないため ConcurrentModificationException も起きない。"
+      "explanation": "拡張 for の v は各要素参照のコピー。Integer は不変で、v++ はアンボクシング、加算、ボクシングにより v 変数が新しい Integer を指すだけで、list の要素は置き換わらない。sum には 2、3、4 が足されて 9。リスト構造は変更していないため ConcurrentModificationException も起きない。 `[2,3,4]` は拡張 for のループ変数を書き換えると List 要素も変わると考えた誤答。Integer は不変で、`v++` はローカル変数 v の参照先を変えるだけ。"
     },
     {
       "id": "silver-038",
@@ -558,7 +558,7 @@
         "コンパイルエラー。else で x を代入できない"
       ],
       "answer": 0,
-      "explanation": "flag は false だが、definite assignment は実行時の値ではなく構文上の到達経路で判断する。このコードでは if 本体で x を読む経路は、右辺代入が実行された場合だけ到達するため問題ない。else では x=20 が代入される。実行時は flag が false なので右辺は短絡され、else に入り、最後に 20 を出力する。"
+      "explanation": "flag は false だが、definite assignment は実行時の値ではなく構文上の到達経路で判断する。このコードでは if 本体で x を読む経路は、右辺代入が実行された場合だけ到達するため問題ない。else では x=20 が代入される。実行時は flag が false なので右辺は短絡され、else に入り、最後に 20 を出力する。 コンパイルエラーを選ぶ誤答は、`flag` の実行時値 false だけを見て、右辺代入が常に行われないと考えている。definite assignment は実行時定数評価ではなく、到達可能な制御経路として安全かを判定する。"
     },
     {
       "id": "silver-041",
@@ -572,7 +572,7 @@
         "1FF:3"
       ],
       "answer": 0,
-      "explanation": "1回目は i++ が 0 を返して i は 1、continue せず out に 1、その後 finally で F。while 条件で i<3。2回目は i++ が 1 を返して i は 2、continue するが finally は必ず実行され F が追加される。3回目は i++ が 2 を返して i は 3、out に 3、finally で F。結果は 1FF3F:3。"
+      "explanation": "1回目は i++ が 0 を返して i は 1、continue せず out に 1、その後 finally で F。while 条件で i<3。2回目は i++ が 1 を返して i は 2、continue するが finally は必ず実行され F が追加される。3回目は i++ が 2 を返して i は 3、out に 3、finally で F。結果は 1FF3F:3。 `1F2F...` 系は continue の前に out += i が実行されると考えた誤答。continue でも finally は実行されるが、try ブロック内の continue 以降の文は実行されない。"
     },
     {
       "id": "silver-042",
@@ -586,7 +586,7 @@
         "ArrayStoreException が catch されず終了"
       ],
       "answer": 0,
-      "explanation": "String[] は Object[] に代入できるが、実体の配列は String[] のまま。objs[0] = \"x\" は String なので成功し、words[0] も x になる。objs[1] に StringBuilder を入れようとすると、実体配列が String[] なので ArrayStoreException。catch では変更済みの words[0] と未変更の words[1] を表示し x:b。"
+      "explanation": "String[] は Object[] に代入できるが、実体の配列は String[] のまま。objs[0] = \"x\" は String なので成功し、words[0] も x になる。objs[1] に StringBuilder を入れようとすると、実体配列が String[] なので ArrayStoreException。catch では変更済みの words[0] と未変更の words[1] を表示し x:b。 `x:y` は Object[] に入れた時点で実体配列も Object[] 的に扱えると考えた誤答。配列は共変だが、実体が String[] であることは保持されるため、StringBuilder 格納時に ArrayStoreException が起きる。"
     },
     {
       "id": "silver-043",
@@ -614,7 +614,7 @@
         "コンパイルエラー。sealed interface は instanceof に使えない"
       ],
       "answer": 0,
-      "explanation": "n の実体は Pair なので最初の Leaf パターンには一致しない。次の条件では n instanceof Pair p が true で、さらに p.left の実体は Leaf(3) なので Leaf l も導入される。&& の右辺まで true なのでブロックに入り、l.v + 1 で 4 を出力する。"
+      "explanation": "n の実体は Pair なので最初の Leaf パターンには一致しない。次の条件では n instanceof Pair p が true で、さらに p.left の実体は Leaf(3) なので Leaf l も導入される。&& の右辺まで true なのでブロックに入り、l.v + 1 で 4 を出力する。 `3` は Pair の中にある Leaf を取り出しただけで加算を見落とした誤答。最初の instanceof は n 自体に対する判定であり、left まで自動的に見に行くわけではない。2つ目の条件で初めて p.left を判定する。"
     },
     {
       "id": "silver-045",
@@ -628,7 +628,7 @@
         "コンパイルエラー。this(...) 呼び出し前に static メソッドを呼べない"
       ],
       "answer": 0,
-      "explanation": "引数なしコンストラクタの `this(price(2))` では、まず明示的コンストラクタ呼び出しの引数式として static メソッド `price(2)` が評価され、6 が得られる。その後、委譲先の `Item(int price)` が実行される過程で、Object コンストラクタ呼び出し後にフィールド初期化 `int price = 1` が行われる。最後に `Item(int)` の本体で `this.price += price` が実行され、フィールド 1 にパラメータ 6 を足して 7。`this(...)` の引数式で static メソッドを呼ぶことはできるが、インスタンスメンバーを直接参照することはできない。"
+      "explanation": "引数なしコンストラクタの `this(price(2))` では、まず明示的コンストラクタ呼び出しの引数式として static メソッド `price(2)` が評価され、6 が得られる。その後、委譲先の `Item(int price)` が実行される過程で、Object コンストラクタ呼び出し後にフィールド初期化 `int price = 1` が行われる。最後に `Item(int)` の本体で `this.price += price` が実行され、フィールド 1 にパラメータ 6 を足して 7。`this(...)` の引数式で static メソッドを呼ぶことはできるが、インスタンスメンバーを直接参照することはできない。 `6` を選ぶ誤答は、フィールド初期化 `price = 1` が委譲元コンストラクタ側で既に済んでいると考えている。実際には委譲先 `Item(int)` の本体に入る前に初期化され、その後 6 が加算される。"
     },
     {
       "id": "silver-046",
@@ -642,7 +642,7 @@
         "コンパイルエラー。abstract class から Printable.super は呼べない"
       ],
       "answer": 0,
-      "explanation": "Base は Printable を実装しているが、print を abstract として再宣言しているため、具象クラス Doc は実装を提供する必要がある。call() 内の print() は動的ディスパッチで Doc.print() になり D。Printable.super.print() は、Base が直接実装している interface の default を明示呼び出しして I。"
+      "explanation": "Base は Printable を実装しているが、print を abstract として再宣言しているため、具象クラス Doc は実装を提供する必要がある。call() 内の print() は動的ディスパッチで Doc.print() になり D。Printable.super.print() は、Base が直接実装している interface の default を明示呼び出しして I。 `II` を選ぶ誤答は、Base が Printable の default をそのまま使うと考えている。Base は print を abstract として再宣言しているため、通常呼び出しの print() は Doc の実装へ動的ディスパッチされる。"
     },
     {
       "id": "silver-047",
@@ -656,7 +656,7 @@
         "コンパイルエラー。int[] は int... に渡せない"
       ],
       "answer": 0,
-      "explanation": "`join(\"A\", data)` は第1引数が String、第2引数が int[] なので、可変長引数 `int...` のメソッドを通常の配列渡しとして呼ぶ。varargs だから配列がコピーされるわけではなく、渡された data と nums は同じ配列を指すため、`nums[0]++` により data[0] も 2 になる。戻り値は `A` + 長さ2 + 先頭2 で `A2:2`。次の出力では data は `2:2`。最後は第1引数を Object に明示キャストしているため Object overload が選ばれ、`OA:2` になる。"
+      "explanation": "`join(\"A\", data)` は第1引数が String、第2引数が int[] なので、可変長引数 `int...` のメソッドを通常の配列渡しとして呼ぶ。varargs だから配列がコピーされるわけではなく、渡された data と nums は同じ配列を指すため、`nums[0]++` により data[0] も 2 になる。戻り値は `A` + 長さ2 + 先頭2 で `A2:2`。次の出力では data は `2:2`。最後は第1引数を Object に明示キャストしているため Object overload が選ばれ、`OA:2` になる。 `A2:2 / 1:2` は varargs 呼び出し時に配列がコピーされると考えた誤答。既存の int[] を渡した場合、仮引数 nums はその同じ配列を参照する。"
     },
     {
       "id": "silver-048",
@@ -670,7 +670,7 @@
         "実行時エラー。String... は main として認識されない"
       ],
       "answer": 0,
-      "explanation": "エントリーポイントとして有効なのは public static void main(String[] args) または可変長引数 String... args。overload された main(int) やインスタンスメソッド main(String) があっても問題ない。java App a b では String... 版が呼ばれ、args.length は2。その中で main(int) を明示的に呼ぶため int:2 も出る。"
+      "explanation": "エントリーポイントとして有効なのは public static void main(String[] args) または可変長引数 String... args。overload された main(int) やインスタンスメソッド main(String) があっても問題ない。java App a b では String... 版が呼ばれ、args.length は2。その中で main(int) を明示的に呼ぶため int:2 も出る。 main が1つしか持てないという誤答は、エントリーポイントと overload を混同している。JVM が起動時に探す形は決まっているが、同名の別シグネチャメソッドを定義すること自体は可能。"
     },
     {
       "id": "silver-049",
@@ -684,7 +684,7 @@
         "コンパイルエラー。文字列リテラルを自作 String に渡せない"
       ],
       "answer": 0,
-      "explanation": "同じパッケージに String クラスを定義すると、単純名 String はそのクラスを指す。java.lang.String を使いたい箇所は完全修飾名で書けばよい。文字列リテラル \"a\" の型は java.lang.String なので、自作 String のコンストラクタ引数 java.lang.String に渡せる。System.out.println(s) は s.toString() を使い Xa を出力する。"
+      "explanation": "同じパッケージに String クラスを定義すると、単純名 String はそのクラスを指す。java.lang.String を使いたい箇所は完全修飾名で書けばよい。文字列リテラル \"a\" の型は java.lang.String なので、自作 String のコンストラクタ引数 java.lang.String に渡せる。System.out.println(s) は s.toString() を使い Xa を出力する。 衝突エラーを選ぶ誤答は、java.lang.String が常に単純名 String を専有すると考えている。同じパッケージ内に String クラスがあれば単純名はそちらに解決され、標準の String は完全修飾名で区別できる。"
     },
     {
       "id": "silver-050",
@@ -698,7 +698,7 @@
         "コンパイルエラー。コンストラクタから override メソッドは呼べない"
       ],
       "answer": 0,
-      "explanation": "Sub 生成時、まず Base 側のフィールド sb が B で初期化され、その後 Base コンストラクタが mark() を呼ぶ。この呼び出しは動的ディスパッチなので Sub.mark() が選ばれる。しかしその時点では Sub 側のフィールド初期化はまだ実行されておらず、Sub.sb は null、n は 0。Sub.mark() は Sub.sb に対して append しようとするため NullPointerException が発生する。コンストラクタから override 可能メソッドを呼ぶ危険性を問う問題。"
+      "explanation": "Sub 生成時、まず Base 側のフィールド sb が B で初期化され、その後 Base コンストラクタが mark() を呼ぶ。この呼び出しは動的ディスパッチなので Sub.mark() が選ばれる。しかしその時点では Sub 側のフィールド初期化はまだ実行されておらず、Sub.sb は null、n は 0。Sub.mark() は Sub.sb に対して append しようとするため NullPointerException が発生する。コンストラクタから override 可能メソッドを呼ぶ危険性を問う問題。 出力系の誤答は、Base コンストラクタ内の mark() が Base.mark() のまま実行されると考えている。コンストラクタ中でも override は効くため、初期化前の Sub フィールドに触れてしまう。"
     }
   ]
 }
