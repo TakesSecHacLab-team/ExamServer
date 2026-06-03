@@ -12,7 +12,7 @@
         "2 1 / 1 1"
       ],
       "answer": 0,
-      "explanation": "Step 1: new Counter() で c1 生成。static count=0 から ++count で count=1、c1.id=1。Step 2: new Counter() で c2 生成。++count で count=2、c2.id=2。Step 3: 出力「1 2」。Step 4: reset() で static count=0 に戻す。Step 5: new Counter() で c3 生成。++count で count=1、c3.id=1。Step 6: 出力「1 1」。static フィールドのクラスレベル保持と、インスタンス生成時の前置インクリメント演算の複合。"
+      "explanation": "最初の `new Counter()` では static フィールド `count` が 0 から 1 になり、c1.id は 1。次の生成で count は 2 になり、c2.id は 2。ここで `1 2` が出力される。その後 `Counter.reset()` が static フィールドを 0 に戻すため、c3 生成時には再び `++count` で 1 になり、c3.id も Counter.count も 1 になる。static フィールドは各インスタンスではなくクラスに1つだけ保持される点が核心。"
     },
     {
       "id": "silver-002",
@@ -152,7 +152,7 @@
         "S1 S2 I1 C1 I3 C3"
       ],
       "answer": 0,
-      "explanation": "クラスロード時にstaticブロックをファイル順で全て実行: S1（count=1）→ S2（count=2）。o1=new Order(): id=++count=3 → インスタンス初期化子\"I3\" → コンストラクタ\"C3\"。o2=new Order(): id=++count=4 → \"I4\" → \"C4\"。【罠】選択肢1はstaticブロックがcount=0から始まるとして id=1,2 と誤認。staticブロックは2つありcount=2まで進んでからインスタンス生成開始。【仕様】staticブロックは宣言順に1回だけ、クラスロード時に実行。"
+      "explanation": "static 初期化ブロックはクラスロード時に宣言順で1回だけ実行される。まず `S1` を出して count は 1、次に `S2` を出して count は 2。そこから o1 の生成に入り、フィールド `id = ++count` で id は 3、インスタンス初期化子で `I3`、コンストラクタで `C3`。o2 では同じ流れで id は 4 になり、`I4 C4` と続く。static ブロックで count が先に進んでいる点を見落とすと id を 1,2 と誤る。"
     },
     {
       "id": "silver-012",
@@ -488,7 +488,7 @@
         "SA SB IA CA IB CB IC CC"
       ],
       "answer": 3,
-      "explanation": "【実行順序の仕様: Class Initialization → Instance Creation】Step1: クラスロード時にstaticブロック実行(親→子)。A: SA → B: SB（Cにstaticなし）。Step2: new C() → C()コンストラクタ開始 → super()でB() → super()でA()へ遡上。A()実行: インスタンス初期化子IA → コンストラクタ本体CA。B()に戻る: インスタンス初期化子IB → コンストラクタ本体CB。C()に戻る: インスタンス初期化子IC → コンストラクタ本体CC。最終順序: SA SB IA CA IB CB IC CC。【罠】選択肢0はIA CA IB CBの間にICを挟む誤り。インスタンス初期化子はそのコンストラクタ直前に実行される。【JLS仕様】各コンストラクタはsuper()返却後、自クラスのインスタンス初期化子を実行してから本体を実行。"
+      "explanation": "最初の `new C()` でクラス初期化が始まり、親から子へ static ブロックが実行されるため `SA SB` が先に出る。インスタンス生成では C のコンストラクタに入る前に `super()` の連鎖で B、A へ遡り、A のインスタンス初期化子とコンストラクタで `IA CA`、B に戻って `IB CB`、最後に C 側で `IC CC` となる。インスタンス初期化子は自分のコンストラクタ本体の直前に実行されるため、C の初期化子が A/B の途中に割り込むことはない。"
     },
     {
       "id": "silver-036",
@@ -558,7 +558,7 @@
         "C_S P_S P_I P_C C_I C_C P_I P_C C_I C_C"
       ],
       "answer": 0,
-      "explanation": "【クラスロード→インスタンス生成の順序】ステップ1: new Child()→クラスロード（最初だけ）。親Parentロード時：staticブロックP_S。子Childロード時：staticブロックC_S。ステップ2: 1回目のnew Child()（インスタンス生成）。super()呼び出し→Parentのインスタンス初期化ブロックP_I、コンストラクタP_C。Childのインスタンス初期化ブロックC_I、コンストラクタC_C。ステップ3: 2回目のnew Child()。クラスロード済みなのでstaticブロックは再実行しない。インスタンス初期化ブロックP_I→P_C→C_I→C_C。結果：P_S C_S P_I P_C C_I C_C P_I P_C C_I C_C。【Java仕様】クラスロードは1回のみ。以降のインスタンス生成はインスタンス初期化ブロック＋コンストラクタのみ"
+      "explanation": "1回目の `new Child()` で初めてクラスが使われるため、親 Parent の static ブロック、子 Child の static ブロックの順に `P_S C_S` が出る。その後のインスタンス生成では、Parent 側のインスタンス初期化ブロックとコンストラクタで `P_I P_C`、Child 側で `C_I C_C`。2回目の `new Child()` ではクラス初期化は済んでいるので static ブロックは再実行されず、インスタンス側の `P_I P_C C_I C_C` だけがもう一度出る。"
     },
     {
       "id": "silver-041",
@@ -572,7 +572,7 @@
         "コンパイルエラー"
       ],
       "answer": 0,
-      "explanation": "【try-finally制御フロー】ステップ1: func2()呼び出し→func1()呼び出し。ステップ2: func1()のtryブロック実行→「try」出力。ステップ3: try内でreturn10だが、finallyは必ず実行→「finally」出力。ステップ4: finally後、戻り値10が返される（func1終了）。ステップ5: func2()に戻る→x = 10代入、「after」出力。ステップ6: func2()が10を返す。出力順：try / finally / after。【仕様】finallyブロックはreturn/exceptionよりも後に実行される（制御フローはtryが優先だが、finallyはescape前に挿入される）"
+      "explanation": "`func2()` から `func1()` を呼ぶと、まず try ブロックで `try` が出力され、`return 10` の戻り値が確定する。ただしメソッドを抜ける前に finally は必ず実行されるため、次に `finally` が出る。その後 `func1()` は 10 を返し、`func2()` 側で x に代入されて `after` が出力される。finally が return の前に割り込むが、ここでは戻り値自体を上書きしていない点が重要。"
     },
     {
       "id": "silver-042",
@@ -614,7 +614,7 @@
         "D のとき例外"
       ],
       "answer": 0,
-      "explanation": "【ClassCastExceptionの評価順序】ステップ1: Integer i = (Integer) objs[0]→objs[0]はString(\"text\")、Integerへキャスト→ClassCastException発生。ステップ2: 例外がthrowされるため、以降のB, C, Dは実行されない。ステップ3: catchブロックでキャッチ→「Error at:」出力。【Java仕様】キャスト例外は実行時にthrowされ、同期実行の次の文は実行されない"
+      "explanation": "最初の文 `Integer i = (Integer) objs[0]` で、objs[0] の実体は String なのに Integer へキャストしているため ClassCastException が発生する。例外が出た時点で try ブロックの残りの代入文は実行されない。したがって B、C、D のキャスト可否まで進まず、catch ブロックに移って `Error at:` が出力される。"
     },
     {
       "id": "silver-045",
@@ -698,7 +698,7 @@
         "Zがinterfaceなので、Implはexecuteをオーバーライド必須"
       ],
       "answer": 1,
-      "explanation": "【インターフェース多重実装のdefaultメソッド解決】ステップ1: interface X, Y はともにexecute()のdefault実装を持つ。ステップ2: interface Zは X, Y を extends→競合が発生。ステップ3: Zが@Overrideでexecute()を定義し、X.super.execute()でXの実装を明示的に選択→競合解決。ステップ4: Implが Z を implements→Zのexecute()を継承（Implはexecuteをオーバーライド不要）。ステップ5: new Impl().execute()→Zのexecute()実行→X.super.execute()→「X」出力。Result: コンパイル可、出力X。【Java仕様】複数defaultメソッドの競合は、実装クラスまたは仲介インターフェースで明示的に解決が必須"
+      "explanation": "X と Y はどちらも `execute()` の default 実装を持つため、そのまま多重継承すると候補が曖昧になる。ここでは Z が `execute()` を明示的に再定義し、`X.super.execute()` で X 側の実装を選んでいるので競合は Z の時点で解決済み。Impl は Z を実装するだけでよく、`new Impl().execute()` は Z の default メソッドを経由して X の `execute()` を呼び、`X` を出力する。"
     },
     {
       "id": "silver-051",
@@ -768,7 +768,7 @@
         "B, C, D のみ"
       ],
       "answer": 1,
-      "explanation": "【protectedアクセス制御の仕様】「protected」は同一パッケージOR継承関係でのアクセスを許可。ステップ1: A（this.value）→Subのインスタンスcontext→Baseから継承→OK。ステップ2: B（super.value）→superによる親メンバー参照→OK。ステップ3: C（new Base().value）→Baseクラスのオブジェクトから非継承でprotectedにアクセス→NG（異パッケージ+継承関係なし）。ステップ4: D（new Sub().value）→Subクラスのオブジェクト→Subはbaseの継承クラス→OK（継承によりprotected可視）。Result: A, B, D。【Java仕様】protectedは「同一パッケージ内」または「継承クラスのcontext内（this/super経由）」のみ"
+      "explanation": "`this.value` と `super.value` は Sub の継承コンテキストから Base の protected メンバーへアクセスしているので合法。`new Base().value` は異パッケージ側から Base 型の別オブジェクト経由で protected に触っているため不可。一方 `new Sub().value` は Sub 型の参照を通じたアクセスで、Sub 自身の継承コンテキスト内なので許される。異パッケージ protected は「継承しているから何でも見える」ではなく、アクセスする参照型も絡む。"
     },
     {
       "id": "silver-056",
@@ -782,7 +782,7 @@
         "ConcurrentModificationException"
       ],
       "answer": 1,
-      "explanation": "【Iterator.remove()の安全性】ステップ1: val = 1（奇数）→スキップ。ステップ2: val = 2（偶数）→it.remove()→2が安全に削除される→[1, 3, 4, 5]。ステップ3: val = 3（奇数）→スキップ。ステップ4: val = 4（偶数）→it.remove()→4が安全に削除される→[1, 3, 5]。ステップ5: val = 5（奇数）→スキップ。Result: [1, 3, 5]。【Java仕様】Iterator.remove()は安全な削除操作。list.remove()を直接呼ぶとConcurrentModificationExceptionが発生する可能性がある"
+      "explanation": "Iterator 経由で走査しているため、削除も `it.remove()` を使えば走査状態とリスト状態が同期される。val=1 は残り、val=2 で削除されて `[1, 3, 4, 5]`、val=3 は残り、val=4 で削除されて `[1, 3, 5]`、val=5 は残る。拡張 for や Iterator 走査中に list 自体の `remove()` を直接使う場合とは違い、このコードでは ConcurrentModificationException にならない。"
     },
     {
       "id": "silver-057",
@@ -852,7 +852,7 @@
         "I1 I2 C S1 S2 I1 I2 C"
       ],
       "answer": 0,
-      "explanation": "【クラスロードとインスタンス生成の厳密な順序】ステップ1: クラスロード（1回目のnewのとき）。すべてのstaticブロックが定義順に実行→S1, S2。ステップ2: 1回目のnew Sequential()（インスタンス生成）。インスタンス初期化ブロック（定義順）→I1, I2。コンストラクタ→C。ステップ3: 2回目のnew Sequential()。クラスロード済みなのでstaticブロックは再実行しない。インスタンス初期化ブロック→I1, I2。コンストラクタ→C。Result: S1 S2 I1 I2 C I1 I2 C。【Java仕様】static初期化ブロックはクラスロード時に1回のみ。インスタンス初期化ブロックはインスタンス生成のたび"
+      "explanation": "static 初期化ブロックは最初にクラスが使われたときだけ、宣言順に `S1 S2` と実行される。1回目のインスタンス生成では、インスタンス初期化ブロックも宣言順に `I1 I2`、その後コンストラクタで `C`。2回目の生成では static は再実行されず、インスタンス初期化ブロックとコンストラクタだけがもう一度 `I1 I2 C` と続く。よって全体は `S1 S2 I1 I2 C I1 I2 C`。"
     },
     {
       "id": "silver-062",
