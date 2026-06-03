@@ -18,7 +18,7 @@
       "id": "silver-002",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次の3ファイルをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\n// file: util/Date.java\npackage util;\npublic class Date { public String toString() { return \"U\"; } }\n\n// file: app/Main.java\npackage app;\nimport util.*;\nimport java.util.Date;\npublic class Main {\n    public static void main(String[] args) {\n        Date d = new Date(0L);\n        util.Date u = new util.Date();\n        System.out.println(d.getClass().getName() + \":\" + u);\n    }\n}\n\n// file: Date.java\npublic class Date { }\n```",
+      "text": "次の3ファイルをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\n// file: util/Date.java\npackage util;\n\npublic class Date {\n    public String toString() {\n        return \"U\";\n    }\n}\n\n// file: app/Main.java\npackage app;\n\nimport util.*;\nimport java.util.Date;\n\npublic class Main {\n    public static void main(String[] args) {\n        Date d = new Date(0L);\n        util.Date u = new util.Date();\n        System.out.println(d.getClass().getName() + \":\" + u);\n    }\n}\n\n// file: Date.java\npublic class Date {\n}\n```",
       "options": [
         "java.util.Date:U",
         "util.Date:U",
@@ -32,7 +32,7 @@
       "id": "silver-003",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass A { String id() { return \"A\"; } }\nclass B extends A { String id() { return \"B\"; } }\nclass C extends A { String id() { return \"C\"; } }\nA[] data = { new B(), new C() };\nObject ref = data;\ntry {\n    var same = (A[]) ref;\n    same[0] = new C();\n    B b = (B) data[0];\n    System.out.println(b.id());\n} catch (ArrayStoreException e) {\n    System.out.println(\"array\");\n} catch (ClassCastException e) {\n    System.out.println(\"cast:\" + data[0].id());\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass A {\n    String id() {\n        return \"A\";\n    }\n}\n\nclass B extends A {\n    String id() {\n        return \"B\";\n    }\n}\n\nclass C extends A {\n    String id() {\n        return \"C\";\n    }\n}\n\nA[] data = { new B(), new C() };\nObject ref = data;\ntry {\n    var same = (A[]) ref;\n    same[0] = new C();\n    B b = (B) data[0];\n    System.out.println(b.id());\n} catch (ArrayStoreException e) {\n    System.out.println(\"array\");\n} catch (ClassCastException e) {\n    System.out.println(\"cast:\" + data[0].id());\n}\n```",
       "options": [
         "cast:C",
         "array",
@@ -46,7 +46,7 @@
       "id": "silver-004",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\npublic class Main {\n    public static void main(String[] args) {\n        final String a = \"ja\";\n        String b = \"va\";\n        String s1 = \"java\";\n        String s2 = a + \"va\";\n        String s3 = a + b;\n        String[] box = { s3 };\n        box[0] = box[0].intern();\n        System.out.println((s1 == s2) + \":\" + (s1 == s3));\n        System.out.println((s1 == box[0]) + \":\" + s3.equals(box[0]));\n    }\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\npublic class Main {\n    public static void main(String[] args) {\n        final String a = \"ja\";\n        String b = \"va\";\n        String s1 = \"java\";\n        String s2 = a + \"va\";\n        String s3 = a + b;\n        String[] box = { s3 };\n        box[0] = box[0].intern();\n        System.out.println((s1 == s2) + \":\" + (s1 == s3));\n        System.out.println(\n            (s1 == box[0]) + \":\" + s3.equals(box[0])\n        );\n    }\n}\n```",
       "options": [
         "true:false / true:true",
         "true:true / true:true",
@@ -116,7 +116,7 @@
       "id": "silver-009",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\npublic class Main {\n    public static void main(String[] args) {\n        Object obj = \"silver\";\n        int len = 0;\n        if (obj instanceof String s && (len = s.length()) > 3) {\n            obj = len;\n            System.out.println(s.toUpperCase());\n        }\n        if (obj instanceof Integer n || len++ > 0) {\n            System.out.println(len + \":\" + obj.getClass().getSimpleName());\n        }\n    }\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\npublic class Main {\n    public static void main(String[] args) {\n        Object obj = \"silver\";\n        int len = 0;\n        if (obj instanceof String s && (len = s.length()) > 3) {\n            obj = len;\n            System.out.println(s.toUpperCase());\n        }\n        if (obj instanceof Integer n || len++ > 0) {\n            System.out.println(\n                len + \":\" + obj.getClass().getSimpleName()\n            );\n        }\n    }\n}\n```",
       "options": [
         "SILVER / 6:Integer",
         "SILVER / 7:Integer",
@@ -130,7 +130,7 @@
       "id": "silver-010",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nint[] row = {1, 2};\nint[][] a = { row, row.clone(), null };\nint[][] b = a.clone();\nb[0][0] = 9;\nfor (int[] r : a) {\n    if (r == null) {\n        r = new int[] {7, 7};\n    } else {\n        r[1] += r[0];\n    }\n}\nSystem.out.println(a[0][0] + \":\" + a[0][1]);\nSystem.out.println(a[1][0] + \":\" + a[1][1] + \":\" + (a[2] == null));\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nint[] row = { 1, 2 };\nint[][] a = { row, row.clone(), null };\nint[][] b = a.clone();\nb[0][0] = 9;\nfor (int[] r : a) {\n    if (r == null) {\n        r = new int[] { 7, 7 };\n    } else {\n        r[1] += r[0];\n    }\n}\nSystem.out.println(a[0][0] + \":\" + a[0][1]);\nSystem.out.println(\n    a[1][0] + \":\" + a[1][1] + \":\" + (a[2] == null)\n);\n```",
       "options": [
         "9:11 / 1:3:true",
         "9:2 / 1:2:false",
@@ -200,7 +200,7 @@
       "id": "silver-015",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass Trace {\n    static String log = \"\";\n    int x = add(\"F\", 1);\n    { x += add(\"I\", 2); }\n    Trace() { this(3); log += \"D\" + x; }\n    Trace(int x) { this.x += add(\"C\", x); }\n    static int add(String s, int v) { log += s + v; return v; }\n}\nTrace t = new Trace();\nSystem.out.println(Trace.log + \":\" + t.x);\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass Trace {\n    static String log = \"\";\n    int x = add(\"F\", 1);\n\n    {\n        x += add(\"I\", 2);\n    }\n\n    Trace() {\n        this(3);\n        log += \"D\" + x;\n    }\n\n    Trace(int x) {\n        this.x += add(\"C\", x);\n    }\n\n    static int add(String s, int v) {\n        log += s + v;\n        return v;\n    }\n}\n\nTrace t = new Trace();\nSystem.out.println(Trace.log + \":\" + t.x);\n```",
       "options": [
         "F1I2C3D6:6",
         "C3F1I2D6:6",
@@ -214,7 +214,7 @@
       "id": "silver-016",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass Parent {\n    String name = \"P\";\n    Parent() { show(); }\n    void show() { System.out.print(name); }\n}\nclass Child extends Parent {\n    String name = \"C\";\n    int n = name.length();\n    Child() { System.out.print(\":\" + n); }\n    @Override void show() { System.out.print(name + n); }\n}\nParent p = new Child();\np.show();\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass Parent {\n    String name = \"P\";\n\n    Parent() {\n        show();\n    }\n\n    void show() {\n        System.out.print(name);\n    }\n}\n\nclass Child extends Parent {\n    String name = \"C\";\n    int n = name.length();\n\n    Child() {\n        System.out.print(\":\" + n);\n    }\n\n    @Override\n    void show() {\n        System.out.print(name + n);\n    }\n}\n\nParent p = new Child();\np.show();\n```",
       "options": [
         "null0:1C1",
         "P:1C1",
@@ -228,7 +228,7 @@
       "id": "silver-017",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass A {\n    int v = 1;\n    int get() { return v; }\n    int call() { return get() + v; }\n}\nclass B extends A {\n    int v = 10;\n    int get() { return v; }\n    int call() { return super.call() + super.v + v; }\n}\nA a = new B();\nSystem.out.println(a.v + \":\" + a.get() + \":\" + a.call());\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass A {\n    int v = 1;\n\n    int get() {\n        return v;\n    }\n\n    int call() {\n        return get() + v;\n    }\n}\n\nclass B extends A {\n    int v = 10;\n\n    int get() {\n        return v;\n    }\n\n    int call() {\n        return super.call() + super.v + v;\n    }\n}\n\nA a = new B();\nSystem.out.println(a.v + \":\" + a.get() + \":\" + a.call());\n```",
       "options": [
         "1:10:22",
         "10:10:22",
@@ -242,7 +242,7 @@
       "id": "silver-018",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass P {\n    static String tag() { return \"P\"; }\n    String name() { return tag(); }\n}\nclass C extends P {\n    static String tag() { return \"C\"; }\n    String name() { return tag() + super.tag(); }\n}\nP p = new C();\nC c = null;\nSystem.out.println(p.tag() + \":\" + p.name());\nSystem.out.println(c.tag());\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass P {\n    static String tag() {\n        return \"P\";\n    }\n\n    String name() {\n        return tag();\n    }\n}\n\nclass C extends P {\n    static String tag() {\n        return \"C\";\n    }\n\n    String name() {\n        return tag() + super.tag();\n    }\n}\n\nP p = new C();\nC c = null;\nSystem.out.println(p.tag() + \":\" + p.name());\nSystem.out.println(c.tag());\n```",
       "options": [
         "P:CP / C",
         "C:CP / C",
@@ -256,7 +256,7 @@
       "id": "silver-019",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nvoid m(long x) { System.out.print(\"L\"); }\nvoid m(Integer x) { System.out.print(\"I\"); }\nvoid m(Object x) { System.out.print(\"O\"); }\nvoid m(int... x) { System.out.print(\"V\" + x.length); }\nbyte b = 1;\nm(b);\nm(Integer.valueOf(2));\nm((short) 3);\nm((Object) null);\nm();\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nvoid m(long x) {\n    System.out.print(\"L\");\n}\n\nvoid m(Integer x) {\n    System.out.print(\"I\");\n}\n\nvoid m(Object x) {\n    System.out.print(\"O\");\n}\n\nvoid m(int... x) {\n    System.out.print(\"V\" + x.length);\n}\n\nbyte b = 1;\nm(b);\nm(Integer.valueOf(2));\nm((short) 3);\nm((Object) null);\nm();\n```",
       "options": [
         "LILOV0",
         "IILOV0",
@@ -270,7 +270,7 @@
       "id": "silver-020",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nimport java.io.*;\nclass Parent {\n    protected Number read() throws IOException { return 1; }\n}\nclass Child extends Parent {\n    public Integer read() throws FileNotFoundException { return 2; }\n}\nParent p = new Child();\ntry {\n    Number n = p.read();\n    System.out.println(n.getClass().getSimpleName() + \":\" + n);\n} catch (IOException e) {\n    System.out.println(\"io\");\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nimport java.io.*;\n\nclass Parent {\n    protected Number read() throws IOException {\n        return 1;\n    }\n}\n\nclass Child extends Parent {\n    public Integer read() throws FileNotFoundException {\n        return 2;\n    }\n}\n\nParent p = new Child();\ntry {\n    Number n = p.read();\n    System.out.println(n.getClass().getSimpleName() + \":\" + n);\n} catch (IOException e) {\n    System.out.println(\"io\");\n}\n```",
       "options": [
         "Integer:2",
         "Number:1",
@@ -284,7 +284,7 @@
       "id": "silver-021",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass A {\n    private void hidden() { System.out.print(\"A\"); }\n    final void fixed() { hidden(); }\n    void run() { fixed(); }\n}\nclass B extends A {\n    void hidden() { System.out.print(\"B\"); }\n    void run() { super.run(); hidden(); }\n}\nA a = new B();\na.run();\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass A {\n    private void hidden() {\n        System.out.print(\"A\");\n    }\n\n    final void fixed() {\n        hidden();\n    }\n\n    void run() {\n        fixed();\n    }\n}\n\nclass B extends A {\n    void hidden() {\n        System.out.print(\"B\");\n    }\n\n    void run() {\n        super.run();\n        hidden();\n    }\n}\n\nA a = new B();\na.run();\n```",
       "options": [
         "AB",
         "BB",
@@ -298,7 +298,7 @@
       "id": "silver-022",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードについて、A〜Eのうちコンパイルできる行の組み合わせとして正しいものはどれか。\n\n```java\n// file: base/Box.java\npackage base;\npublic class Box { protected int value = 10; }\n\n// file: app/SubBox.java\npackage app;\nimport base.Box;\npublic class SubBox extends Box {\n    void test(SubBox s, Box b) {\n        System.out.print(this.value);   // A\n        System.out.print(s.value);      // B\n        System.out.print(super.value);  // C\n        System.out.print(b.value);      // D\n        System.out.print(new Box().value); // E\n    }\n}\n```",
+      "text": "次のコードについて、A〜Eのうちコンパイルできる行の組み合わせとして正しいものはどれか。\n\n```java\n// file: base/Box.java\npackage base;\n\npublic class Box {\n    protected int value = 10;\n}\n\n// file: app/SubBox.java\npackage app;\n\nimport base.Box;\n\npublic class SubBox extends Box {\n    void test(SubBox s, Box b) {\n        System.out.print(this.value);      // A\n        System.out.print(s.value);         // B\n        System.out.print(super.value);     // C\n        System.out.print(b.value);         // D\n        System.out.print(new Box().value); // E\n    }\n}\n```",
       "options": [
         "A, B, C のみ",
         "A, C のみ",
@@ -312,7 +312,7 @@
       "id": "silver-023",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\ninterface A { default String f() { return \"A\"; } }\ninterface B { default String f() { return \"B\"; } }\nclass Base { public String f() { return \"Base\"; } }\nclass X extends Base implements A, B { }\nclass Y implements A, B {\n    public String f() { return A.super.f() + B.super.f(); }\n}\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(new X().f());\n        System.out.println(new Y().f());\n    }\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\ninterface A {\n    default String f() {\n        return \"A\";\n    }\n}\n\ninterface B {\n    default String f() {\n        return \"B\";\n    }\n}\n\nclass Base {\n    public String f() {\n        return \"Base\";\n    }\n}\n\nclass X extends Base implements A, B {\n}\n\nclass Y implements A, B {\n    public String f() {\n        return A.super.f() + B.super.f();\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(new X().f());\n        System.out.println(new Y().f());\n    }\n}\n```",
       "options": [
         "Base / AB",
         "コンパイルエラー。X が A と B の競合を解決していない",
@@ -326,7 +326,7 @@
       "id": "silver-024",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\ninterface Tool {\n    private String id() { return \"I\"; }\n    private static String s() { return \"S\"; }\n    default String run() { return id() + s(); }\n    static String call() { return s(); }\n}\nclass Hammer implements Tool {\n    public String id() { return \"H\"; }\n}\nTool t = new Hammer();\nSystem.out.println(t.run());\nSystem.out.println(((Hammer)t).id() + Tool.call());\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\ninterface Tool {\n    private String id() {\n        return \"I\";\n    }\n\n    private static String s() {\n        return \"S\";\n    }\n\n    default String run() {\n        return id() + s();\n    }\n\n    static String call() {\n        return s();\n    }\n}\n\nclass Hammer implements Tool {\n    public String id() {\n        return \"H\";\n    }\n}\n\nTool t = new Hammer();\nSystem.out.println(t.run());\nSystem.out.println(((Hammer) t).id() + Tool.call());\n```",
       "options": [
         "IS / HS",
         "HS / HS",
@@ -340,7 +340,7 @@
       "id": "silver-025",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nsealed class Shape permits Circle, Polygon { }\nfinal class Circle extends Shape { }\nnon-sealed class Polygon extends Shape { }\nclass Triangle extends Polygon { }\nclass BadCircle extends Circle { }\npublic class Main {\n    public static void main(String[] args) {\n        Shape s = new Triangle();\n        System.out.println(s.getClass().getSimpleName());\n    }\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nsealed class Shape permits Circle, Polygon {\n}\n\nfinal class Circle extends Shape {\n}\n\nnon-sealed class Polygon extends Shape {\n}\n\nclass Triangle extends Polygon {\n}\n\nclass BadCircle extends Circle {\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Shape s = new Triangle();\n        System.out.println(s.getClass().getSimpleName());\n    }\n}\n```",
       "options": [
         "コンパイルエラー。BadCircle は final class Circle を継承できない",
         "Triangle",
@@ -368,7 +368,7 @@
       "id": "silver-027",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nimport java.io.*;\nclass Parent {\n    void work() throws IOException { System.out.print(\"P\"); }\n}\nclass Child extends Parent {\n    void work() throws FileNotFoundException { throw new FileNotFoundException(); }\n}\nParent p = new Child();\ntry {\n    p.work();\n    System.out.print(\"A\");\n} catch (FileNotFoundException e) {\n    System.out.print(\"F\");\n} catch (IOException e) {\n    System.out.print(\"I\");\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nimport java.io.*;\n\nclass Parent {\n    void work() throws IOException {\n        System.out.print(\"P\");\n    }\n}\n\nclass Child extends Parent {\n    void work() throws FileNotFoundException {\n        throw new FileNotFoundException();\n    }\n}\n\nParent p = new Child();\ntry {\n    p.work();\n    System.out.print(\"A\");\n} catch (FileNotFoundException e) {\n    System.out.print(\"F\");\n} catch (IOException e) {\n    System.out.print(\"I\");\n}\n```",
       "options": [
         "F",
         "I",
@@ -382,7 +382,7 @@
       "id": "silver-028",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass R implements AutoCloseable {\n    String name;\n    R(String name) { this.name = name; System.out.print(\"open\" + name); }\n    public void close() { System.out.print(\"close\" + name); }\n}\ntry (R a = new R(\"A\"); R b = new R(\"B\")) {\n    System.out.print(\"body\");\n    throw new RuntimeException();\n} catch (RuntimeException e) {\n    System.out.print(\"catch\");\n} finally {\n    System.out.print(\"finally\");\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass R implements AutoCloseable {\n    String name;\n\n    R(String name) {\n        this.name = name;\n        System.out.print(\"open\" + name);\n    }\n\n    public void close() {\n        System.out.print(\"close\" + name);\n    }\n}\n\ntry (R a = new R(\"A\"); R b = new R(\"B\")) {\n    System.out.print(\"body\");\n    throw new RuntimeException();\n} catch (RuntimeException e) {\n    System.out.print(\"catch\");\n} finally {\n    System.out.print(\"finally\");\n}\n```",
       "options": [
         "openAopenBbodycloseBcloseAcatchfinally",
         "openAopenBbodycloseAcloseBcatchfinally",
@@ -424,7 +424,7 @@
       "id": "silver-031",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\ninterface Worker { void work(); }\nclass Employee implements Worker {\n    public void work() { System.out.print(\"W\"); }\n    public void report() { System.out.print(\"R\"); }\n}\nclass Engineer extends Employee {\n    public void work() { System.out.print(\"E\"); }\n    public void create() { System.out.print(\"C\"); }\n}\nWorker[] team = { new Engineer(), new Employee() };\nfor (Worker w : team) {\n    w.work();\n    if (w instanceof Engineer e) {\n        e.create();\n    } else {\n        ((Employee) w).report();\n    }\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\ninterface Worker {\n    void work();\n}\n\nclass Employee implements Worker {\n    public void work() {\n        System.out.print(\"W\");\n    }\n\n    public void report() {\n        System.out.print(\"R\");\n    }\n}\n\nclass Engineer extends Employee {\n    public void work() {\n        System.out.print(\"E\");\n    }\n\n    public void create() {\n        System.out.print(\"C\");\n    }\n}\n\nWorker[] team = { new Engineer(), new Employee() };\nfor (Worker w : team) {\n    w.work();\n    if (w instanceof Engineer e) {\n        e.create();\n    } else {\n        ((Employee) w).report();\n    }\n}\n```",
       "options": [
         "ECWR",
         "WCRE",
@@ -466,7 +466,7 @@
       "id": "silver-034",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nrecord Point(int x, int y) { }\nclass Pair {\n    int x, y;\n    Pair(int x, int y) { this.x = x; this.y = y; }\n}\npublic class Main {\n    public static void main(String[] args) {\n        Object[] a = { new Point(1, 2), new Pair(1, 2) };\n        Object[] b = { new Point(1, 2), new Pair(1, 2) };\n        System.out.println(a[0].equals(b[0]) + \":\" + a[1].equals(b[1]));\n        System.out.println(a.equals(b));\n    }\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nrecord Point(int x, int y) {\n}\n\nclass Pair {\n    int x;\n    int y;\n\n    Pair(int x, int y) {\n        this.x = x;\n        this.y = y;\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Object[] a = { new Point(1, 2), new Pair(1, 2) };\n        Object[] b = { new Point(1, 2), new Pair(1, 2) };\n        System.out.println(\n            a[0].equals(b[0]) + \":\" + a[1].equals(b[1])\n        );\n        System.out.println(a.equals(b));\n    }\n}\n```",
       "options": [
         "true:false / false",
         "true:true / false",
@@ -606,7 +606,7 @@
       "id": "silver-044",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nsealed interface Node permits Leaf, Pair { }\nfinal class Leaf implements Node { int v; Leaf(int v){this.v=v;} }\nfinal class Pair implements Node { Node left; Pair(Node n){left=n;} }\nNode n = new Pair(new Leaf(3));\nif (n instanceof Leaf l) {\n    System.out.println(l.v);\n} else if (n instanceof Pair p && p.left instanceof Leaf l) {\n    System.out.println(l.v + 1);\n} else {\n    System.out.println(0);\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nsealed interface Node permits Leaf, Pair {\n}\n\nfinal class Leaf implements Node {\n    int v;\n\n    Leaf(int v) {\n        this.v = v;\n    }\n}\n\nfinal class Pair implements Node {\n    Node left;\n\n    Pair(Node n) {\n        left = n;\n    }\n}\n\nNode n = new Pair(new Leaf(3));\nif (n instanceof Leaf l) {\n    System.out.println(l.v);\n} else if (n instanceof Pair p && p.left instanceof Leaf l) {\n    System.out.println(l.v + 1);\n} else {\n    System.out.println(0);\n}\n```",
       "options": [
         "4",
         "3",
@@ -620,7 +620,7 @@
       "id": "silver-045",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass Item {\n    int price = 1;\n    Item() { this(price(2)); }\n    Item(int price) { this.price += price; }\n    static int price(int price) { return price * 3; }\n}\npublic class Main {\n    public static void main(String[] args) {\n        Item item = new Item();\n        System.out.println(item.price);\n    }\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass Item {\n    int price = 1;\n\n    Item() {\n        this(price(2));\n    }\n\n    Item(int price) {\n        this.price += price;\n    }\n\n    static int price(int price) {\n        return price * 3;\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Item item = new Item();\n        System.out.println(item.price);\n    }\n}\n```",
       "options": [
         "7",
         "6",
@@ -634,7 +634,7 @@
       "id": "silver-046",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\ninterface Printable { default String print() { return \"I\"; } }\nabstract class Base implements Printable {\n    public abstract String print();\n    String call() { return print() + Printable.super.print(); }\n}\nclass Doc extends Base {\n    public String print() { return \"D\"; }\n}\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(new Doc().call());\n    }\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\ninterface Printable {\n    default String print() {\n        return \"I\";\n    }\n}\n\nabstract class Base implements Printable {\n    public abstract String print();\n\n    String call() {\n        return print() + Printable.super.print();\n    }\n}\n\nclass Doc extends Base {\n    public String print() {\n        return \"D\";\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(new Doc().call());\n    }\n}\n```",
       "options": [
         "DI",
         "II",
@@ -676,7 +676,7 @@
       "id": "silver-049",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass String {\n    private final java.lang.String v;\n    String(java.lang.String v) { this.v = v; }\n    public java.lang.String toString() { return \"X\" + v; }\n}\npublic class Main {\n    public static void main(java.lang.String[] args) {\n        String s = new String(\"a\");\n        System.out.println(s);\n    }\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass String {\n    private final java.lang.String v;\n\n    String(java.lang.String v) {\n        this.v = v;\n    }\n\n    public java.lang.String toString() {\n        return \"X\" + v;\n    }\n}\n\npublic class Main {\n    public static void main(java.lang.String[] args) {\n        String s = new String(\"a\");\n        System.out.println(s);\n    }\n}\n```",
       "options": [
         "Xa",
         "a",
@@ -690,7 +690,7 @@
       "id": "silver-050",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass Base {\n    StringBuilder sb = new StringBuilder(\"B\");\n    Base() { mark(); }\n    void mark() { sb.append(\"b\"); }\n}\nclass Sub extends Base {\n    StringBuilder sb = new StringBuilder(\"S\");\n    int n = 1;\n    void mark() { sb.append(n); }\n    int run() {\n        try {\n            sb.append(\"T\");\n            return n++;\n        } finally {\n            sb.append(n);\n        }\n    }\n}\nSub s = new Sub();\nSystem.out.println(s.sb + \":\" + s.run() + \":\" + s.sb);\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\nclass Base {\n    StringBuilder sb = new StringBuilder(\"B\");\n\n    Base() {\n        mark();\n    }\n\n    void mark() {\n        sb.append(\"b\");\n    }\n}\n\nclass Sub extends Base {\n    StringBuilder sb = new StringBuilder(\"S\");\n    int n = 1;\n\n    void mark() {\n        sb.append(n);\n    }\n\n    int run() {\n        try {\n            sb.append(\"T\");\n            return n++;\n        } finally {\n            sb.append(n);\n        }\n    }\n}\n\nSub s = new Sub();\nSystem.out.println(s.sb + \":\" + s.run() + \":\" + s.sb);\n```",
       "options": [
         "Sub 生成中に NullPointerException が発生し、println まで到達しない",
         "S:1:S1T2",
