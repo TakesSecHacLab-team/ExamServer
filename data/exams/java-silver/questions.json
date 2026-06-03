@@ -144,7 +144,7 @@
       "id": "silver-011",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "ArrayList の remove overload、Integer キャッシュ、null のアンボクシング例外を読む。次の出力はどれか。\n\n```java\nimport java.util.*;\nArrayList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 1, null));\nInteger x = 1;\nint y = 1;\nSystem.out.print(list.remove(x) + \":\");\nSystem.out.print(list.remove(y) + \":\");\ntry {\n    int z = list.get(1);\n    System.out.println(z);\n} catch (NullPointerException e) {\n    System.out.println(list + \":NPE\");\n}\n```",
+      "text": "ArrayList の remove overload、boxing による引数型の違い、null のアンボクシング例外を読む。次の出力はどれか。\n\n```java\nimport java.util.*;\nArrayList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 1, null));\nInteger x = 1;\nint y = 1;\nSystem.out.print(list.remove(x) + \":\");\nSystem.out.print(list.remove(y) + \":\");\ntry {\n    int z = list.get(1);\n    System.out.println(z);\n} catch (NullPointerException e) {\n    System.out.println(list + \":NPE\");\n}\n```",
       "options": [
         "true:1:[2, null]:NPE",
         "true:2:[1, null]:NPE",
@@ -208,7 +208,7 @@
         "F1C3I2D6:6"
       ],
       "answer": 0,
-      "explanation": "new Trace() はまずフィールド初期化で x に add(F,1) の戻り値 1 を入れる。次にインスタンス初期化子で add(I,2) を足して x は 3。その後引数なしコンストラクタ本体の先頭 this(3) により Trace(int) が実行され、add(C,3) を足して x は 6。戻って log に D6 を追加する。よってログは F1I2C3D6、x は 6。"
+      "explanation": "new Trace() の本体には `this(3)` があるため、引数なしコンストラクタの通常処理より先に Trace(int) へ委譲される。委譲先のコンストラクタでは、Object のコンストラクタ呼び出し後に Trace のフィールド初期化とインスタンス初期化子が宣言順に実行されるので、`F1` で x=1、`I2` で x=3。そこから Trace(int) の本体に入り、`add(\"C\", 3)` を足して x=6。委譲元に戻って `D6` を追加するため、ログは `F1I2C3D6`、x は 6。"
     },
     {
       "id": "silver-016",
@@ -410,7 +410,7 @@
       "id": "silver-030",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "multi-catch、例外変数の型、再代入不可、finally の実行を読む。次の出力はどれか。\n\n```java\nRuntimeException ex = new IllegalArgumentException(\"x\");\ntry {\n    throw ex;\n} catch (IllegalArgumentException | NullPointerException e) {\n    System.out.print(e.getClass().getSimpleName());\n} catch (RuntimeException e) {\n    System.out.print(\"runtime\");\n} finally {\n    System.out.print(\":done\");\n}\n```",
+      "text": "multi-catch、例外の静的型と実体、catch 到達可能性、finally の実行を読む。次の出力はどれか。\n\n```java\nRuntimeException ex = new IllegalArgumentException(\"x\");\ntry {\n    throw ex;\n} catch (IllegalArgumentException | NullPointerException e) {\n    System.out.print(e.getClass().getSimpleName());\n} catch (RuntimeException e) {\n    System.out.print(\"runtime\");\n} finally {\n    System.out.print(\":done\");\n}\n```",
       "options": [
         "IllegalArgumentException:done",
         "runtime:done",
@@ -424,15 +424,15 @@
       "id": "silver-031",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "ラムダを使わず、匿名クラスの this、外側変数、effectively final を読む。次の出力はどれか。\n\n```java\ninterface Task { String run(); }\nclass Maker {\n    String name = \"M\";\n    Task make() {\n        String local = name;\n        return new Task() {\n            String name = \"T\";\n            public String run() { return this.name + \":\" + Maker.this.name + \":\" + local; }\n        };\n    }\n}\nMaker m = new Maker();\nTask t = m.make();\nm.name = \"X\";\nSystem.out.println(t.run());\n```",
+      "text": "interface 参照、実行時型、instanceof パターン、キャスト後に見えるメソッドを読む。次の出力はどれか。\n\n```java\ninterface Worker { void work(); }\nclass Employee implements Worker {\n    public void work() { System.out.print(\"W\"); }\n    public void report() { System.out.print(\"R\"); }\n}\nclass Engineer extends Employee {\n    public void work() { System.out.print(\"E\"); }\n    public void create() { System.out.print(\"C\"); }\n}\nWorker[] team = { new Engineer(), new Employee() };\nfor (Worker w : team) {\n    w.work();\n    if (w instanceof Engineer e) {\n        e.create();\n    } else {\n        ((Employee) w).report();\n    }\n}\n```",
       "options": [
-        "T:X:M",
-        "T:M:M",
-        "X:X:M",
-        "コンパイルエラー。local は effectively final ではない"
+        "ECWR",
+        "WCRE",
+        "ECER",
+        "コンパイルエラー。Worker 型から report は呼べない"
       ],
       "answer": 0,
-      "explanation": "匿名クラス内の this は匿名クラス自身を指すため this.name は T。Maker.this.name は外側の Maker インスタンスのフィールドで、make 後に X へ変更されている。local は make 実行時に name の値 M を受け取り、その後再代入されていないため effectively final として匿名クラスから参照できる。"
+      "explanation": "配列の静的型は Worker[] だが、各要素の実体型は異なる。1つ目は Engineer なので `w.work()` は動的ディスパッチで Engineer.work() となり `E`、さらに pattern matching で Engineer e が導入され `create()` により `C`。2つ目は Employee なので `w.work()` は Employee.work() で `W`、Engineer ではないため else に入り、Employee へキャストして `report()` を呼び `R`。Worker 型のままでは report は見えないが、コードではキャストしているためコンパイルできる。"
     },
     {
       "id": "silver-032",
@@ -452,15 +452,15 @@
       "id": "silver-033",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "inner class、static nested class、外側インスタンスの参照を読む。次の出力はどれか。\n\n```java\nclass Outer {\n    int v = 1;\n    class Inner { int get() { return ++v; } }\n    static class Nested { int get(Outer o) { return o.v += 10; } }\n}\nOuter o1 = new Outer();\nOuter o2 = new Outer();\nOuter.Inner i = o1.new Inner();\nOuter.Nested n = new Outer.Nested();\nSystem.out.println(i.get() + \":\" + n.get(o1) + \":\" + o1.v + \":\" + o2.v);\n```",
+      "text": "Arrays.asList と List.of の参照共有・変更可否・配列変更の反映を比較する。次の出力はどれか。\n\n```java\nimport java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        String[] arr = { \"a\", \"b\" };\n        List<String> fixed = Arrays.asList(arr);\n        List<String> immutable = List.of(arr);\n        arr[0] = \"A\";\n        fixed.set(1, \"B\");\n        try {\n            immutable.set(0, \"X\");\n        } catch (UnsupportedOperationException e) {\n            System.out.println(Arrays.toString(arr));\n            System.out.println(fixed + \":\" + immutable);\n        }\n    }\n}\n```",
       "options": [
-        "2:12:12:1",
-        "2:11:11:1",
-        "2:12:1:1",
-        "コンパイルエラー。static nested class は外側クラス名で生成できない"
+        "[A, B] / [A, B]:[a, b]",
+        "[A, B] / [A, B]:[A, B]",
+        "[A, b] / [A, B]:[a, b]",
+        "コンパイルエラー。List.of(arr) は List<String[]> になる"
       ],
       "answer": 0,
-      "explanation": "Inner は o1 に結びついた内部クラスなので i.get() は o1.v を 1 から 2 にする。Nested は static nested class で外側インスタンスを暗黙には持たないが、引数で受け取った o1 を操作できる。n.get(o1) は o1.v に 10 を足して 12。o2 は別インスタンスなので v は 1 のまま。"
+      "explanation": "`Arrays.asList(arr)` は元配列を背後に持つ固定長リストなので、arr[0] = \"A\" は fixed にも反映され、fixed.set(1,\"B\") は arr[1] も B に変える。一方 `List.of(arr)` は varargs として配列要素 a, b から新しい不変リストを作るため、元配列 arr とは共有しない。したがって immutable は [a, b] のまま。immutable.set は変更不可なので UnsupportedOperationException が発生し、catch 内で `[A, B]` と `[A, B]:[a, b]` が出力される。"
     },
     {
       "id": "silver-034",
@@ -480,7 +480,7 @@
       "id": "silver-035",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "テキストブロック、strip、indent、lines の結果を読む。次の出力はどれか。\n\n```java\npublic class Main {\n    public static void main(String[] args) {\n        String text = \"\"\"\n                A\n                  B\n                \"\"\";\n        String s = text.strip().indent(1);\n        String[] lines = s.split(\"\\\\R\");\n        System.out.println(lines.length + \":\" + lines[0].length() + \":\" + lines[1].trim());\n    }\n}\n```",
+      "text": "テキストブロック、strip、indent、split の結果を読む。次の出力はどれか。\n\n```java\npublic class Main {\n    public static void main(String[] args) {\n        String text = \"\"\"\n                A\n                  B\n                \"\"\";\n        String s = text.strip().indent(1);\n        String[] lines = s.split(\"\\\\R\");\n        System.out.println(lines.length + \":\" + lines[0].length() + \":\" + lines[1].trim());\n    }\n}\n```",
       "options": [
         "2:2:B",
         "3:0:B",
@@ -628,7 +628,7 @@
         "コンパイルエラー。this(...) 呼び出し前に static メソッドを呼べない"
       ],
       "answer": 0,
-      "explanation": "引数なしコンストラクタの this(price(2)) は、同じクラスの static メソッド price を呼んで 6 を得る。コンストラクタ委譲先に入る前に、オブジェクトのフィールド初期化は一度だけ行われ、price フィールドは 1。Item(int price) ではパラメータ price が 6 で、this.price += price により 7。this(...) の引数式で static メソッドを呼ぶことは可能。"
+      "explanation": "引数なしコンストラクタの `this(price(2))` では、まず明示的コンストラクタ呼び出しの引数式として static メソッド `price(2)` が評価され、6 が得られる。その後、委譲先の `Item(int price)` が実行される過程で、Object コンストラクタ呼び出し後にフィールド初期化 `int price = 1` が行われる。最後に `Item(int)` の本体で `this.price += price` が実行され、フィールド 1 にパラメータ 6 を足して 7。`this(...)` の引数式で static メソッドを呼ぶことはできるが、インスタンスメンバーを直接参照することはできない。"
     },
     {
       "id": "silver-046",
@@ -648,15 +648,15 @@
       "id": "silver-047",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "メソッド内ローカルクラス、effectively final、外側フィールド変更を読む。次の出力はどれか。\n\n```java\nclass Counter {\n    int base = 1;\n    Object make(int add) {\n        int start = base + add;\n        class Local {\n            int get() { return start + base; }\n        }\n        base = 10;\n        return new Local();\n    }\n}\nCounter c = new Counter();\nObject obj = c.make(2);\nSystem.out.println(obj.getClass().getSimpleName());\n```",
+      "text": "可変長引数、overload 解決、渡された配列の共有、副作用を同時に読む。次の出力はどれか。\n\n```java\npublic class Main {\n    static String join(String prefix, int... nums) {\n        nums[0]++;\n        return prefix + nums.length + \":\" + nums[0];\n    }\n    static String join(Object prefix, int n) {\n        return \"O\" + prefix + \":\" + n;\n    }\n    public static void main(String[] args) {\n        int[] data = {1, 2};\n        System.out.println(join(\"A\", data));\n        System.out.println(data[0] + \":\" + data[1]);\n        System.out.println(join((Object) \"A\", data[0]));\n    }\n}\n```",
       "options": [
-        "Local",
-        "コンパイルエラー。start は effectively final ではない",
-        "コンパイルエラー。base を変更すると Local から参照できない",
-        "13"
+        "A2:2 / 2:2 / OA:2",
+        "A2:2 / 1:2 / OA:1",
+        "OA:1 / 1:2 / OA:1",
+        "コンパイルエラー。int[] は int... に渡せない"
       ],
       "answer": 0,
-      "explanation": "ローカルクラス名はコンパイル後に修飾されるが、実行時の単純名として getSimpleName は Local を返す。start は代入後に再代入されていないため effectively final。base はフィールドであり、ローカルクラスから参照しても effectively final 制約の対象ではない。private な Local 型には外から直接キャストできないので、ここではクラス名だけを出している。"
+      "explanation": "`join(\"A\", data)` は第1引数が String、第2引数が int[] なので、可変長引数 `int...` のメソッドを通常の配列渡しとして呼ぶ。varargs だから配列がコピーされるわけではなく、渡された data と nums は同じ配列を指すため、`nums[0]++` により data[0] も 2 になる。戻り値は `A` + 長さ2 + 先頭2 で `A2:2`。次の出力では data は `2:2`。最後は第1引数を Object に明示キャストしているため Object overload が選ばれ、`OA:2` になる。"
     },
     {
       "id": "silver-048",
