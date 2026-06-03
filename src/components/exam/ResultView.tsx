@@ -8,14 +8,13 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import type {
   BatchAnswerResponse,
   PublicQuestion,
   ExamMode,
 } from "@/types/exam";
 import { saveExamResult } from "@/lib/storage";
+import MarkdownContent from "@/components/exam/MarkdownContent";
 
 interface Props {
   categoryId: string;
@@ -110,11 +109,9 @@ export default function ResultView({
 
               <div className="px-4 pb-4 pt-2 border-t border-gray-100 space-y-3">
                 {/* 問題文 */}
-                <div className="prose prose-sm max-w-none text-gray-700">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {question.text}
-                  </ReactMarkdown>
-                </div>
+                <MarkdownContent className="text-gray-700">
+                  {question.text}
+                </MarkdownContent>
 
                 {/* 選択肢と正誤 */}
                 <div className="space-y-1">
@@ -161,11 +158,9 @@ export default function ResultView({
                   <p className="text-xs font-semibold text-gray-500 mb-1">
                     解説
                   </p>
-                  <div className="prose prose-sm max-w-none text-gray-700">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {r.explanation}
-                    </ReactMarkdown>
-                  </div>
+                  <MarkdownContent className="text-gray-700">
+                    {r.explanation}
+                  </MarkdownContent>
                 </div>
               </div>
             </details>

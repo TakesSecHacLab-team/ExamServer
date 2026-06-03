@@ -4,7 +4,7 @@
       "id": "silver-001",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードを `java Main red blue` で実行した結果として、正しいものはどれか。\n\n```java\npublic class Main {\n    static String pick(String[] a, int i) {\n        String s = a[i++];\n        a[0] = a[0].toUpperCase();\n        return s + \":\" + i;\n    }\n    public static void main(String... args) {\n        String[] copy = args;\n        int n = 0;\n        String r = args.length > 1 ? pick(copy, n++) : \"none\";\n        System.out.println(r);\n        System.out.println(n + \":\" + args[0] + \":\" + args[1]);\n    }\n}\n```",
+      "text": "次のコードを `java Main red blue` で実行した結果として、正しいものはどれか。\n\n```java\npublic class Main {\n    static String pick(String[] a, int i) {\n        String s = a[i++];\n        a[0] = a[0].toUpperCase();\n        return s + \":\" + i;\n    }\n\n    public static void main(String... args) {\n        String[] copy = args;\n        int n = 0;\n        String r;\n        if (args.length > 1) {\n            r = pick(copy, n++);\n        } else {\n            r = \"none\";\n        }\n        System.out.println(r);\n        System.out.println(n + \":\" + args[0] + \":\" + args[1]);\n    }\n}\n```",
       "options": [
         "red:1 / 1:RED:blue",
         "RED:1 / 1:RED:blue",
@@ -12,7 +12,7 @@
         "red:0 / 1:RED:blue"
       ],
       "answer": 0,
-      "explanation": "args と copy は同じ配列を参照する。三項演算子は条件が true なので pick(copy, n++) を評価し、引数 i には 0 が渡ったあと n は 1 になる。pick 内の s は変更前の a[0] である red を保持し、その後 a[0] は RED に置き換わる。i++ はローカル変数 i だけを 1 にするため戻り値は red:1。String 自体は不変だが配列要素の参照代入は args に反映される。 ここでの誤答は、`local.toUpperCase()` が元の String や配列要素を変更すると考えるもの、または `n++` の更新が pick 内の i にも影響すると考えるもの。String の不変性と、プリミティブ引数は値渡しである点を分けて追う必要がある。"
+      "explanation": "args と copy は同じ配列を参照する。args.length は 2 なので if ブロックに入り、pick(copy, n++) が呼び出される。引数 i には 0 が渡り、その直後に main 側の n は 1 になる。pick 内の s は変更前の a[0] である red を保持し、その後 a[0] は RED に置き換わる。i++ は pick のローカル変数 i だけを 1 にするため戻り値は red:1。String 自体は不変だが配列要素の参照代入は args に反映される。 ここでの誤答は、`toUpperCase()` が元の String や配列要素を直接変更すると考えるもの、または `n++` の更新が pick 内の i にも影響すると考えるもの。String の不変性、配列参照の共有、プリミティブ引数の値渡しを分けて追う必要がある。"
     },
     {
       "id": "silver-002",
@@ -438,7 +438,7 @@
       "id": "silver-032",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\npublic class Main {\n    static void call(String... s) { System.out.print(\"V\" + (s == null ? -1 : s.length)); }\n    static void call(Object o) { System.out.print(\"O\" + (o == null)); }\n    public static void main(String[] args) {\n        String[] data = {\"a\", \"b\"};\n        call(data);\n        data[0] = \"x\";\n        call((Object) data);\n        call((String[]) null);\n    }\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\npublic class Main {\n    static void call(String... s) {\n        int len;\n        if (s == null) {\n            len = -1;\n        } else {\n            len = s.length;\n        }\n        System.out.print(\"V\" + len);\n    }\n\n    static void call(Object o) {\n        System.out.print(\"O\" + (o == null));\n    }\n\n    public static void main(String[] args) {\n        String[] data = { \"a\", \"b\" };\n        call(data);\n        data[0] = \"x\";\n        call((Object) data);\n        call((String[]) null);\n    }\n}\n```",
       "options": [
         "V2OfalseV-1",
         "OfalseOfalseV-1",
@@ -480,7 +480,7 @@
       "id": "silver-035",
       "style": "oneshot",
       "type": "single-choice",
-      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\npublic class Main {\n    public static void main(String[] args) {\n        String text = \"\"\"\n                A\n                  B\n                \"\"\";\n        String s = text.strip().indent(1);\n        String[] lines = s.split(\"\\\\R\");\n        System.out.println(lines.length + \":\" + lines[0].length() + \":\" + lines[1].trim());\n    }\n}\n```",
+      "text": "次のコードをコンパイル、実行した結果として、正しいものはどれか。\n\n```java\npublic class Main {\n    public static void main(String[] args) {\n        String text = \"\"\"\n                A\n                  B\n                \"\"\";\n        String s = text.strip().indent(1);\n        String[] lines = s.split(\"\\\\R\");\n        System.out.println(\n            lines.length + \":\" + lines[0].length() + \":\" + lines[1].trim()\n        );\n    }\n}\n```",
       "options": [
         "2:2:B",
         "3:0:B",

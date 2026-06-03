@@ -5,9 +5,8 @@
 
 "use client";
 
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import type { AnswerResponse } from "@/types/exam";
+import MarkdownContent from "@/components/exam/MarkdownContent";
 
 interface Props {
   result: AnswerResponse;
@@ -39,11 +38,9 @@ export default function DrillFeedback({ result, onNext }: Props) {
       {/* 解説 */}
       <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
         <p className="text-xs font-semibold text-gray-500 mb-2">解説</p>
-        <div className="prose prose-sm max-w-none text-gray-700">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {result.explanation}
-          </ReactMarkdown>
-        </div>
+        <MarkdownContent className="text-gray-700">
+          {result.explanation}
+        </MarkdownContent>
       </div>
 
       {/* 次の問題へ */}

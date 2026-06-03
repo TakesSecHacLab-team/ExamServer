@@ -8,10 +8,9 @@
 "use client";
 
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import type { PublicQuestion, PublicScenario, QuestionType } from "@/types/exam";
 import ChoiceGroup from "@/components/exam/ChoiceGroup";
+import MarkdownContent from "@/components/exam/MarkdownContent";
 
 interface Props {
   scenario: PublicScenario;
@@ -44,11 +43,9 @@ export default function ScenarioLayout({
           <h3 className="text-sm font-semibold text-gray-500 mb-3">
             {scenario.title}
           </h3>
-          <div className="prose prose-sm max-w-none text-gray-800">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {scenario.scenario}
-            </ReactMarkdown>
-          </div>
+          <MarkdownContent className="text-gray-800">
+            {scenario.scenario}
+          </MarkdownContent>
 
           {/* シナリオ画像 */}
           {scenario.scenarioImages?.map((src) => (
@@ -88,11 +85,9 @@ export default function ScenarioLayout({
 
         {scenarioOpen && (
           <div className="border border-gray-200 rounded-lg bg-white p-4 max-h-[50vh] overflow-auto">
-            <div className="prose prose-sm max-w-none text-gray-800">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {scenario.scenario}
-              </ReactMarkdown>
-            </div>
+            <MarkdownContent className="text-gray-800">
+              {scenario.scenario}
+            </MarkdownContent>
             {scenario.scenarioImages?.map((src) => (
               <div key={src} className="mt-3 flex justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -133,11 +128,9 @@ function QuestionPanel({
   return (
     <div className="space-y-5">
       {/* 問題文 */}
-      <div className="prose prose-sm max-w-none text-gray-800">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {question.text}
-        </ReactMarkdown>
-      </div>
+      <MarkdownContent className="text-gray-800">
+        {question.text}
+      </MarkdownContent>
 
       {/* 問題画像 */}
       {question.image && (

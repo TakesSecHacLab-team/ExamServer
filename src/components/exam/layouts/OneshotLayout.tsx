@@ -5,10 +5,9 @@
 
 "use client";
 
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import type { PublicQuestion, QuestionType } from "@/types/exam";
 import ChoiceGroup from "@/components/exam/ChoiceGroup";
+import MarkdownContent from "@/components/exam/MarkdownContent";
 
 interface Props {
   question: PublicQuestion;
@@ -32,11 +31,9 @@ export default function OneshotLayout({
   return (
     <div className="space-y-6">
       {/* 問題文 */}
-      <div className="prose prose-sm max-w-none text-gray-800">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {question.text}
-        </ReactMarkdown>
-      </div>
+      <MarkdownContent className="text-gray-800">
+        {question.text}
+      </MarkdownContent>
 
       {/* 画像（ある場合） */}
       {question.image && (
