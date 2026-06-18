@@ -126,15 +126,24 @@ export function useExamSession(
         }
       }
 
+      const saved = loadSessionState();
+      const restoredQuestions = restoreSavedQuestionOrder(
+        saved,
+        categoryId,
+        allQuestions,
+        questionCount
+      );
+
       // ランダム出題（問題数指定時）
-      if (questionCount < allQuestions.length) {
+      if (restoredQuestions) {
+        allQuestions = restoredQuestions;
+      } else if (questionCount < allQuestions.length) {
         allQuestions = shuffle(allQuestions).slice(0, questionCount);
       }
 
       // sessionStorage から復帰を試みる。
       // カテゴリやランダム出題順が違うセッションを復帰すると、
       // 表示中の選択肢と採点対象 questionId がズレるため、問題ID列まで一致させる。
-      const saved = loadSessionState();
       if (isRestorableSession(saved, categoryId, allQuestions)) {
         setAnswers(saved.answers);
         setCurrentIndex(Math.min(saved.currentIndex, allQuestions.length - 1));
@@ -354,6 +363,24 @@ function isRestorableSession(
       saved.answers[index]?.questionId === question.id
     );
   });
+}
+
+function restoreSavedQuestionOrder(
+  saved: SessionState | null,
+  categoryId: string,
+  questions: PublicQuestion[],
+  questionCount: number
+): PublicQuestion[] | null {
+  if (!saved) return null;
+  if (saved.categoryId !== categoryId) return null;
+  const expectedCount = Math.min(questionCount, questions.length);
+  if (saved.questionIds.length !== expectedCount) return null;
+
+  const questionsById = new Map(questions.map((question) => [question.id, question]));
+  const restored = saved.questionIds.map((id) => questionsById.get(id));
+  if (restored.some((question) => !question)) return null;
+
+  return restored as PublicQuestion[];
 }
 
 function saveSessionState(state: SessionState): void {

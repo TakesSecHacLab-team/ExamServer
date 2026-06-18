@@ -106,6 +106,18 @@ export default function ExamSession({
         userAnswer: currentAnswer.selectedAnswer,
       }
     : undefined;
+  const handlePrimaryNext =
+    mode === "drill" && session.drillResult
+      ? session.nextDrill
+      : mode === "drill"
+        ? session.submitDrill
+        : session.goNext;
+  const handlePrimaryFinish =
+    mode === "drill" && session.drillResult
+      ? session.nextDrill
+      : mode === "drill"
+        ? session.submitDrill
+        : session.finishExam;
 
   return (
     <ExamShell
@@ -118,9 +130,9 @@ export default function ExamSession({
       isScenario={isScenario}
       onFlag={session.toggleFlag}
       onPrev={session.goPrev}
-      onNext={mode === "drill" ? session.submitDrill : session.goNext}
+      onNext={handlePrimaryNext}
       onNavigate={session.goTo}
-      onFinish={mode === "drill" ? session.submitDrill : session.finishExam}
+      onFinish={handlePrimaryFinish}
     >
       {/* style に応じてレイアウトを切り替え */}
       {isScenario && parentScenario ? (

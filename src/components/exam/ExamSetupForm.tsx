@@ -31,6 +31,7 @@ export default function ExamSetupForm({
   const [timerEnabled, setTimerEnabled] = useState(true);
 
   const handleStart = () => {
+    sessionStorage.removeItem("exam-session-state");
     // クエリパラメータで設定を渡す
     const params = new URLSearchParams({
       mode,
