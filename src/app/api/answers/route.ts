@@ -6,11 +6,12 @@
  */
 
 import { NextRequest } from "next/server";
-import { findQuestionById } from "@/lib/questions";
+import { findQuestionById, findQuestionByIdInCategory } from "@/lib/questions";
 import { scoreQuestion } from "@/lib/scoring";
 import type { AnswerResponse } from "@/types/exam";
 
 interface AnswerRequestBody {
+  categoryId?: string;
   questionId: string;
   answer: number | number[];
 }
@@ -25,7 +26,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const question = findQuestionById(body.questionId);
+  const question = body.categoryId
+    ? findQuestionByIdInCategory(body.categoryId, body.questionId)
+    : findQuestionById(body.questionId);
   if (!question) {
     return Response.json(
       { error: `問題が見つかりません: ${body.questionId}` },
@@ -36,6 +39,7 @@ export async function POST(request: NextRequest) {
   const score = scoreQuestion(question, body.answer);
 
   const response: AnswerResponse = {
+    questionId: question.id,
     correct: score === 1,
     score,
     answer: question.answer,

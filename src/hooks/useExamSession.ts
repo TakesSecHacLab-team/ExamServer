@@ -259,17 +259,19 @@ export function useExamSession(
     const current = answers[currentIndex];
     if (!currentQuestion || !current || current.selectedAnswer === null) return;
 
+    const questionId = currentQuestion.id;
     const res = await fetch("/api/answers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        questionId: currentQuestion.id,
+        categoryId,
+        questionId,
         answer: current.selectedAnswer,
       }),
     });
     const data = (await res.json()) as AnswerResponse;
-    setDrillResult(data);
-  }, [questions, answers, currentIndex]);
+    setDrillResult({ ...data, questionId: data.questionId ?? questionId });
+  }, [categoryId, questions, answers, currentIndex]);
 
   /** 一問一答: 結果を閉じて次へ */
   const nextDrill = useCallback(() => {

@@ -99,21 +99,25 @@ export default function ExamSession({
   const parentScenario = isScenario
     ? session.scenarioMap[currentQuestion.id]
     : null;
+  const currentDrillResult =
+    session.drillResult?.questionId === currentQuestion.id
+      ? session.drillResult
+      : null;
 
-  const resultProps = session.drillResult
+  const resultProps = currentDrillResult
     ? {
-        correctAnswer: session.drillResult.answer,
+        correctAnswer: currentDrillResult.answer,
         userAnswer: currentAnswer.selectedAnswer,
       }
     : undefined;
   const handlePrimaryNext =
-    mode === "drill" && session.drillResult
+    mode === "drill" && currentDrillResult
       ? session.nextDrill
       : mode === "drill"
         ? session.submitDrill
         : session.goNext;
   const handlePrimaryFinish =
-    mode === "drill" && session.drillResult
+    mode === "drill" && currentDrillResult
       ? session.nextDrill
       : mode === "drill"
         ? session.submitDrill
@@ -142,7 +146,7 @@ export default function ExamSession({
           selectedAnswer={currentAnswer.selectedAnswer}
           onAnswer={session.setAnswer}
           showResult={resultProps}
-          disabled={session.drillResult !== null}
+          disabled={currentDrillResult !== null}
         />
       ) : (
         <OneshotLayout
@@ -150,14 +154,14 @@ export default function ExamSession({
           selectedAnswer={currentAnswer.selectedAnswer}
           onAnswer={session.setAnswer}
           showResult={resultProps}
-          disabled={session.drillResult !== null}
+          disabled={currentDrillResult !== null}
         />
       )}
 
       {/* 一問一答モードのフィードバック表示 */}
-      {mode === "drill" && session.drillResult && (
+      {mode === "drill" && currentDrillResult && (
         <DrillFeedback
-          result={session.drillResult}
+          result={currentDrillResult}
           onNext={session.nextDrill}
         />
       )}

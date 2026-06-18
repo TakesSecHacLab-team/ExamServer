@@ -184,6 +184,7 @@ export type StudyProgress = Record<string, CategoryProgress>;
 
 /** 単問の回答検証レスポンス */
 export interface AnswerResponse {
+  questionId: string;
   correct: boolean;
   score: number;
   answer: number | number[];

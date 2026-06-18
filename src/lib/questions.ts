@@ -98,6 +98,14 @@ export function findQuestionById(questionId: string): Question | undefined {
   return undefined;
 }
 
+/** カテゴリ内でIDから問題を検索 */
+export function findQuestionByIdInCategory(
+  categoryId: string,
+  questionId: string
+): Question | undefined {
+  return getAllQuestions(categoryId).find((q) => q.id === questionId);
+}
+
 // ---------------------------------------------------------------------------
 // クライアント向け（正解・解説を除外）
 // ---------------------------------------------------------------------------
