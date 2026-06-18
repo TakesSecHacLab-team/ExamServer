@@ -13,7 +13,6 @@ import type {
   PublicScenario,
   AnswerState,
   ExamMode,
-  QuestionResult,
   AnswerResponse,
   BatchAnswerResponse,
 } from "@/types/exam";
@@ -24,6 +23,8 @@ import type {
 const SESSION_KEY = "exam-session-state";
 
 interface SessionState {
+  categoryId: string;
+  questionIds: string[];
   answers: AnswerState[];
   currentIndex: number;
   remainingTime: number | null;
@@ -79,7 +80,7 @@ interface ExamSessionActions {
 export function useExamSession(
   options: UseExamSessionOptions
 ): ExamSessionState & ExamSessionActions {
-  const { categoryId, mode, questionCount, timerEnabled, timeLimit } = options;
+  const { categoryId, questionCount, timerEnabled, timeLimit } = options;
 
   const [questions, setQuestions] = useState<PublicQuestion[]>([]);
   const [answers, setAnswers] = useState<AnswerState[]>([]);
@@ -96,6 +97,7 @@ export function useExamSession(
   >({});
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hasTimer = remainingTime !== null;
 
   // ---------------------------------------------------------------------------
   // 問題データ読み込み
@@ -129,11 +131,13 @@ export function useExamSession(
         allQuestions = shuffle(allQuestions).slice(0, questionCount);
       }
 
-      // sessionStorage から復帰を試みる
+      // sessionStorage から復帰を試みる。
+      // カテゴリやランダム出題順が違うセッションを復帰すると、
+      // 表示中の選択肢と採点対象 questionId がズレるため、問題ID列まで一致させる。
       const saved = loadSessionState();
-      if (saved && saved.answers.length === allQuestions.length) {
+      if (isRestorableSession(saved, categoryId, allQuestions)) {
         setAnswers(saved.answers);
-        setCurrentIndex(saved.currentIndex);
+        setCurrentIndex(Math.min(saved.currentIndex, allQuestions.length - 1));
         setRemainingTime(saved.remainingTime);
       } else {
         const initialAnswers: AnswerState[] = allQuestions.map((q) => ({
@@ -156,7 +160,7 @@ export function useExamSession(
   // タイマー
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    if (remainingTime === null || finished) return;
+    if (!hasTimer || finished) return;
 
     timerRef.current = setInterval(() => {
       setRemainingTime((prev) => {
@@ -171,15 +175,21 @@ export function useExamSession(
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [remainingTime !== null, finished]);
+  }, [hasTimer, finished]);
 
   // ---------------------------------------------------------------------------
   // sessionStorage への保存（回答変更時）
   // ---------------------------------------------------------------------------
   useEffect(() => {
     if (answers.length === 0) return;
-    saveSessionState({ answers, currentIndex, remainingTime });
-  }, [answers, currentIndex, remainingTime]);
+    saveSessionState({
+      categoryId,
+      questionIds: questions.map((q) => q.id),
+      answers,
+      currentIndex,
+      remainingTime,
+    });
+  }, [categoryId, questions, answers, currentIndex, remainingTime]);
 
   // ---------------------------------------------------------------------------
   // ブラウザ離脱警告
@@ -236,20 +246,21 @@ export function useExamSession(
 
   /** 一問一答: 回答を送信して即座に結果を取得 */
   const submitDrill = useCallback(async () => {
+    const currentQuestion = questions[currentIndex];
     const current = answers[currentIndex];
-    if (current.selectedAnswer === null) return;
+    if (!currentQuestion || !current || current.selectedAnswer === null) return;
 
     const res = await fetch("/api/answers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        questionId: current.questionId,
+        questionId: currentQuestion.id,
         answer: current.selectedAnswer,
       }),
     });
     const data = (await res.json()) as AnswerResponse;
     setDrillResult(data);
-  }, [answers, currentIndex]);
+  }, [questions, answers, currentIndex]);
 
   /** 一問一答: 結果を閉じて次へ */
   const nextDrill = useCallback(() => {
@@ -270,8 +281,8 @@ export function useExamSession(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         categoryId,
-        answers: answers.map((a) => ({
-          questionId: a.questionId,
+        answers: answers.map((a, index) => ({
+          questionId: questions[index]?.id ?? a.questionId,
           answer: a.selectedAnswer,
         })),
       }),
@@ -280,7 +291,7 @@ export function useExamSession(
     setBatchResult(data);
     setFinished(true);
     clearSessionState();
-  }, [categoryId, answers]);
+  }, [categoryId, questions, answers]);
 
   return {
     questions,
@@ -325,6 +336,24 @@ function loadSessionState(): SessionState | null {
   } catch {
     return null;
   }
+}
+
+function isRestorableSession(
+  saved: SessionState | null,
+  categoryId: string,
+  questions: PublicQuestion[]
+): saved is SessionState {
+  if (!saved) return false;
+  if (saved.categoryId !== categoryId) return false;
+  if (saved.answers.length !== questions.length) return false;
+  if (saved.questionIds.length !== questions.length) return false;
+
+  return questions.every((question, index) => {
+    return (
+      saved.questionIds[index] === question.id &&
+      saved.answers[index]?.questionId === question.id
+    );
+  });
 }
 
 function saveSessionState(state: SessionState): void {
