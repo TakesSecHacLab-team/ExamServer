@@ -8,7 +8,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { CategoryProgress, QuestionStyle } from "@/types/exam";
-import { CATEGORY_DETAILS, CATEGORY_GROUPS } from "@/lib/category-details";
+import {
+  CATEGORY_DETAILS,
+  CATEGORY_GROUPS,
+  type CategoryGroup,
+} from "@/lib/category-details";
 import { loadCategoryProgress } from "@/lib/storage";
 
 interface CategoryWithCount {
@@ -40,7 +44,7 @@ export default function CategorySelector({ categories }: Props) {
       <div className="space-y-5" aria-label="カテゴリ一覧">
         {CATEGORY_GROUPS.map((group) => {
           const groupCategories = categories.filter(
-            (category) => CATEGORY_DETAILS[category.id]?.group === group.id
+            (category) => getCategoryGroup(category.id) === group.id
           );
 
           if (groupCategories.length === 0) return null;
@@ -208,4 +212,8 @@ function CategoryButton({
 
 function styleLabel(style: QuestionStyle): string {
   return style === "scenario" ? "長文" : "一問一答";
+}
+
+function getCategoryGroup(categoryId: string): CategoryGroup {
+  return CATEGORY_DETAILS[categoryId]?.group ?? "その他";
 }
