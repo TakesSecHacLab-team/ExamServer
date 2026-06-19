@@ -1,13 +1,16 @@
 import Link from "next/link";
-import { getCategories } from "@/lib/questions";
+import { getAllQuestions, getCategories } from "@/lib/questions";
 import CategorySelector from "@/components/CategorySelector";
 
 /**
  * トップページ
- * プルダウンでカテゴリを選択し、試験の概要と出題ドメインを表示する。
+ * 目的別にカテゴリを選択し、試験の概要と出題範囲を表示する。
  */
 export default function HomePage() {
-  const categories = getCategories();
+  const categories = getCategories().map((category) => ({
+    ...category,
+    questionCount: getAllQuestions(category.id).length,
+  }));
 
   return (
     <main className="flex-1 flex flex-col min-h-screen">
@@ -15,7 +18,7 @@ export default function HomePage() {
         <div className="max-w-3xl mx-auto">
           <h1 className="text-2xl font-bold text-gray-900">ExamServer</h1>
           <p className="text-sm text-gray-500 mt-1">
-            IT資格試験 オンライン演習
+            資格試験と実践基礎の演習
           </p>
         </div>
       </header>
