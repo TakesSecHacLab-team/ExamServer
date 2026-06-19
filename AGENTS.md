@@ -45,6 +45,7 @@
 
 ## Practical Workflow
 
+- Follow `docs/DEVELOPMENT_RULES.md` for Issue / PR scope, branch naming, PR descriptions, and verification notes.
 - Prefer small issues and small diffs.
 - For each change, keep the loop reviewable: current behavior -> intended behavior -> touched files -> verification.
 - User owns final design and merge judgment.

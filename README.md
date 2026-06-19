@@ -48,3 +48,7 @@ npm run dev
 ```bash
 npm run validate
 ```
+
+## 開発ルール
+
+Issue / PR の切り方、検証方針、レビュー観点は `docs/DEVELOPMENT_RULES.md` を参照してください。
