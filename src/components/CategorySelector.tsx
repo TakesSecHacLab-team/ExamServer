@@ -5,7 +5,7 @@
  * プルダウンでカテゴリを選択すると、試験概要・出題ドメイン・学習進捗を表示する。
  */
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import type { Category, CategoryProgress } from "@/types/exam";
 import { CATEGORY_DETAILS } from "@/lib/category-details";
@@ -22,14 +22,10 @@ export default function CategorySelector({ categories }: Props) {
   const selected = categories.find((c) => c.id === selectedId);
   const detail = selectedId ? CATEGORY_DETAILS[selectedId] : null;
 
-  // 選択変更時に進捗を読み込む
-  useEffect(() => {
-    if (selectedId) {
-      setProgress(loadCategoryProgress(selectedId));
-    } else {
-      setProgress(null);
-    }
-  }, [selectedId]);
+  const handleCategoryChange = (nextId: string) => {
+    setSelectedId(nextId);
+    setProgress(nextId ? loadCategoryProgress(nextId) : null);
+  };
 
   return (
     <div className="space-y-6">
@@ -44,7 +40,7 @@ export default function CategorySelector({ categories }: Props) {
         <select
           id="category-select"
           value={selectedId}
-          onChange={(e) => setSelectedId(e.target.value)}
+          onChange={(e) => handleCategoryChange(e.target.value)}
           className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="">-- 試験を選択してください --</option>

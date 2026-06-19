@@ -9,7 +9,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type {
@@ -89,26 +89,27 @@ export default function QuestionForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // カテゴリ変更時にスタイルをデフォルトに
-  useEffect(() => {
-    if (!initialQuestion) {
-      setStyle(defaultStyle);
-    }
-  }, [categoryId, defaultStyle, initialQuestion]);
-
-  // タイプ変更時に回答をリセット
-  useEffect(() => {
-    if (type === "single-choice") {
-      setAnswer(typeof answer === "number" ? answer : 0);
-    } else {
-      setAnswer(Array.isArray(answer) ? answer : []);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type]);
-
   // -----------------------------------------------------------------------
   // 選択肢操作
   // -----------------------------------------------------------------------
+
+  const handleCategoryChange = (nextCategoryId: string) => {
+    setCategoryId(nextCategoryId);
+    if (!initialQuestion) {
+      const nextCategory = categories.find((c) => c.id === nextCategoryId);
+      setStyle(nextCategory?.defaultStyle || "oneshot");
+    }
+  };
+
+  const handleTypeChange = (nextType: QuestionType) => {
+    setType(nextType);
+    setAnswer((current) => {
+      if (nextType === "single-choice") {
+        return typeof current === "number" ? current : 0;
+      }
+      return Array.isArray(current) ? current : [];
+    });
+  };
 
   const addOption = () => {
     if (options.length < MAX_OPTIONS) {
@@ -227,7 +228,7 @@ export default function QuestionForm({
       <Field label="カテゴリ">
         <select
           value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
+          onChange={(e) => handleCategoryChange(e.target.value)}
           className="input"
           disabled={!!initialCategoryId}
         >
@@ -306,12 +307,12 @@ export default function QuestionForm({
           <RadioOption
             label="単一選択"
             checked={type === "single-choice"}
-            onChange={() => setType("single-choice")}
+            onChange={() => handleTypeChange("single-choice")}
           />
           <RadioOption
             label="複数選択"
             checked={type === "multiple-choice"}
-            onChange={() => setType("multiple-choice")}
+            onChange={() => handleTypeChange("multiple-choice")}
           />
         </div>
       </Field>
