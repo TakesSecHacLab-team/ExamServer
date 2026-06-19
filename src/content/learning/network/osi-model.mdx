@@ -1,0 +1,113 @@
+## まず何のために使うか
+
+OSI参照モデルは、通信を7つの層に分けて見るための考え方です。
+7つを丸暗記するだけだと、あまり役に立ちません。
+
+大事なのは、通信でトラブルが起きたときに「今見ている問題はどのあたりの話か」を分けられることです。
+ケーブルやWi-Fiの話なのか、IPアドレスの話なのか、TCPの話なのか、HTTPの話なのか。
+ここを混ぜると、調査が一気にしんどくなります。
+
+<QuotedFigure
+  src="/learning/osi-model.svg"
+  alt="OSI参照モデルの7層を示す図"
+  width={476}
+  height={560}
+  sourceTitle="OSI Model v1.svg"
+  sourceUrl="https://commons.wikimedia.org/wiki/File:OSI_Model_v1.svg"
+  licenseNote="CC0 1.0 Universal Public Domain Dedication"
+>
+  7層の名前を確認するための図です。ここでは細かい用語より、層に分けて見る感覚を先に持てば十分です。
+</QuotedFigure>
+
+まずは、このくらいの表で十分です。
+
+<table>
+  <thead>
+    <tr>
+      <th>見る場所</th>
+      <th>例</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>下の層</td>
+      <td>ケーブル、Wi-Fi、IPアドレス、ルーティング</td>
+    </tr>
+    <tr>
+      <td>真ん中</td>
+      <td>TCP、UDP、ポート、接続できるかどうか</td>
+    </tr>
+    <tr>
+      <td>上の層</td>
+      <td>HTTP、DNS、TLS、Cookie、ログイン処理</td>
+    </tr>
+  </tbody>
+</table>
+
+## 7層をざっくり見る
+
+下から順に見ると、だいたいこうです。
+
+物理層は、ケーブル、電波、光、電気信号の話です。
+データリンク層は、同じネットワーク内で隣の機器まで届ける話です。
+ネットワーク層は、IPアドレスを使って別のネットワークへ届ける話です。
+トランスポート層は、TCPやUDPで通信の単位を扱う話です。
+
+その上に、セッション層、プレゼンテーション層、アプリケーション層があります。
+この3つは現実のWeb学習ではまとめて扱われることも多いです。
+HTTP、DNS、TLS、Cookie、ログイン処理みたいな話は、上のほうの層と関係します。
+
+<Callout title="暗記より先に見る場所">
+  「HTTP 500が出た」はアプリケーション寄りの話です。「名前解決できない」はDNSの話です。「pingが通らない」はもっと下の層から疑います。こうやって見る場所を分けるためにOSI参照モデルを使います。
+</Callout>
+
+## TCP/IPとはズレる
+
+実際のインターネットは、OSI参照モデルそのものではなくTCP/IPを中心に動いています。
+なので、OSIの7層と現実の技術がぴったり1対1で対応するわけではありません。
+
+ここで変に悩まなくて大丈夫です。
+OSIは「分類のものさし」、TCP/IPは「実際によく使う通信の仕組み」くらいで見ておけば、最初は進めます。
+
+たとえばWebページを見るとき、ブラウザはHTTPでサーバーにリクエストします。
+その下ではTCPで接続を作り、IPで宛先へ届け、さらに下ではWi-FiやLANケーブルが信号を運びます。
+1回のアクセスでも、いくつかの層が重なっています。
+
+<SourceNote
+  title="Learn web development"
+  url="https://developer.mozilla.org/en-US/docs/Learn_web_development"
+  publisher="MDN Web Docs"
+  licenseNote="MDN content license notice applies. Link reference only."
+/>
+
+## セキュリティで何に効くか
+
+セキュリティでは、問題の場所を間違えると対策もズレます。
+
+通信が盗み見られるなら、TLSや証明書を見るかもしれません。
+外部から不要なポートへ接続されるなら、ファイアウォールやセキュリティグループを見るかもしれません。
+ログイン後の権限がおかしいなら、ネットワークよりアプリケーションや認可の話です。
+
+全部をセキュリティという一語でまとめると、何を直せばいいのか分からなくなります。
+OSI参照モデルは、その混乱を少し減らしてくれます。万能ではないけど、最初の地図としては悪くないです。
+
+<SourceNote
+  title="OSI model reference chart"
+  url="https://learningnetwork.cisco.com/s/article/osi-model-reference-chart"
+  publisher="Cisco Learning Network"
+  licenseNote="Cisco page. Link reference only."
+/>
+
+## ここで覚えること
+
+このページで覚えるのは、層の名前を完璧に言えることではありません。
+
+まずはこの3つで十分です。
+
+- 通信は下から上までいくつかの層に分けて見られる
+- Webのエラーやセキュリティの問題は、層を分けると調べやすい
+- OSIは現実そのものではなく、調査するときのものさしとして使う
+
+<NextStep href="/learn" title="知識マップに戻る">
+  OSI専用の確認演習はまだ準備中です。次の講義が増えるまでは、全体ツリーでどの棚があるかを見ておけば大丈夫です。
+</NextStep>

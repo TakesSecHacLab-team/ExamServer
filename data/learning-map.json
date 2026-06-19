@@ -1,0 +1,110 @@
+{
+  "startNodeId": "computer-security-foundations",
+  "nodes": [
+    {
+      "id": "computer-security-foundations",
+      "title": "コンピュータとセキュリティの基礎",
+      "summary": "攻撃手法へ進む前に、通信、OS、Web、暗号、メモリの前提をざっとつかむ入口です。",
+      "kind": "chapter",
+      "status": "ready",
+      "children": [
+        "network-foundations",
+        "os-linux-foundations",
+        "web-foundations",
+        "memory-binary-foundations",
+        "crypto-foundations",
+        "security-basics",
+        "bridge-to-hackerlake"
+      ]
+    },
+    {
+      "id": "network-foundations",
+      "title": "ネットワーク基礎",
+      "summary": "IPアドレス、ポート、DNS、HTTP、TLSを、ひと続きの通信として見ます。",
+      "kind": "chapter",
+      "status": "ready",
+      "children": ["osi-model"]
+    },
+    {
+      "id": "osi-model",
+      "title": "OSI参照モデル",
+      "summary": "通信を7層で暗記する話ではなく、どこで何が起きているかを分けて見るための考え方です。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "network/osi-model",
+      "prerequisites": ["network-foundations"],
+      "sources": [
+        {
+          "title": "OSI Model v1.svg",
+          "url": "https://commons.wikimedia.org/wiki/File:OSI_Model_v1.svg",
+          "publisher": "Wikimedia Commons",
+          "usage": "OSI参照モデルの層構造を確認する図として参照",
+          "licenseNote": "CC0 1.0 Universal Public Domain Dedication"
+        },
+        {
+          "title": "Learn web development",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development",
+          "publisher": "MDN Web Docs",
+          "usage": "HTTPやWeb基礎へ進む導線の参考",
+          "licenseNote": "MDN content license notice applies. Link reference only."
+        },
+        {
+          "title": "OSI model reference chart",
+          "url": "https://learningnetwork.cisco.com/s/article/osi-model-reference-chart",
+          "publisher": "Cisco Learning Network",
+          "usage": "OSI各層の整理の参考",
+          "licenseNote": "Cisco page. Link reference only."
+        }
+      ]
+    },
+    {
+      "id": "os-linux-foundations",
+      "title": "OS / Linux基礎",
+      "summary": "ファイル、権限、プロセス、シェル、ログを、手元で迷わない粒度まで分解します。",
+      "kind": "chapter",
+      "status": "planned",
+      "children": []
+    },
+    {
+      "id": "web-foundations",
+      "title": "Web基礎",
+      "summary": "HTTPやCookieを、ログインが動くまでの流れで見ます。SOPやCORSはそのあとです。",
+      "kind": "chapter",
+      "status": "planned",
+      "children": []
+    },
+    {
+      "id": "memory-binary-foundations",
+      "title": "メモリとバイナリ基礎",
+      "summary": "メモリ、アドレス、スタック、ヒープ、ポインタを、図で追えるところから始めます。",
+      "kind": "chapter",
+      "status": "planned",
+      "children": []
+    },
+    {
+      "id": "crypto-foundations",
+      "title": "暗号基礎",
+      "summary": "ハッシュ、共通鍵、公開鍵、署名、証明書を、何を守っているかで分けます。",
+      "kind": "chapter",
+      "status": "planned",
+      "children": []
+    },
+    {
+      "id": "security-basics",
+      "title": "セキュリティ基礎",
+      "summary": "脆弱性、攻撃の入口、防御、検知、ログ読解を、ひとつずつ足していきます。",
+      "kind": "chapter",
+      "status": "planned",
+      "children": []
+    },
+    {
+      "id": "bridge-to-hackerlake",
+      "title": "Bridge to HackerLake",
+      "summary": "基礎を読んだあと、CTF実践へ進むための橋渡しです。",
+      "kind": "external",
+      "status": "planned",
+      "externalUrl": "https://ctf.skjshr.com",
+      "children": []
+    }
+  ]
+}
