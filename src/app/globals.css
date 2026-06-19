@@ -37,3 +37,64 @@ body {
   border-color: #2563eb;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
+
+.learning-article {
+  color: #374151;
+  font-size: 0.975rem;
+  line-height: 1.9;
+}
+
+.learning-article h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: #111827;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.learning-article h2:first-child {
+  margin-top: 0;
+}
+
+.learning-article p {
+  margin-top: 1rem;
+}
+
+.learning-article ul {
+  margin-top: 1rem;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.learning-article li + li {
+  margin-top: 0.35rem;
+}
+
+.learning-article table {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.learning-article th,
+.learning-article td {
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.learning-article th {
+  background: #f9fafb;
+  color: #111827;
+  font-weight: 700;
+}
+
+.learning-article td {
+  color: #374151;
+}

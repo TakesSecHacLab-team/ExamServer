@@ -16,6 +16,9 @@ import type {
   PublicScenario,
   ExamMeta,
 } from "@/types/exam";
+import { getCategories } from "@/lib/categories";
+
+export { getCategories } from "@/lib/categories";
 
 /** data ディレクトリのパス */
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -23,13 +26,6 @@ const DATA_DIR = path.join(process.cwd(), "data");
 // ---------------------------------------------------------------------------
 // カテゴリ
 // ---------------------------------------------------------------------------
-
-/** カテゴリ一覧を取得 */
-export function getCategories(): Category[] {
-  const filePath = path.join(DATA_DIR, "categories.json");
-  const raw = fs.readFileSync(filePath, "utf-8");
-  return JSON.parse(raw) as Category[];
-}
 
 /** IDからカテゴリを取得 */
 export function getCategoryById(id: string): Category | undefined {

@@ -27,6 +27,24 @@ export default function HomePage() {
       </header>
 
       <section className="max-w-3xl mx-auto px-6 py-8 flex-1">
+        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+            基礎から学ぶ
+          </p>
+          <h2 className="mt-2 text-lg font-bold text-gray-950">
+            コンピュータとセキュリティの基礎
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-gray-700">
+            試験やCTFの前に、通信、OS、Web、暗号、メモリの全体像を見ます。
+            まずは知識マップから始めます。
+          </p>
+          <Link
+            href="/learn"
+            className="mt-4 inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          >
+            知識マップを開く
+          </Link>
+        </div>
         <CategorySelector categories={categories} />
       </section>
 

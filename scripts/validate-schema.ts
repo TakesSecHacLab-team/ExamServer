@@ -9,6 +9,11 @@
 
 import fs from "fs";
 import path from "path";
+import { getLearningSlugs } from "../src/lib/learning-content";
+import {
+  getLearningMap,
+  validateLearningContentRegistry,
+} from "../src/lib/learning";
 
 // ---------------------------------------------------------------------------
 // 型定義（ランタイムチェック用に独立して定義）
@@ -269,6 +274,22 @@ function validateExamData(categoryIds: string[]) {
 }
 
 // ---------------------------------------------------------------------------
+// 学習マップの検証
+// ---------------------------------------------------------------------------
+
+function validateLearningData() {
+  console.log("\n📂 learning-map.json");
+
+  try {
+    const learningMap = getLearningMap();
+    validateLearningContentRegistry(learningMap, getLearningSlugs());
+    info(`${learningMap.nodes.length} 学習ノード`);
+  } catch (err) {
+    error(err instanceof Error ? err.message : "learning-map.json の検証エラー");
+  }
+}
+
+// ---------------------------------------------------------------------------
 // 実行
 // ---------------------------------------------------------------------------
 
@@ -276,6 +297,7 @@ console.log("=== ExamServer 問題データバリデーション ===");
 
 const categoryIds = validateCategories();
 validateExamData(categoryIds);
+validateLearningData();
 
 console.log(`\n${"=".repeat(40)}`);
 if (errorCount > 0) {
