@@ -7,11 +7,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { Category, CategoryProgress, QuestionStyle } from "@/types/exam";
+import type { CategoryProgress, QuestionStyle } from "@/types/exam";
 import { CATEGORY_DETAILS, CATEGORY_GROUPS } from "@/lib/category-details";
 import { loadCategoryProgress } from "@/lib/storage";
 
-interface CategoryWithCount extends Category {
+interface CategoryWithCount {
+  id: string;
+  name: string;
+  defaultStyle: QuestionStyle;
+  timeLimit: number;
   questionCount: number;
 }
 
@@ -179,9 +183,6 @@ function CategoryButton({
     >
       <span className="block text-sm font-semibold text-gray-900">
         {category.name}
-      </span>
-      <span className="mt-1 block text-xs leading-relaxed text-gray-500">
-        {category.description}
       </span>
       <span className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-500">
         <span>{styleLabel(category.defaultStyle)}</span>

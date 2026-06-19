@@ -8,7 +8,10 @@ import CategorySelector from "@/components/CategorySelector";
  */
 export default function HomePage() {
   const categories = getCategories().map((category) => ({
-    ...category,
+    id: category.id,
+    name: category.name,
+    defaultStyle: category.defaultStyle,
+    timeLimit: category.timeLimit,
     questionCount: getAllQuestions(category.id).length,
   }));
 
