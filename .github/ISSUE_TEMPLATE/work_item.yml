@@ -1,0 +1,55 @@
+name: Work item
+description: ExamServer の小さな改修単位
+title: "[type]: "
+labels: []
+body:
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 目的
+      description: このIssueで何を可能にするかを書いてください。
+      placeholder: 例）一問一答の結果を問題IDで正しく復元できるようにする。
+    validations:
+      required: true
+  - type: textarea
+    id: current_problem
+    attributes:
+      label: 現在の問題
+      description: 今の挙動、困っていること、確認済みの事実を書いてください。
+    validations:
+      required: true
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: 期待する挙動
+      description: 変更後にどうなっていればよいかを書いてください。
+    validations:
+      required: true
+  - type: textarea
+    id: completion
+    attributes:
+      label: 完了条件
+      description: どの状態ならこのIssueを閉じてよいかを書いてください。
+      placeholder: |
+        - 対象画面で期待する挙動になる
+        - 既存の問題データ validation が通る
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: 検証方法
+      description: 実行するコマンドや手動確認観点を書いてください。
+      placeholder: |
+        - npm run validate
+        - npm run lint
+        - 対象画面をPC/mobileで確認
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: メモ・対象外
+      description: 関連情報、やらないこと、後続Issueに回すことがあれば書いてください。
+    validations:
+      required: false
