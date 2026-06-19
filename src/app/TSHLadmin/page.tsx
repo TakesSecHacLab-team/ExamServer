@@ -6,6 +6,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
@@ -79,9 +80,9 @@ export default function AdminLoginPage() {
         </form>
 
         <p className="mt-6 text-center">
-          <a href="/" className="text-sm text-gray-500 hover:text-gray-700">
+          <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
             トップページに戻る
-          </a>
+          </Link>
         </p>
       </div>
     </div>
