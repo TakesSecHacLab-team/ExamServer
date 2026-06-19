@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 import {
   ExerciseLink,
   QuotedFigure,
+  SafeImage,
+  SafeLink,
   SourceNote,
 } from "@/components/learning/MdxComponents";
 
@@ -72,5 +74,26 @@ describe("QuotedFigure", () => {
     expect(() =>
       render(<ExerciseLink href="https://example.com">外部へ進む</ExerciseLink>)
     ).toThrow(/internal href/);
+  });
+
+  it("allows safe Markdown-style links", () => {
+    render(<SafeLink href="https://example.com/reference">参考</SafeLink>);
+
+    expect(screen.getByRole("link", { name: "参考" })).toHaveAttribute(
+      "href",
+      "https://example.com/reference"
+    );
+  });
+
+  it("rejects unsafe Markdown-style links", () => {
+    expect(() =>
+      render(<SafeLink href="javascript:alert(1)">危ないリンク</SafeLink>)
+    ).toThrow(/https URL/);
+  });
+
+  it("rejects unsafe Markdown-style images", () => {
+    expect(() =>
+      render(<SafeImage src="data:image/svg+xml,hello" alt="bad image" />)
+    ).toThrow(/src/);
   });
 });

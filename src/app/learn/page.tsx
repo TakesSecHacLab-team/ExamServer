@@ -127,7 +127,7 @@ function LearningTreeNode({
           >
             {node.title}
           </Link>
-        ) : node.externalUrl ? (
+        ) : node.externalUrl && node.status === "ready" ? (
           <a
             href={node.externalUrl}
             target="_blank"

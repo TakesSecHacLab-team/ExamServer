@@ -239,7 +239,9 @@ export function getNextLessonNode(
 
   return nodes
     .slice(currentIndex + 1)
-    .find((node) => Boolean(node.lessonSlug || node.externalUrl));
+    .find(
+      (node) => node.status === "ready" && Boolean(node.lessonSlug || node.externalUrl)
+    );
 }
 
 function toNodeMap(map: LearningMap): Map<string, LearningNode> {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { AnchorHTMLAttributes, ImgHTMLAttributes, ReactNode } from "react";
 
 interface CalloutProps {
   title?: string;
@@ -46,6 +46,60 @@ export function SourceNote({
       </a>{" "}
       / {publisher} / {licenseNote}
     </p>
+  );
+}
+
+type SafeLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+  href: string;
+};
+
+export function SafeLink({ href, children, className }: SafeLinkProps) {
+  if (isInternalHref(href)) {
+    return (
+      <Link
+        href={href}
+        prefetch={false}
+        className={className ?? "font-medium text-blue-700 hover:text-blue-900"}
+      >
+        {children}
+      </Link>
+    );
+  }
+
+  const safeHref = assertHttpsUrl("SafeLink", "href", href);
+  return (
+    <a
+      href={safeHref}
+      target="_blank"
+      rel="noreferrer"
+      className={className ?? "font-medium text-blue-700 hover:text-blue-900"}
+    >
+      {children}
+    </a>
+  );
+}
+
+type SafeImageProps = Omit<
+  ImgHTMLAttributes<HTMLImageElement>,
+  "src" | "alt"
+> & {
+  src: string;
+  alt: string;
+};
+
+export function SafeImage({ src, alt, ...props }: SafeImageProps) {
+  assertRequired("SafeImage", { src, alt });
+  const safeSrc = assertSafeAssetUrl("SafeImage", "src", src);
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      {...props}
+      src={safeSrc}
+      alt={alt}
+      loading={props.loading ?? "lazy"}
+      decoding={props.decoding ?? "async"}
+    />
   );
 }
 
@@ -176,11 +230,15 @@ function assertHttpsUrl(component: string, prop: string, value: string) {
 }
 
 function assertInternalHref(component: string, value: string) {
-  if (value.startsWith("/") && !value.startsWith("//")) return value;
+  if (isInternalHref(value)) return value;
   throw new Error(`${component} requires an internal href`);
 }
 
 function assertSafeAssetUrl(component: string, prop: string, value: string) {
   if (value.startsWith("/") && !value.startsWith("//")) return value;
   return assertHttpsUrl(component, prop, value);
+}
+
+function isInternalHref(value: string) {
+  return value.startsWith("/") && !value.startsWith("//");
 }

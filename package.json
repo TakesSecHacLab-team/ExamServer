@@ -25,13 +25,13 @@
     "lightningcss-win32-x64-msvc": "^1.32.0"
   },
   "overrides": {
+    "esbuild": "^0.28.1",
     "postcss": "^8.5.15"
   },
   "devDependencies": {
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
     "@next/mdx": "^16.2.9",
-    "@rolldown/binding-win32-x64-msvc": "^1.0.3",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -43,6 +43,6 @@
     "jsdom": "^29.1.1",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.9"
+    "vitest": "^3.2.6"
   }
 }

@@ -183,6 +183,7 @@ describe("learning map utilities", () => {
           title: "Lesson 1",
           summary: "First lesson.",
           kind: "lesson",
+          status: "ready",
           lessonSlug: "lesson-1",
         },
         {
@@ -196,6 +197,7 @@ describe("learning map utilities", () => {
           title: "Lesson 2",
           summary: "Second lesson.",
           kind: "lesson",
+          status: "ready",
           lessonSlug: "lesson-2",
         },
       ],
@@ -203,6 +205,41 @@ describe("learning map utilities", () => {
 
     expect(getNextLearningNode(map, "lesson-1")?.id).toBe("placeholder");
     expect(getNextLessonNode(map, "lesson-1")?.id).toBe("lesson-2");
+  });
+
+  it("does not use planned external nodes as next lesson navigation", () => {
+    const map: LearningMap = {
+      startNodeId: "root",
+      nodes: [
+        {
+          id: "root",
+          title: "Root",
+          summary: "Root.",
+          kind: "chapter",
+          status: "ready",
+          children: ["lesson-1", "external"],
+        },
+        {
+          id: "lesson-1",
+          title: "Lesson 1",
+          summary: "First lesson.",
+          kind: "lesson",
+          status: "ready",
+          lessonSlug: "lesson-1",
+        },
+        {
+          id: "external",
+          title: "External",
+          summary: "Planned external step.",
+          kind: "external",
+          status: "planned",
+          externalUrl: "https://example.com",
+        },
+      ],
+    };
+
+    expect(getNextLearningNode(map, "lesson-1")?.id).toBe("external");
+    expect(getNextLessonNode(map, "lesson-1")).toBeUndefined();
   });
 
   it("keeps learning map lesson slugs and content registry in sync", () => {
