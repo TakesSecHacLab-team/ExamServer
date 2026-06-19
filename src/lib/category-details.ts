@@ -6,13 +6,39 @@
  */
 
 export interface CategoryDetail {
+  group: CategoryGroup;
   overview: string;
   domains: { name: string; description: string }[];
 }
 
+export type CategoryGroup = "資格試験" | "ハッカーラボ" | "その他";
+
+export const CATEGORY_GROUPS: {
+  key: string;
+  id: CategoryGroup;
+  description: string;
+}[] = [
+  {
+    key: "certification",
+    id: "資格試験",
+    description: "合格に必要な知識を試験形式で確認します。",
+  },
+  {
+    key: "lab",
+    id: "ハッカーラボ",
+    description: "Linuxやセキュリティの実践基礎を確認します。",
+  },
+  {
+    key: "other",
+    id: "その他",
+    description: "動作確認用の問題です。",
+  },
+];
+
 /** カテゴリIDをキーにした詳細情報 */
 export const CATEGORY_DETAILS: Record<string, CategoryDetail> = {
   "lpic1-101": {
+    group: "資格試験",
     overview:
       "LPIC-1の前半試験。Linuxシステムの基礎を問います。システムアーキテクチャ、パッケージ管理、GNUコマンド、デバイスとファイルシステムが出題範囲です。",
     domains: [
@@ -23,6 +49,7 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetail> = {
     ],
   },
   "lpic1-102": {
+    group: "資格試験",
     overview:
       "LPIC-1の後半試験。シェルスクリプト、ユーザー管理、ネットワーク基礎、セキュリティの実践知識を問います。",
     domains: [
@@ -34,6 +61,7 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetail> = {
     ],
   },
   "aws-scs": {
+    group: "資格試験",
     overview:
       "AWSセキュリティの専門資格。インシデント対応、ログ・モニタリング、インフラ保護、ID管理、データ保護の5ドメインから出題されます。",
     domains: [
@@ -45,6 +73,7 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetail> = {
     ],
   },
   sg: {
+    group: "資格試験",
     overview:
       "情報セキュリティの基礎を問う国家試験。組織のセキュリティポリシー策定や運用管理に必要な知識を幅広く出題します。科目Aは四肢択一、科目Bは実践的なケーススタディです。",
     domains: [
@@ -55,6 +84,7 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetail> = {
     ],
   },
   sc: {
+    group: "資格試験",
     overview:
       "情報セキュリティの高度専門家向け国家試験。午後試験ではA4数ページに渡るシナリオを読み解き、攻撃手法の分析やセキュリティ対策の立案能力が問われます。",
     domains: [
@@ -66,6 +96,7 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetail> = {
     ],
   },
   general: {
+    group: "その他",
     overview:
       "社会・科学・地理など幅広い分野から出題される一般常識問題集です。動作確認用のサンプルカテゴリとしても利用できます。",
     domains: [
@@ -76,6 +107,7 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetail> = {
     ],
   },
   "thm-basics": {
+    group: "ハッカーラボ",
     overview:
       "TryHackMe初学者向けのLinux基礎コマンド小テストです。前半は状況設定問題（どのコマンドを使うか）、後半はコマンド確認問題（コマンドの作用を答える）の計20問で構成されています。",
     domains: [
@@ -84,6 +116,7 @@ export const CATEGORY_DETAILS: Record<string, CategoryDetail> = {
     ],
   },
   "java-silver": {
+    group: "資格試験",
     overview:
       "Oracle認定資格 Java SE 17 Silver / Programmer I（試験番号: 1Z0-825-JPN）対策問題集。合格ライン65%、制限時間90分。基本構文・OOP・例外処理・配列・List・Java 17新機能を複合コードで問う全50問。",
     domains: [

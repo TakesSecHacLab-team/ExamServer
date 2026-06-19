@@ -2,17 +2,29 @@
 
 /**
  * カテゴリ選択コンポーネント
- * プルダウンでカテゴリを選択すると、試験概要・出題ドメイン・学習進捗を表示する。
+ * 目的別にカテゴリを選択し、概要・出題範囲・学習進捗を表示する。
  */
 
 import { useState } from "react";
 import Link from "next/link";
-import type { Category, CategoryProgress } from "@/types/exam";
-import { CATEGORY_DETAILS } from "@/lib/category-details";
+import type { CategoryProgress, QuestionStyle } from "@/types/exam";
+import {
+  CATEGORY_DETAILS,
+  CATEGORY_GROUPS,
+  type CategoryGroup,
+} from "@/lib/category-details";
 import { loadCategoryProgress } from "@/lib/storage";
 
+interface CategoryWithCount {
+  id: string;
+  name: string;
+  defaultStyle: QuestionStyle;
+  timeLimit: number;
+  questionCount: number;
+}
+
 interface Props {
-  categories: Category[];
+  categories: CategoryWithCount[];
 }
 
 export default function CategorySelector({ categories }: Props) {
@@ -28,28 +40,42 @@ export default function CategorySelector({ categories }: Props) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* プルダウン */}
-      <div>
-        <label
-          htmlFor="category-select"
-          className="block text-sm font-semibold text-gray-700 mb-2"
-        >
-          試験カテゴリ
-        </label>
-        <select
-          id="category-select"
-          value={selectedId}
-          onChange={(e) => handleCategoryChange(e.target.value)}
-          className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">-- 試験を選択してください --</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+    <div className="space-y-8">
+      <div className="space-y-5" aria-label="カテゴリ一覧">
+        {CATEGORY_GROUPS.map((group) => {
+          const groupCategories = categories.filter(
+            (category) => getCategoryGroup(category.id) === group.id
+          );
+
+          if (groupCategories.length === 0) return null;
+
+          return (
+            <section key={group.id} aria-labelledby={`group-${group.key}`}>
+              <div className="mb-3">
+                <h2
+                  id={`group-${group.key}`}
+                  className="text-base font-bold text-gray-900"
+                >
+                  {group.id}
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  {group.description}
+                </p>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                {groupCategories.map((category) => (
+                  <CategoryButton
+                    key={category.id}
+                    category={category}
+                    selected={category.id === selectedId}
+                    onSelect={() => handleCategoryChange(category.id)}
+                  />
+                ))}
+              </div>
+            </section>
+          );
+        })}
       </div>
 
       {/* 選択後の詳細表示 */}
@@ -74,10 +100,10 @@ export default function CategorySelector({ categories }: Props) {
             </div>
           </div>
 
-          {/* 出題ドメイン */}
+          {/* 出題範囲 */}
           <div className="bg-white rounded-lg border border-gray-200 p-5">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">
-              出題ドメイン
+              出題範囲
             </h3>
             <div className="space-y-3">
               {detail.domains.map((domain) => (
@@ -133,4 +159,61 @@ export default function CategorySelector({ categories }: Props) {
       )}
     </div>
   );
+}
+
+function CategoryButton({
+  category,
+  selected,
+  onSelect,
+}: {
+  category: CategoryWithCount;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const detail = CATEGORY_DETAILS[category.id];
+  const stateLabel =
+    category.questionCount === 0 ? "準備中" : `${category.questionCount}問`;
+
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onSelect}
+      className={`w-full rounded-lg border px-4 py-3 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+        selected
+          ? "border-blue-500 bg-blue-50"
+          : "border-gray-200 bg-white hover:border-gray-300"
+      }`}
+    >
+      <span className="block text-sm font-semibold text-gray-900">
+        {category.name}
+      </span>
+      <span className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+        <span>{styleLabel(category.defaultStyle)}</span>
+        <span aria-hidden="true">/</span>
+        <span>{Math.floor(category.timeLimit / 60)}分</span>
+        <span aria-hidden="true">/</span>
+        <span
+          className={
+            category.questionCount === 0 ? "text-amber-700" : "text-gray-600"
+          }
+        >
+          {stateLabel}
+        </span>
+      </span>
+      {selected && detail && (
+        <span className="mt-2 block text-xs font-medium text-blue-700">
+          選択中
+        </span>
+      )}
+    </button>
+  );
+}
+
+function styleLabel(style: QuestionStyle): string {
+  return style === "scenario" ? "長文" : "一問一答";
+}
+
+function getCategoryGroup(categoryId: string): CategoryGroup {
+  return CATEGORY_DETAILS[categoryId]?.group ?? "その他";
 }
