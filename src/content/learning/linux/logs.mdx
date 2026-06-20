@@ -144,17 +144,7 @@ journalctl -p warn
 journalctl -p err..crit   # ERROR 〜 CRITICAL のみ
 ```
 
-<QuotedFigure
-  src="/learning/syslog-severity-levels.svg"
-  alt="Syslog の重大度レベル一覧。Emergency(0)からDebug(7)まで、数値・ラベル・意味の対応表"
-  width={640}
-  height={300}
-  sourceTitle="Syslog - Wikipedia"
-  sourceUrl="https://en.wikipedia.org/wiki/Syslog"
-  licenseNote="CC BY-SA 4.0 / Wikipedia"
->
-  Syslog の重大度レベルは 0（Emergency）〜 7（Debug）の8段階。本番環境では WARN 以上（レベル4以下）を監視対象にするのが一般的。
-</QuotedFigure>
+
 
 ## ログローテーション（logrotate）——ディスク容量圧迫を防ぐ
 

@@ -29,6 +29,30 @@ describe("QuotedFigure", () => {
     expect(screen.getByText(/CC0 1.0 Universal/)).toBeInTheDocument();
   });
 
+  it("renders manifest-backed adapted quotation information", () => {
+    render(
+      <QuotedFigure
+        src="/learning/cors-preflight.svg"
+        alt="CORSプリフライトの図"
+        sourceTitle="Old source title"
+        sourceUrl="https://example.com/old"
+        licenseNote="Old license"
+      />
+    );
+
+    expect(screen.getByText(/preflight-correct.svg/)).toBeInTheDocument();
+    expect(screen.getByText(/MDN Web Docs \/ mdn\/shared-assets/)).toBeInTheDocument();
+    expect(screen.getByText(/加工引用/)).toBeInTheDocument();
+    expect(screen.getByText(/役割ラベルを日本語化/)).toBeInTheDocument();
+    expect(screen.getByText(/参照日: 2026-06-20/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "CC BY-SA 2.5 or later" })
+    ).toHaveAttribute(
+      "href",
+      "https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Attrib_copyright_license"
+    );
+  });
+
   it("rejects figures without license notes", () => {
     expect(() =>
       render(

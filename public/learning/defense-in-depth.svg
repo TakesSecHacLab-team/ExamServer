@@ -1,23 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520" role="img" aria-labelledby="title desc">
-  <title id="title">多層防御</title>
-  <desc id="desc">多層防御の主要要素を3段階で示す学習用図版。</desc>
-  <rect width="960" height="520" fill="#fbf7ef"/>
-  <rect x="32" y="32" width="896" height="456" rx="18" fill="#fffdfa" stroke="#d8cdbd" stroke-width="2"/>
-  <text x="72" y="96" font-family="system-ui, sans-serif" font-size="34" font-weight="700" fill="#241c15">多層防御</text>
-  <text x="72" y="132" font-family="system-ui, sans-serif" font-size="18" fill="#6f6255">ExamServer learning diagram</text>
-  <g font-family="system-ui, sans-serif" font-size="22" font-weight="700" text-anchor="middle">
-    <rect x="72" y="214" width="210" height="118" rx="12" fill="#f2e4d1" stroke="#c8ad8d" stroke-width="2"/>
-    <text x="177" y="282" fill="#2e2118">prevent</text>
-    <rect x="375" y="214" width="210" height="118" rx="12" fill="#e8efe6" stroke="#a6bea3" stroke-width="2"/>
-    <text x="480" y="282" fill="#1f2a1d">detect</text>
-    <rect x="678" y="214" width="210" height="118" rx="12" fill="#e7edf4" stroke="#9fb2c7" stroke-width="2"/>
-    <text x="783" y="282" fill="#1b2733">respond</text>
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" width="500px" height="500px" xmlns="http://www.w3.org/2000/svg" stroke="#22280b" stroke-width="2.5">
+  <circle cx="250" cy="250" r="240" fill="#cdde87"/>
+  <ellipse cx="250" cy="285" rx="210" ry="185" fill="#dde9af"/>
+  <ellipse cx="250" cy="320" rx="170" ry="130" fill="#eef4d7"/>
+  <ellipse cx="250" cy="355" rx="120" ry="75" fill="#fff"/>
+  <g font-family="Noto Sans JP, sans-serif" font-size="40px" text-anchor="middle" stroke="none">
+    <text x="250" y="70">ネットワーク</text>
+    <text x="250" y="160">ホスト</text>
+    <text x="250" y="260">アプリ</text>
+    <text x="250" y="370">データ</text>
   </g>
-  <g fill="none" stroke="#8a4f1d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M302 273h46"/>
-    <path d="M338 258l16 15-16 15"/>
-    <path d="M605 273h46"/>
-    <path d="M641 258l16 15-16 15"/>
-  </g>
-  <text x="72" y="418" font-family="system-ui, sans-serif" font-size="18" fill="#6f6255">本文の説明に合わせて、要素の関係だけを確認するための簡略図です。</text>
 </svg>
