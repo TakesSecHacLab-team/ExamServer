@@ -5,7 +5,7 @@
  * 目的別にカテゴリを選択し、概要・出題範囲・学習進捗を表示する。
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { CategoryProgress, QuestionStyle } from "@/types/exam";
 import {
@@ -32,17 +32,31 @@ export default function CategorySelector({ categories }: Props) {
   const initialCategory =
     categories.find((category) => category.questionCount > 0) ?? categories[0];
   const [selectedId, setSelectedId] = useState(initialCategory?.id ?? "");
-  const [progress, setProgress] = useState<CategoryProgress | null>(() =>
-    initialCategory ? loadCategoryProgress(initialCategory.id) : null
-  );
+  const [progress, setProgress] = useState<CategoryProgress | null>(null);
 
   const selected = categories.find((c) => c.id === selectedId);
   const detail = selectedId ? CATEGORY_DETAILS[selectedId] : null;
 
   const handleCategoryChange = (nextId: string) => {
+    if (nextId === selectedId) return;
+
     setSelectedId(nextId);
-    setProgress(nextId ? loadCategoryProgress(nextId) : null);
+    setProgress(null);
   };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setProgress(selectedId ? loadCategoryProgress(selectedId) : null);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
