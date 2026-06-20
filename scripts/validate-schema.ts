@@ -289,6 +289,40 @@ function validateLearningData() {
   }
 }
 
+function listMdxFiles(dir: string): string[] {
+  if (!fs.existsSync(dir)) return [];
+
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) return listMdxFiles(fullPath);
+    if (entry.isFile() && entry.name.endsWith(".mdx")) return [fullPath];
+    return [];
+  });
+}
+
+function validateLearningAssets() {
+  console.log("\n📂 learning assets");
+
+  const contentDir = path.join(process.cwd(), "src", "content", "learning");
+  const refs = new Set<string>();
+
+  for (const filePath of listMdxFiles(contentDir)) {
+    const raw = fs.readFileSync(filePath, "utf-8");
+    for (const match of raw.matchAll(/src="(\/learning\/[^"]+)"/g)) {
+      refs.add(match[1]);
+    }
+  }
+
+  for (const ref of [...refs].sort()) {
+    const assetPath = path.join(process.cwd(), "public", ref.slice(1));
+    if (!fs.existsSync(assetPath)) {
+      error(`学習コンテンツの参照画像が見つかりません: ${ref}`);
+    }
+  }
+
+  info(`${refs.size} 個の学習画像参照`);
+}
+
 // ---------------------------------------------------------------------------
 // 実行
 // ---------------------------------------------------------------------------
@@ -298,6 +332,7 @@ console.log("=== ExamServer 問題データバリデーション ===");
 const categoryIds = validateCategories();
 validateExamData(categoryIds);
 validateLearningData();
+validateLearningAssets();
 
 console.log(`\n${"=".repeat(40)}`);
 if (errorCount > 0) {

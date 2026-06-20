@@ -1,0 +1,169 @@
+## フロントエンドを書いていたら突然このエラーが出た
+
+```
+Access to fetch at 'https://api.example.com/data' from origin 
+'http://localhost:3000' has been blocked by CORS policy: 
+No 'Access-Control-Allow-Origin' header is present on the requested resource.
+```
+
+「え、コード間違えた？」——違います。このエラーはコードのバグじゃない。**ブラウザのセキュリティ機能が意図的に通信をブロックしている**。
+
+これがCORSエラーです。何が起きているかを理解すれば、正しい直し方が分かる。意味を理解せずに `Access-Control-Allow-Origin: *` を付けるだけでは、セキュリティホールを開けている可能性があります。
+
+## Same-Origin Policy（同一オリジンポリシー）が先にある
+
+CORSの前に、なぜブロックするかの話から始めます。
+
+ブラウザには「Same-Origin Policy（SOP）」という基本ルールがあります。
+
+> あるオリジンで読み込まれたページは、別のオリジンのリソースをJavaScriptで読み取れない。
+
+「オリジン」は `プロトコル + ホスト + ポート` の組み合わせです。
+
+```
+https://example.com:443  ← これが1つのオリジン
+http://example.com:80    ← プロトコルが違う → 別オリジン
+https://api.example.com  ← ホストが違う    → 別オリジン
+https://example.com:8080 ← ポートが違う    → 別オリジン
+```
+
+なぜこのルールがあるか。
+
+あなたが `evil.com` を開いた。そこには悪意あるJavaScriptが仕込まれている。もしSOPがなければ、そのJSは `bank.com/api/balance` にフェッチして残高を読み取れてしまう——あなたが `bank.com` にログイン済みであれば、クッキーが自動送信されてレスポンスが返ってくる。
+
+SOPはこれを防ぐ。**別オリジンへのJSからの読み取りを禁止する**のがSOPの核心です。
+
+<QuotedFigure
+  src="/learning/same-origin-policy.svg"
+  alt="Same-Origin Policyの概念図。同一オリジン間の通信は許可。異なるオリジン（例：evil.comからbank.com）へのJS読み取りはブロック"
+  width={700}
+  height={360}
+  sourceTitle="Same-origin policy"
+  sourceUrl="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy"
+  licenseNote="CC BY-SA 2.5 / MDN Web Docs"
+>
+  SOPは「JavaScriptによる別オリジンのレスポンス読み取り」を禁止する。フォーム送信やimgタグのリクエストはSOPの対象外（そこはCSRFの話）。
+</QuotedFigure>
+
+## CORSは「例外を認める仕組み」
+
+でも正当な理由で別オリジンと通信したいことはある。フロントは `localhost:3000`、APIは `api.example.com` ——これは開発あるあるです。
+
+これを実現するのが **CORS（Cross-Origin Resource Sharing）**。
+
+CORSは「別オリジンからのアクセスを許可する」をサーバーが宣言する仕組みです。
+
+```
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: https://myapp.example.com
+```
+
+このレスポンスヘッダーがあれば、ブラウザは「サーバーが許可している」と判断して、JavaScriptがレスポンスを読める。なければブロック。
+
+**重要なのはここ**——CORSの判断はブラウザが行うが、許可するかどうかを決めるのはサーバー。サーバーが適切なヘッダーを返すかどうかが全て。
+
+## プリフライトリクエスト
+
+単純なGETとPOSTなら `Access-Control-Allow-Origin` だけでいいですが、条件によっては**プリフライト**という事前確認が入ります。
+
+```
+OPTIONS /api/data HTTP/1.1
+Origin: https://myapp.example.com
+Access-Control-Request-Method: DELETE
+Access-Control-Request-Headers: Content-Type, Authorization
+```
+
+ブラウザが「これをしていいですか？」とOPTIONSリクエストで事前に確認する。サーバーは「いいよ」か「ダメ」を返す：
+
+```
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: https://myapp.example.com
+Access-Control-Allow-Methods: GET, POST, DELETE
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Max-Age: 86400
+```
+
+プリフライトが必要になる条件：
+- PUTやDELETEなどの「シンプルメソッド」以外
+- `Content-Type: application/json` などカスタムヘッダーを付けるとき
+- `Authorization` ヘッダーを送るとき
+
+`Access-Control-Max-Age: 86400` は「次の24時間は同じリクエストのプリフライトをキャッシュしていい」という意味。毎回OPTIONSが飛ぶとパフォーマンスが落ちるので、適切にキャッシュを設定するのが実務的なチューニングです。
+
+<Callout title="なぜAPIエラーなのにネットワークタブにレスポンスが見える？">
+  DevToolsのNetworkタブでCORSエラーの原因リクエストを見ると、「200 OK」と書いてあることがある。サーバーはレスポンスを返している——ブラウザが読み取りをブロックしているだけ。Consoleのエラーメッセージはブラウザが出している。
+</Callout>
+
+## Node.jsでのCORS設定例
+
+実装側ではどう書くか。Express + corsライブラリが典型：
+
+```javascript
+const cors = require('cors');
+
+// ワイルドカード（注意して使う）
+app.use(cors({ origin: '*' }));
+
+// 特定オリジンのみ許可
+app.use(cors({
+  origin: ['https://myapp.example.com', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,  // クッキーを送る場合に必要
+  maxAge: 86400
+}));
+```
+
+`credentials: true` を使う場合（クッキー付きリクエスト）、`origin: '*'` は使えない。具体的なオリジンを指定する必要があります。セキュリティ上の理由——ワイルドカードは「誰でも読める」を意味するので、認証情報と組み合わせることができない。
+
+## 通説の訂正——「CORSはサーバーの制限」
+
+一番よくある誤解：「CORS制限をサーバー側で設定する」「サーバーがCORSをブロックしている」
+
+これは逆。**CORSはブラウザの制限**です。
+
+サーバーはCORSヘッダーを返すかどうかを決めるだけ。そのヘッダーを見て「ブロックする」か「通す」かを決めるのはブラウザです。
+
+証拠に——`curl` でAPIを叩くとCORSエラーは出ない。curlはブラウザではないのでSOPもCORSもない。
+
+```bash
+# これは動く（curlはCORSを適用しない）
+curl -H "Origin: https://evil.com" https://api.example.com/data
+
+# ブラウザのJSからなら CORS ポリシーでブロックされる
+fetch('https://api.example.com/data')  // CORSヘッダーがなければエラー
+```
+
+つまり「サーバーがCORSを拒否している」ではなく「サーバーがCORSを許可していないので、ブラウザが読み取りを拒否している」が正確です。
+
+この理解が大事なのは、`Access-Control-Allow-Origin: *` を付けると**ブラウザの制限が解除される**だけで、サーバーそのものは別に守られていないから。APIの保護は認証・認可で行う。CORSはブラウザからの読み取り制御であって、APIのセキュリティ機能ではない。
+
+<QuotedFigure
+  src="/learning/cors-preflight.svg"
+  alt="CORSとプリフライトの流れ。ブラウザが先にOPTIONSリクエストでサーバーに許可を確認し、OKならメインリクエストを送る"
+  width={700}
+  height={400}
+  sourceTitle="Cross-Origin Resource Sharing (CORS)"
+  sourceUrl="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS"
+  licenseNote="CC BY-SA 2.5 / MDN Web Docs"
+>
+  プリフライトで「この組み合わせ（メソッド+ヘッダー）を許可するか」確認。OKなら本リクエストへ進む。
+</QuotedFigure>
+
+<SourceNote
+  title="Fetch Standard: CORS protocol"
+  url="https://fetch.spec.whatwg.org/#http-cors-protocol"
+  publisher="WHATWG"
+  licenseNote="CC BY 4.0 / WHATWG"
+/>
+
+## ここで押さえること
+
+- **Same-Origin Policy（SOP）**：ブラウザが別オリジンへのJSからの読み取りを禁止する。悪意あるサイトが別サイトのデータを横取りするのを防ぐ
+- **CORS**：SOPの例外を認める仕組み。サーバーが `Access-Control-Allow-Origin` ヘッダーで「このオリジンなら読んでいい」と宣言する
+- **プリフライト**：複雑なリクエストの前にOPTIONSで事前確認する。キャッシュ（`Access-Control-Max-Age`）で毎回の往復を避ける
+- CORSはブラウザが強制する制限。curlは通る。`*` は認証情報（`credentials: true`）と組み合わせ不可
+
+<NextStep href="/learn/binary/numeral-systems" title="2進数と16進数">
+  Web基礎はここまで。次はメモリとバイナリの話へ進みます。CTFで出てくる数字がいきなり16進数だったりするのは、コンピュータがデータを内部でどう扱うかに由来しています。
+</NextStep>

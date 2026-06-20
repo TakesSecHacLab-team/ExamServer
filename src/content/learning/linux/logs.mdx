@@ -1,0 +1,283 @@
+## サーバーが突然応答しなくなった。SSH は通る。まず何を見るか
+
+本番環境のサーバーがダウンした。慌てるな。SSH でログインできるなら、ログを見て原因を突き止めることができます。
+
+「ログを見る」——この一文が、実務での障害対応の 70% を占めます。ここからは「どのログを、どこに、どうやって見るか」という実践的な技術を習います。
+
+## Linux のログの在り処——「全部 /var/log の下」
+
+ログファイルはシステム全体で `/var/log/` の下に集約されています。
+
+```bash
+ls /var/log/
+syslog              # システム全般のログ
+auth.log            # ログイン・パーミッション関連
+kern.log            # カーネルログ
+nginx/              # Nginx（Webサーバー）のログディレクトリ
+apache2/            # Apache のログディレクトリ
+mysql/              # MySQL のログディレクトリ
+...
+```
+
+代表的なログファイル：
+
+| ファイル | 内容 |
+|---|---|
+| **/var/log/syslog** | システム全般のメッセージ。サービス起動/停止、エラーなど |
+| **/var/log/auth.log** | ログイン試行、sudo 実行、認証エラー |
+| **/var/log/kern.log** | カーネルのエラー。メモリ不足、デバイスエラー |
+| **/var/log/nginx/access.log** | Nginx へのHTTPリクエスト（アクセスログ） |
+| **/var/log/nginx/error.log** | Nginx のエラー |
+| **/var/log/mysql/error.log** | MySQL のエラー |
+
+システムやアプリによって名前は異なるので、「まず `/var/log` の中身を見る」が基本。
+
+```bash
+ls -la /var/log/ | head -20
+```
+
+## systemd と journalctl——最新のログ管理
+
+最近の Linux（Debian 8+, Ubuntu 15.04+, CentOS 7+ など）は **systemd** という初期化システムを使っています。その付属ツールが **journalctl**。
+
+systemd 環境では、多くのログが **journald**（journalctl の管理下）に統一されています。`/var/log/syslog` だけでなく、journalctl でも見られます。
+
+**基本的な使い方**：
+
+```bash
+# 全ログを表示（最新から古い順）
+journalctl
+
+# 最新 50 行
+journalctl -n 50
+
+# リアルタイム監視（tail -f 相当）
+journalctl -f
+
+# 特定のサービスのログだけ
+journalctl -u nginx
+journalctl -u mysql
+
+# エラーレベル以上のみ（注意：システムによって実装が異なる）
+journalctl -p err
+
+# 過去1時間のログ
+journalctl --since "1 hour ago"
+
+# 特定日時以降
+journalctl --since "2026-06-20 10:00:00" --until "2026-06-20 11:00:00"
+```
+
+<Callout title="journalctl の利点">
+  従来のテキストログファイルと異なり、journalctl は構造化ログ（タイムスタンプ、優先度、メタデータなど）を持ちます。検索・フィルタリングが強力で、ログローテーション管理も自動。ただし、永続化には `/var/log/journal/` への保存設定が必要。
+</Callout>
+
+## tail -f でリアルタイム監視——「今起きてること」を見る
+
+ログファイルが大きいと、全部見るのは現実的でありません。**最新の部分だけ** をリアルタイムで追跡するなら `tail -f`。
+
+```bash
+tail -f /var/log/nginx/error.log
+
+# 最新 20 行から監視
+tail -f -n 20 /var/log/nginx/error.log
+```
+
+`tail -f` を実行中、ログが更新されるとリアルタイムで画面に追加されます。サーバーのトラブルを「今」観察するのに最強。
+
+`Ctrl+C` で終了。
+
+複数のログを同時監視したければ、tmux や screen でウィンドウを分割するか、別のターミナルタブで複数の `tail -f` を走らせます。
+
+```bash
+# 複数の tail -f を同時実行（別ターミナルで）
+tail -f /var/log/syslog &
+tail -f /var/log/nginx/error.log &
+wait   # すべてのバックグラウンドジョブを待機
+```
+
+## grep でフィルタリング——「特定の情報だけ抽出」
+
+ログファイルは膨大。目的の情報だけ抽出するなら `grep`。
+
+```bash
+# ERROR を含む行だけ表示
+grep "ERROR" /var/log/syslog
+
+# 特定の IP アドレスのアクセスログ
+grep "203.0.113.42" /var/log/nginx/access.log
+
+# 過去1時間のエラー（タイムスタンプ付きなら）
+grep "Jun 20 10:" /var/log/syslog | grep -i error
+
+# 逆マッチ（-v）：DEBUG を除く
+grep -v "DEBUG" /var/log/app.log
+```
+
+パイプ組み合わせ：
+
+```bash
+# ログをフィルタ → ソート → 件数カウント
+grep "ERROR" /var/log/syslog | awk '{print $NF}' | sort | uniq -c
+
+# 最新 100 行から ERROR を探す
+tail -100 /var/log/syslog | grep "ERROR"
+```
+
+## ログレベル（DEBUG/INFO/WARN/ERROR/CRITICAL）
+
+ログの重要度は段階的です。
+
+| レベル | 値 | 意味 | 見るタイミング |
+|---|---|---|---|
+| **DEBUG** | 0 | デバッグ情報。開発時用 | トラブルを深掘りするとき |
+| **INFO** | 1 | 一般情報。起動完了など | 正常動作の確認 |
+| **WARN** | 2 | 警告。問題の予兆 | 異常の早期発見 |
+| **ERROR** | 3 | エラー。機能の一部が失敗 | 緊急対応 |
+| **CRITICAL** | 4 | 致命的エラー。サービス停止 | 最優先対応 |
+
+本番環境では **INFO 以上** のレベルでログを取るのが慣例。DEBUG は開発環境やトラブル診断時だけ有効にします。
+
+```bash
+# syslog のレベル指定（systemd）
+journalctl -p warn
+journalctl -p err..crit   # ERROR 〜 CRITICAL のみ
+```
+
+<QuotedFigure
+  src="/learning/syslog-severity-levels.svg"
+  alt="Syslog の重大度レベル一覧。Emergency(0)からDebug(7)まで、数値・ラベル・意味の対応表"
+  width={640}
+  height={300}
+  sourceTitle="Syslog - Wikipedia"
+  sourceUrl="https://en.wikipedia.org/wiki/Syslog"
+  licenseNote="CC BY-SA 4.0 / Wikipedia"
+>
+  Syslog の重大度レベルは 0（Emergency）〜 7（Debug）の8段階。本番環境では WARN 以上（レベル4以下）を監視対象にするのが一般的。
+</QuotedFigure>
+
+## ログローテーション（logrotate）——ディスク容量圧迫を防ぐ
+
+ログは毎日増え続けます。放置するとディスク満杯になる。**ログローテーション** は「古いログを圧縮・削除して、新しいログの領域を確保」という仕組み。
+
+Linux では `logrotate` というツールが自動的に実行します。設定ファイル：
+
+```bash
+cat /etc/logrotate.d/nginx
+
+/var/log/nginx/*.log {
+    daily               # 毎日ローテーション
+    rotate 14           # 14世代保持
+    compress            # 古いログをgzip圧縮
+    delaycompress       # 今日のログは圧縮しない
+    notifempty          # 空のファイルはスキップ
+    create 0640 www-data adm  # 新しいログを www-data オーナー、640 権限で作成
+    sharedscripts       # postrotate スクリプトは1回だけ実行
+    postrotate          # ローテーション後に実行
+        systemctl reload nginx > /dev/null 2>&1 || true
+    endscript
+}
+```
+
+「今のログはどうなった？」と思ったら：
+
+```bash
+ls -la /var/log/nginx/
+
+access.log                 # 今のログ
+access.log.1               # 昨日のログ
+access.log.2.gz            # 一昨日のログ（圧縮済み）
+access.log.3.gz
+...
+access.log.15.gz           # 15日前（削除対象外）
+```
+
+昔のログを見たければ：
+
+```bash
+gunzip -c /var/log/nginx/access.log.2.gz | grep "203.0.113.42"
+```
+
+## 実務での「最初に見るべきログ」チェックリスト
+
+サーバーが応答しないときの対応順序：
+
+**1. まず systemd のログを確認**
+
+```bash
+journalctl -p err -n 50
+journalctl -u nginx -n 50
+journalctl -u mysql -n 50
+```
+
+エラーレベル以上のメッセージを最新 50 行見る。サービスが何で止まったか即座に判明することが多い。
+
+**2. syslog でシステムイベントを確認**
+
+```bash
+tail -100 /var/log/syslog | grep -E "ERROR|CRITICAL"
+```
+
+ディスク満杯、メモリ不足、カーネルパニックなどが記録されている。
+
+**3. 該当サービスのエラーログ**
+
+```bash
+tail -f /var/log/nginx/error.log
+tail -f /var/log/mysql/error.log
+```
+
+アプリケーション固有のエラーを掘り下げる。
+
+**4. アクセスログで「いつから」を確認**
+
+```bash
+tail /var/log/nginx/access.log
+# 最後のアクセス時刻は？
+```
+
+サービスが何時に止まったか、から推測。
+
+## 重要：ローカルのログは改ざん可能——証拠としての限界
+
+ここで最重要な通説の訂正をしておきます。
+
+**ローカルのログファイル（/var/log以下）は、root権限があれば改ざんできます。**
+
+つまり「ログに記録されている = 絶対的な証拠」ではない。悪意あるrootユーザーや、rootに昇格した攻撃者は、ログをいくらでも編集・削除できる。「侵害の痕跡は消すな」という鉄則が、セキュリティ対応にはあります。
+
+**ログを改ざん防止できるのか。**
+
+- **リモートsyslog**：ログをリモートのログサーバーに送信。ローカルで改ざんしても、リモート側は独立している
+- **WORM（Write Once Read Many）ストレージ**：一度書き込んだら上書き不可。クラウドストレージの不変ログ機能など
+- **監査ログ（Audit daemon）**：より詳細な操作ログを取得。改ざんが難しい設計
+
+本番環境では「ログはローカルだけで十分」ではなく、**集中ログ管理** を検討する価値があります。
+
+<SourceNote
+  title="man journalctl - Linux man-pages"
+  url="https://man7.org/linux/man-pages/man1/journalctl.1.html"
+  publisher="Linux man-pages project"
+  licenseNote="GPL / Linux man-pages"
+/>
+
+<SourceNote
+  title="Linux Logging - Ubuntu Documentation"
+  url="https://help.ubuntu.com/community/LinuxLogFiles"
+  publisher="Ubuntu"
+  licenseNote="Creative Commons"
+/>
+
+## ここで押さえること
+
+- **ログの在り処** — `/var/log/` 下に集約。syslog, auth.log, kern.log, アプリのログディレクトリなど
+- **journalctl** — systemd 環境での標準ログ管理ツール。`-u サービス名`, `-f`, `--since`, `-p レベル` で柔軟に検索
+- **tail -f** — リアルタイム監視。トラブルが「今」起きてる時に最強
+- **grep でフィルタリング** — ERROR や特定IP、タイムスタンプで情報を絞り込む
+- **ログレベル** — DEBUG/INFO/WARN/ERROR/CRITICAL。本番環境では INFO 以上
+- **ログローテーション** — logrotate が自動的に古いログを圧縮・削除。ディスク容量を守る
+- **ローカルログの限界** — root権限で改ざん可能。改ざん防止にはリモートsyslogやWORM等が必要
+
+<NextStep href="/learn/web/cookies" title="CookieとセッションID">
+  Linux の基礎が揃った。次は Web セキュリティの入り口——ステートレスなHTTPの中で「ユーザーを識別する」仕組み。Cookie とセッションID がどう違うのか、そしてなぜセキュリティの穴になるのかを詳しく見ていきます。
+</NextStep>

@@ -29,12 +29,13 @@ export default function QuestionNav({
           <button
             key={ans.questionId}
             onClick={() => onNavigate(index)}
+            aria-current={isCurrent ? "step" : undefined}
             className={`
-              w-8 h-8 text-xs font-medium rounded transition-all
-              ${isCurrent ? "ring-2 ring-blue-500 ring-offset-1" : ""}
-              ${isAnswered ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"}
-              ${isFlagged ? "ring-2 ring-amber-400" : ""}
-              hover:opacity-80
+              h-9 w-9 rounded-md text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600
+              ${isAnswered ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"}
+              ${isCurrent ? "outline outline-2 outline-offset-2 outline-blue-500" : ""}
+              ${isFlagged ? "border border-amber-400 bg-amber-50 text-amber-800" : ""}
+              hover:bg-blue-50 hover:text-blue-800
             `}
             title={`問${index + 1}${isFlagged ? " (フラグ)" : ""}${isAnswered ? " (回答済)" : ""}`}
           >

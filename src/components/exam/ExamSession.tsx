@@ -48,7 +48,7 @@ export default function ExamSession({
   // ローディング中
   if (session.loading || !category) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="exam-production-surface flex min-h-screen items-center justify-center">
         <p className="text-gray-500">問題を読み込み中...</p>
       </div>
     );
@@ -57,7 +57,7 @@ export default function ExamSession({
   // 問題がない
   if (session.questions.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="exam-production-surface flex min-h-screen items-center justify-center">
         <p className="text-gray-500">この試験には問題がありません。</p>
       </div>
     );
@@ -79,7 +79,7 @@ export default function ExamSession({
   // 一問一答モードで全問完了
   if (session.finished && mode === "drill") {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+      <div className="exam-production-surface flex min-h-screen flex-col items-center justify-center gap-4">
         <p className="text-lg font-semibold text-gray-800">
           全問完了しました！
         </p>
