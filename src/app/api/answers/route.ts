@@ -13,7 +13,7 @@ import type { AnswerResponse } from "@/types/exam";
 interface AnswerRequestBody {
   categoryId?: string;
   questionId: string;
-  answer: number | number[];
+  answer: number | number[] | null;
 }
 
 export async function POST(request: NextRequest) {

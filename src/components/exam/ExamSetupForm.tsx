@@ -98,7 +98,7 @@ export default function ExamSetupForm({
         </fieldset>
 
         <details className="group rounded-md border border-gray-200">
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-gray-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 bg-white px-4 py-3 text-sm font-semibold text-gray-950 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600">
             <span>出題条件</span>
             <span className="flex items-center gap-2 text-xs font-medium text-gray-500">
               {countLabel}
@@ -121,7 +121,7 @@ export default function ExamSetupForm({
                 対象は全{availableQuestionCount}問です。
               </p>
               <div className="mt-3 space-y-3">
-                <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 px-3 py-2 transition-colors hover:bg-gray-50">
+                <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 bg-white px-3 py-2 transition-colors hover:bg-gray-50">
                   <input
                     type="radio"
                     name="questionCount"
@@ -133,7 +133,7 @@ export default function ExamSetupForm({
                     全問
                   </span>
                 </label>
-                <label className="flex min-h-11 cursor-pointer flex-wrap items-center gap-3 rounded-md border border-gray-200 px-3 py-2 transition-colors hover:bg-gray-50">
+                <label className="flex min-h-11 cursor-pointer flex-wrap items-center gap-3 rounded-md border border-gray-200 bg-white px-3 py-2 transition-colors hover:bg-gray-50">
                   <input
                     type="radio"
                     name="questionCount"
@@ -168,7 +168,7 @@ export default function ExamSetupForm({
               </div>
             </fieldset>
 
-            <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 px-3 py-2 transition-colors hover:bg-gray-50">
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 bg-white px-3 py-2 transition-colors hover:bg-gray-50">
               <input
                 type="checkbox"
                 checked={randomEnabled}
@@ -180,7 +180,7 @@ export default function ExamSetupForm({
               </span>
             </label>
 
-            <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 px-3 py-2 transition-colors hover:bg-gray-50">
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 bg-white px-3 py-2 transition-colors hover:bg-gray-50">
               <input
                 type="checkbox"
                 checked={timerEnabled}
@@ -281,7 +281,7 @@ function DomainOptions({
         {domains.map((domain) => (
           <label
             key={domain}
-            className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 px-3 py-2 transition-colors hover:bg-gray-50"
+            className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 bg-white px-3 py-2 transition-colors hover:bg-gray-50"
           >
             <input
               type="checkbox"

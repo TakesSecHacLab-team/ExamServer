@@ -17,9 +17,11 @@ interface Props {
   /** タイマー表示（nullの場合は非表示） */
   remainingTime: number | null;
   isFlagged: boolean;
+  isUncertain: boolean;
   /** シナリオ問題の場合 true — 本体エリアを広く取る */
   isScenario?: boolean;
   onFlag: () => void;
+  onUncertain: () => void;
   onPrev: () => void;
   onNext: () => void;
   onNavigate: (index: number) => void;
@@ -35,8 +37,10 @@ export default function ExamShell({
   answers,
   remainingTime,
   isFlagged,
+  isUncertain,
   isScenario = false,
   onFlag,
+  onUncertain,
   onPrev,
   onNext,
   onNavigate,
@@ -48,16 +52,14 @@ export default function ExamShell({
     (answer) => answer.selectedAnswer !== null
   ).length;
   const flaggedCount = answers.filter((answer) => answer.flagged).length;
+  const uncertainCount = answers.filter((answer) => answer.uncertain).length;
   const progress = Math.round(((currentIndex + 1) / totalCount) * 100);
+  const shellWidth = isScenario ? "max-w-7xl" : "max-w-[88rem]";
 
   return (
     <div className="exam-production-surface flex h-[100dvh] min-h-[100dvh] flex-col overflow-hidden bg-gray-50">
       <header className="z-30 shrink-0 border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur">
-        <div
-          className={`mx-auto ${
-            isScenario ? "max-w-7xl" : "max-w-5xl"
-          }`}
-        >
+        <div className={`mx-auto ${shellWidth}`}>
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-gray-950">
@@ -65,7 +67,7 @@ export default function ExamShell({
               </p>
               <p className="mt-0.5 text-xs text-gray-500">
                 問{currentIndex + 1}/{totalCount} ・ 解答済み {answeredCount}
-                問 ・ フラグ {flaggedCount}件
+                問 ・ 分からない {uncertainCount}問 ・ フラグ {flaggedCount}件
               </p>
           </div>
 
@@ -112,14 +114,14 @@ export default function ExamShell({
           className={`mx-auto grid gap-5 px-4 py-6 ${
             isScenario
               ? "max-w-7xl pb-32 lg:grid-cols-[14rem_minmax(0,1fr)] lg:pb-6"
-              : "max-w-5xl pb-32 lg:grid-cols-[14rem_minmax(0,1fr)] lg:pb-6"
+              : "max-w-[88rem] pb-32 lg:grid-cols-[13rem_minmax(0,1fr)] lg:pb-6"
           }`}
         >
           <aside className="hidden lg:block">
             <div className="sticky top-24 rounded-lg border border-gray-200 bg-white p-4">
               <p className="text-sm font-semibold text-gray-950">問題一覧</p>
               <p className="mt-1 text-xs leading-5 text-gray-500">
-                青は解答済み、旗は見直し対象です。
+                青は解答済み、？は分からない、旗は見直し対象です。
               </p>
               <div className="mt-3">
                 <QuestionNav
@@ -136,21 +138,29 @@ export default function ExamShell({
       </main>
 
       <footer className="z-30 shrink-0 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur">
-        <div
-          className={`mx-auto space-y-3 ${
-            isScenario ? "max-w-7xl" : "max-w-5xl"
-          }`}
-        >
+        <div className={`mx-auto space-y-3 ${shellWidth}`}>
           <div className="flex items-center justify-between">
             <button
               onClick={onPrev}
               disabled={currentIndex === 0}
-              className="min-h-10 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+              className="min-h-10 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             >
               前へ
             </button>
 
             <div className="flex items-center gap-2">
+              <button
+                onClick={onUncertain}
+                aria-pressed={isUncertain}
+                className={`min-h-10 rounded-md border px-4 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
+                  isUncertain
+                    ? "border-sky-300 bg-sky-50 text-sky-800"
+                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                分からない
+              </button>
+
               {currentIndex < totalCount - 1 ? (
                 <button
                   onClick={onNext}

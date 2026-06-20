@@ -46,7 +46,7 @@ export default function DrillFeedback({ result, onNext }: Props) {
       {/* 次の問題へ */}
       <button
         onClick={onNext}
-        className="px-6 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+        className="rounded-lg bg-blue-600 px-6 py-2 text-sm text-white transition-colors hover:bg-blue-700"
       >
         次の問題へ
       </button>

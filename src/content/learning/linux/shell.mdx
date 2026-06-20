@@ -38,13 +38,42 @@ bash script.sh
 
 「シェル」は複数あります。
 
-| シェル | 特徴 | 使われるとこ |
-|---|---|---|
-| **sh** | 最小限の POSIX 標準シェル | スクリプトの互換性重視 |
-| **bash** | sh を拡張。配列、関数などが豊富 | ほとんどのLinuxデスクトップ・サーバー |
-| **zsh** | bash より高機能。補完が強い | macOS（最近はデフォルト）。こだわり勢 |
-| **dash** | 軽量。`/bin/sh` の正体 | サーバー初期起動時など |
-| **fish** | 親切な補完。スクリプト互換性は低 | ユーザーのカスタマイズ環境 |
+<table>
+  <thead>
+    <tr>
+      <th>シェル</th>
+      <th>特徴</th>
+      <th>使われるとこ</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>sh</strong></td>
+      <td>最小限の POSIX 標準シェル</td>
+      <td>スクリプトの互換性重視</td>
+    </tr>
+    <tr>
+      <td><strong>bash</strong></td>
+      <td>sh を拡張。配列、関数などが豊富</td>
+      <td>ほとんどのLinuxデスクトップ・サーバー</td>
+    </tr>
+    <tr>
+      <td><strong>zsh</strong></td>
+      <td>bash より高機能。補完が強い</td>
+      <td>macOS（最近はデフォルト）。こだわり勢</td>
+    </tr>
+    <tr>
+      <td><strong>dash</strong></td>
+      <td>軽量。<code>/bin/sh</code> の正体</td>
+      <td>サーバー初期起動時など</td>
+    </tr>
+    <tr>
+      <td><strong>fish</strong></td>
+      <td>親切な補完。スクリプト互換性は低</td>
+      <td>ユーザーのカスタマイズ環境</td>
+    </tr>
+  </tbody>
+</table>
 
 ここで重要な点：**スクリプトの先頭に `#!/bin/sh` と書いても、システムによって sh の実装が異なる** ことがあります。
 
@@ -139,18 +168,56 @@ cat data.txt | grep -v "^#" | sort | uniq > result.txt 2> errors.log
 
 ここからは「実務で毎日使う」コマンドたちの概要。詳細は随時。
 
-| コマンド | 何をするのか |
-|---|---|
-| **ls** | ファイル一覧表示。`-la` で詳細・隠しファイル表示 |
-| **cd** | ディレクトリ移動。`..` で親へ、`~` でホームへ |
-| **pwd** | 現在のディレクトリをフルパスで表示 |
-| **cat** | ファイルの中身をすべて表示。`< file` でstdin から読むのと同じ |
-| **grep** | 文字列検索。`grep "pattern" file` で pattern にマッチ行を抽出 |
-| **find** | ファイルシステム全体を検索。`find . -name "*.txt"` など |
-| **chmod** | パーミッション変更（前レッスン） |
-| **ps** | プロセス一覧表示。`ps aux` で全プロセス（前レッスン） |
-| **kill** | プロセス終了。`kill -9 PID` で強制（前レッスン） |
-| **curl** | URL へHTTPリクエスト送信。`curl https://example.com` |
+<table>
+  <thead>
+    <tr>
+      <th>コマンド</th>
+      <th>何をするのか</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>ls</strong></td>
+      <td>ファイル一覧表示。<code>-la</code> で詳細・隠しファイル表示</td>
+    </tr>
+    <tr>
+      <td><strong>cd</strong></td>
+      <td>ディレクトリ移動。<code>..</code> で親へ、<code>~</code> でホームへ</td>
+    </tr>
+    <tr>
+      <td><strong>pwd</strong></td>
+      <td>現在のディレクトリをフルパスで表示</td>
+    </tr>
+    <tr>
+      <td><strong>cat</strong></td>
+      <td>ファイルの中身をすべて表示。<code>&lt; file</code> でstdin から読むのと同じ</td>
+    </tr>
+    <tr>
+      <td><strong>grep</strong></td>
+      <td>文字列検索。<code>grep "pattern" file</code> で pattern にマッチ行を抽出</td>
+    </tr>
+    <tr>
+      <td><strong>find</strong></td>
+      <td>ファイルシステム全体を検索。<code>find . -name "*.txt"</code> など</td>
+    </tr>
+    <tr>
+      <td><strong>chmod</strong></td>
+      <td>パーミッション変更（前レッスン）</td>
+    </tr>
+    <tr>
+      <td><strong>ps</strong></td>
+      <td>プロセス一覧表示。<code>ps aux</code> で全プロセス（前レッスン）</td>
+    </tr>
+    <tr>
+      <td><strong>kill</strong></td>
+      <td>プロセス終了。<code>kill -9 PID</code> で強制（前レッスン）</td>
+    </tr>
+    <tr>
+      <td><strong>curl</strong></td>
+      <td>URL へHTTPリクエスト送信。<code>curl https://example.com</code></td>
+    </tr>
+  </tbody>
+</table>
 
 ```bash
 # 実例

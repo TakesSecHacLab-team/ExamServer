@@ -41,7 +41,7 @@ export default async function ExamSetupPage({ params, searchParams }: Props) {
       title={category.name}
       description={category.description}
     >
-      <section className="max-w-3xl">
+      <section className="mx-auto max-w-3xl">
         <FlowBackLink href={`/?bucket=${bucket}`} label="カテゴリ一覧に戻る" />
         {totalQuestions === 0 ? (
           <div className="rounded-lg border border-gray-200 bg-white px-5 py-12 text-center text-gray-500">

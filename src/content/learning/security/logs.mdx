@@ -38,13 +38,36 @@ Failed password for invalid user admin from 192.168.1.100 port 54321 ssh2
 
 1段の情報：
 
-| データ | 意味 |
-|---|---|
-| `Failed password` | パスワード認証が失敗 |
-| `invalid user admin` | ユーザー名 `admin` は存在しない（ユーザーが存在しない場合の表示） |
-| `from 192.168.1.100` | 攻撃元の IP アドレス |
-| `port 54321` | 攻撃元が使用したポート |
-| `ssh2` | SSH プロトコルバージョン2 |
+<table>
+  <thead>
+    <tr>
+      <th>データ</th>
+      <th>意味</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Failed password</code></td>
+      <td>パスワード認証が失敗</td>
+    </tr>
+    <tr>
+      <td><code>invalid user admin</code></td>
+      <td>ユーザー名 <code>admin</code> は存在しない（ユーザーが存在しない場合の表示）</td>
+    </tr>
+    <tr>
+      <td><code>from 192.168.1.100</code></td>
+      <td>攻撃元の IP アドレス</td>
+    </tr>
+    <tr>
+      <td><code>port 54321</code></td>
+      <td>攻撃元が使用したポート</td>
+    </tr>
+    <tr>
+      <td><code>ssh2</code></td>
+      <td>SSH プロトコルバージョン2</td>
+    </tr>
+  </tbody>
+</table>
 
 1行だけなら「どこかから不正ログイン試行があった」だけです。
 

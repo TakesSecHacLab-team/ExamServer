@@ -20,7 +20,7 @@ export default function LearnPage() {
       }
       sidebar={<LearningNav map={learningMap} />}
     >
-      <div className="max-w-[42rem] space-y-7">
+      <div className="mx-auto max-w-[42rem] space-y-7">
         {firstLesson?.lessonSlug && (
           <section
             aria-label="次の行動"

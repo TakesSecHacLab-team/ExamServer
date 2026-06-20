@@ -127,18 +127,32 @@ export default function ExamSession({
         userAnswer: currentAnswer.selectedAnswer,
       }
     : undefined;
-  const handlePrimaryNext =
-    mode === "drill" && currentDrillResult
-      ? session.nextDrill
-      : mode === "drill"
-        ? session.submitDrill
-        : session.goNext;
-  const handlePrimaryFinish =
-    mode === "drill" && currentDrillResult
-      ? session.nextDrill
-      : mode === "drill"
-        ? session.submitDrill
-        : session.finishExam;
+  const handlePrimaryNext = () => {
+    if (mode !== "drill") {
+      session.goNext();
+      return;
+    }
+
+    if (currentDrillResult || currentAnswer.selectedAnswer === null) {
+      session.nextDrill();
+      return;
+    }
+
+    void session.submitDrill();
+  };
+  const handlePrimaryFinish = () => {
+    if (mode !== "drill") {
+      void session.finishExam();
+      return;
+    }
+
+    if (currentDrillResult || currentAnswer.selectedAnswer === null) {
+      session.nextDrill();
+      return;
+    }
+
+    void session.submitDrill();
+  };
   const handleExitExam = async () => {
     const confirmed = window.confirm(
       mode === "exam"
@@ -155,6 +169,16 @@ export default function ExamSession({
     session.abandonSession();
     router.push(setupHref);
   };
+  const handleUncertain = async () => {
+    if (currentDrillResult) return;
+
+    if (mode === "drill") {
+      await session.submitUnknownDrill();
+      return;
+    }
+
+    session.toggleUncertain();
+  };
 
   return (
     <ExamShell
@@ -164,8 +188,10 @@ export default function ExamSession({
       answers={session.answers}
       remainingTime={session.remainingTime}
       isFlagged={currentAnswer.flagged}
+      isUncertain={currentAnswer.uncertain}
       isScenario={isScenario}
       onFlag={session.toggleFlag}
+      onUncertain={handleUncertain}
       onPrev={session.goPrev}
       onNext={handlePrimaryNext}
       onNavigate={session.goTo}

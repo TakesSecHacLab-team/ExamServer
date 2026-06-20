@@ -62,7 +62,7 @@ function BucketChoices({ categories }: { categories: CategoryWithCount[] }) {
   const otherCount = categories.length - certificationCount;
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-3">
       <BucketChoice
         href="/?bucket=certification"
         title="資格試験"
@@ -89,15 +89,17 @@ function BucketChoice({
   return (
     <Link
       href={href}
-      className="group flex min-h-28 items-center justify-between rounded-lg border border-gray-200 bg-white px-5 py-4 transition-colors hover:border-blue-300 hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+      className="group flex min-h-28 items-center justify-between rounded-lg border border-gray-300 bg-white px-5 py-5 transition-colors hover:border-blue-300 hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
     >
       <span>
-        <span className="block text-lg font-bold text-gray-950">{title}</span>
-        <span className="mt-1 block text-sm text-gray-500">{description}</span>
+        <span className="block text-xl font-bold text-gray-950">{title}</span>
+        <span className="mt-1.5 block text-sm font-medium text-gray-500">
+          {description}
+        </span>
       </span>
       <span
         aria-hidden="true"
-        className="text-lg font-semibold text-gray-400 transition-colors group-hover:text-blue-700"
+        className="flex h-10 w-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-lg font-semibold text-gray-500 shadow-sm transition-colors group-hover:border-blue-200 group-hover:bg-white group-hover:text-blue-700"
       >
         →
       </span>
@@ -131,22 +133,22 @@ function CategoryRow({
   }, [category.id]);
 
   return (
-    <article className="rounded-lg border border-gray-200 bg-white">
-      <div className="grid gap-2 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+    <article className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <div className="grid gap-2 bg-gray-50 px-4 py-3.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         {ready ? (
           <Link
             href={setupHref}
-            className="min-w-0 rounded-md py-1 text-base font-bold text-gray-950 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+            className="min-w-0 rounded-md py-1 text-lg font-bold leading-snug text-gray-950 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
           >
             {category.name}
           </Link>
         ) : (
-          <span className="min-w-0 py-1 text-base font-bold text-gray-500">
+          <span className="min-w-0 py-1 text-lg font-bold leading-snug text-gray-500">
             {category.name}
           </span>
         )}
 
-        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+        <div className="flex flex-wrap items-center gap-2 text-[11px] font-medium leading-5 text-gray-500 sm:justify-end">
           <span>{styleLabel(category.defaultStyle)}</span>
           <span aria-hidden="true">/</span>
           <span>{Math.floor(category.timeLimit / 60)}分</span>
@@ -157,8 +159,8 @@ function CategoryRow({
         </div>
       </div>
 
-      <details className="group border-t border-gray-100">
-        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-sm font-semibold text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600">
+      <details className="group border-t border-gray-200 bg-white">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 bg-white px-4 py-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600">
           <span>概要</span>
           <span
             aria-hidden="true"
@@ -167,7 +169,7 @@ function CategoryRow({
             ↓
           </span>
         </summary>
-        <div className="px-4 pb-4 text-sm leading-7 text-gray-600">
+        <div className="border-t border-gray-100 bg-white px-4 pb-4 pt-3 text-[0.95rem] leading-7 text-gray-600">
           <p>{category.description}</p>
           {!ready && (
             <p className="mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900">
