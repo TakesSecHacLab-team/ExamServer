@@ -68,11 +68,14 @@ interface ExamSessionState {
 interface ExamSessionActions {
   setAnswer: (answer: number | number[]) => void;
   toggleFlag: () => void;
+  toggleUncertain: () => void;
   goTo: (index: number) => void;
   goNext: () => void;
   goPrev: () => void;
   /** 一問一答で回答を送信 */
   submitDrill: () => Promise<void>;
+  /** 一問一答で未回答として正解・解説を表示 */
+  submitUnknownDrill: () => Promise<void>;
   /** 一問一答で次の問題へ */
   nextDrill: () => void;
   /** 本番モードで試験を終了・一括採点 */
@@ -166,7 +169,7 @@ export function useExamSession(
       // カテゴリやランダム出題順が違うセッションを復帰すると、
       // 表示中の選択肢と採点対象 questionId がズレるため、問題ID列まで一致させる。
       if (isRestorableSession(saved, categoryId, allQuestions)) {
-        setAnswers(saved.answers);
+        setAnswers(normalizeSavedAnswers(saved.answers));
         setCurrentIndex(Math.min(saved.currentIndex, allQuestions.length - 1));
         setRemainingTime(saved.remainingTime);
       } else {
@@ -174,6 +177,7 @@ export function useExamSession(
           questionId: q.id,
           selectedAnswer: null,
           flagged: false,
+          uncertain: false,
         }));
         setAnswers(initialAnswers);
         setRemainingTime(timerEnabled ? timeLimit : null);
@@ -242,7 +246,9 @@ export function useExamSession(
     (answer: number | number[]) => {
       setAnswers((prev) =>
         prev.map((a, i) =>
-          i === currentIndex ? { ...a, selectedAnswer: answer } : a
+          i === currentIndex
+            ? { ...a, selectedAnswer: answer, uncertain: false }
+            : a
         )
       );
       // 一問一答で結果表示中に回答を変えたらリセット
@@ -257,6 +263,21 @@ export function useExamSession(
         i === currentIndex ? { ...a, flagged: !a.flagged } : a
       )
     );
+  }, [currentIndex]);
+
+  const toggleUncertain = useCallback(() => {
+    setAnswers((prev) =>
+      prev.map((a, i) =>
+        i === currentIndex
+          ? {
+              ...a,
+              selectedAnswer: null,
+              uncertain: !a.uncertain,
+            }
+          : a
+      )
+    );
+    setDrillResult(null);
   }, [currentIndex]);
 
   const goTo = useCallback((index: number) => {
@@ -293,6 +314,33 @@ export function useExamSession(
     const data = (await res.json()) as AnswerResponse;
     setDrillResult({ ...data, questionId: data.questionId ?? questionId });
   }, [categoryId, questions, answers, currentIndex]);
+
+  /** 一問一答: 未回答として正解と解説を取得 */
+  const submitUnknownDrill = useCallback(async () => {
+    const currentQuestion = questions[currentIndex];
+    if (!currentQuestion) return;
+
+    setAnswers((prev) =>
+      prev.map((a, i) =>
+        i === currentIndex
+          ? { ...a, selectedAnswer: null, uncertain: true }
+          : a
+      )
+    );
+
+    const questionId = currentQuestion.id;
+    const res = await fetch("/api/answers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        categoryId,
+        questionId,
+        answer: null,
+      }),
+    });
+    const data = (await res.json()) as AnswerResponse;
+    setDrillResult({ ...data, questionId: data.questionId ?? questionId });
+  }, [categoryId, questions, currentIndex]);
 
   /** 一問一答: 結果を閉じて次へ */
   const nextDrill = useCallback(() => {
@@ -351,10 +399,12 @@ export function useExamSession(
     scenarioMap,
     setAnswer,
     toggleFlag,
+    toggleUncertain,
     goTo,
     goNext,
     goPrev,
     submitDrill,
+    submitUnknownDrill,
     nextDrill,
     finishExam,
     abandonSession,
@@ -383,6 +433,13 @@ function loadSessionState(): SessionState | null {
   } catch {
     return null;
   }
+}
+
+function normalizeSavedAnswers(answers: AnswerState[]): AnswerState[] {
+  return answers.map((answer) => ({
+    ...answer,
+    uncertain: Boolean(answer.uncertain),
+  }));
 }
 
 function isRestorableSession(

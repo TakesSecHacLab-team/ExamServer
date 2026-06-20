@@ -21,14 +21,40 @@ mysql/              # MySQL のログディレクトリ
 
 代表的なログファイル：
 
-| ファイル | 内容 |
-|---|---|
-| **/var/log/syslog** | システム全般のメッセージ。サービス起動/停止、エラーなど |
-| **/var/log/auth.log** | ログイン試行、sudo 実行、認証エラー |
-| **/var/log/kern.log** | カーネルのエラー。メモリ不足、デバイスエラー |
-| **/var/log/nginx/access.log** | Nginx へのHTTPリクエスト（アクセスログ） |
-| **/var/log/nginx/error.log** | Nginx のエラー |
-| **/var/log/mysql/error.log** | MySQL のエラー |
+<table>
+  <thead>
+    <tr>
+      <th>ファイル</th>
+      <th>内容</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>/var/log/syslog</strong></td>
+      <td>システム全般のメッセージ。サービス起動/停止、エラーなど</td>
+    </tr>
+    <tr>
+      <td><strong>/var/log/auth.log</strong></td>
+      <td>ログイン試行、sudo 実行、認証エラー</td>
+    </tr>
+    <tr>
+      <td><strong>/var/log/kern.log</strong></td>
+      <td>カーネルのエラー。メモリ不足、デバイスエラー</td>
+    </tr>
+    <tr>
+      <td><strong>/var/log/nginx/access.log</strong></td>
+      <td>Nginx へのHTTPリクエスト（アクセスログ）</td>
+    </tr>
+    <tr>
+      <td><strong>/var/log/nginx/error.log</strong></td>
+      <td>Nginx のエラー</td>
+    </tr>
+    <tr>
+      <td><strong>/var/log/mysql/error.log</strong></td>
+      <td>MySQL のエラー</td>
+    </tr>
+  </tbody>
+</table>
 
 システムやアプリによって名前は異なるので、「まず `/var/log` の中身を見る」が基本。
 
@@ -128,13 +154,48 @@ tail -100 /var/log/syslog | grep "ERROR"
 
 ログの重要度は段階的です。
 
-| レベル | 値 | 意味 | 見るタイミング |
-|---|---|---|---|
-| **DEBUG** | 0 | デバッグ情報。開発時用 | トラブルを深掘りするとき |
-| **INFO** | 1 | 一般情報。起動完了など | 正常動作の確認 |
-| **WARN** | 2 | 警告。問題の予兆 | 異常の早期発見 |
-| **ERROR** | 3 | エラー。機能の一部が失敗 | 緊急対応 |
-| **CRITICAL** | 4 | 致命的エラー。サービス停止 | 最優先対応 |
+<table>
+  <thead>
+    <tr>
+      <th>レベル</th>
+      <th>値</th>
+      <th>意味</th>
+      <th>見るタイミング</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>DEBUG</strong></td>
+      <td>0</td>
+      <td>デバッグ情報。開発時用</td>
+      <td>トラブルを深掘りするとき</td>
+    </tr>
+    <tr>
+      <td><strong>INFO</strong></td>
+      <td>1</td>
+      <td>一般情報。起動完了など</td>
+      <td>正常動作の確認</td>
+    </tr>
+    <tr>
+      <td><strong>WARN</strong></td>
+      <td>2</td>
+      <td>警告。問題の予兆</td>
+      <td>異常の早期発見</td>
+    </tr>
+    <tr>
+      <td><strong>ERROR</strong></td>
+      <td>3</td>
+      <td>エラー。機能の一部が失敗</td>
+      <td>緊急対応</td>
+    </tr>
+    <tr>
+      <td><strong>CRITICAL</strong></td>
+      <td>4</td>
+      <td>致命的エラー。サービス停止</td>
+      <td>最優先対応</td>
+    </tr>
+  </tbody>
+</table>
 
 本番環境では **INFO 以上** のレベルでログを取るのが慣例。DEBUG は開発環境やトラブル診断時だけ有効にします。
 

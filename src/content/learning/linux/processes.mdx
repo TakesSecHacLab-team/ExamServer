@@ -177,14 +177,40 @@ SIGKILL は無視できません。ただし、リソースのクリーンアッ
 
 他のシグナル：
 
-| シグナル | 意味 |
-|---|---|
-| **SIGTERM** | 終了要求。クリーンアップ可能 |
-| **SIGKILL** | 強制終了。無視不可 |
-| **SIGSTOP** | 一時停止。無視不可 |
-| **SIGCONT** | 再開 |
-| **SIGHUP** | ハングアップ（ターミナル切断） |
-| **SIGUSR1, SIGUSR2** | ユーザー定義。アプリが独自の処理をアサイン |
+<table>
+  <thead>
+    <tr>
+      <th>シグナル</th>
+      <th>意味</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>SIGTERM</strong></td>
+      <td>終了要求。クリーンアップ可能</td>
+    </tr>
+    <tr>
+      <td><strong>SIGKILL</strong></td>
+      <td>強制終了。無視不可</td>
+    </tr>
+    <tr>
+      <td><strong>SIGSTOP</strong></td>
+      <td>一時停止。無視不可</td>
+    </tr>
+    <tr>
+      <td><strong>SIGCONT</strong></td>
+      <td>再開</td>
+    </tr>
+    <tr>
+      <td><strong>SIGHUP</strong></td>
+      <td>ハングアップ（ターミナル切断）</td>
+    </tr>
+    <tr>
+      <td><strong>SIGUSR1, SIGUSR2</strong></td>
+      <td>ユーザー定義。アプリが独自の処理をアサイン</td>
+    </tr>
+  </tbody>
+</table>
 
 原則：**まず SIGTERM で。応答しなければ SIGKILL で。**
 

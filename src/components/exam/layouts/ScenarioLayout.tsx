@@ -78,7 +78,7 @@ export default function ScenarioLayout({
         <button
           type="button"
           onClick={() => setScenarioOpen(!scenarioOpen)}
-          className="w-full flex items-center justify-between px-4 py-3 bg-gray-100 rounded-lg text-sm font-medium text-gray-700"
+          className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
         >
           <span>{scenarioOpen ? "▲" : "▼"} {scenario.title}</span>
         </button>

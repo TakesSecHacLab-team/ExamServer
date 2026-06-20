@@ -78,13 +78,42 @@ chmod 755 script.sh
 
 よく使われるパターン：
 
-| 数値 | 意味 | 使い方 |
-|---|---|---|
-| **644** | rw- r-- r-- | 通常のテキストファイル（所有者が読み書き、他はreadのみ） |
-| **755** | rwx r-x r-x | 実行ファイルやスクリプト（所有者は全権、他は読み実行のみ） |
-| **600** | rw- --- --- | 秘密鍵など（所有者だけが読み書き） |
-| **700** | rwx --- --- | ホームディレクトリ（所有者だけが全アクセス） |
-| **777** | rwx rwx rwx | **全員が全権。超危険** |
+<table>
+  <thead>
+    <tr>
+      <th>数値</th>
+      <th>意味</th>
+      <th>使い方</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>644</strong></td>
+      <td>rw- r-- r--</td>
+      <td>通常のテキストファイル（所有者が読み書き、他はreadのみ）</td>
+    </tr>
+    <tr>
+      <td><strong>755</strong></td>
+      <td>rwx r-x r-x</td>
+      <td>実行ファイルやスクリプト（所有者は全権、他は読み実行のみ）</td>
+    </tr>
+    <tr>
+      <td><strong>600</strong></td>
+      <td>rw- --- ---</td>
+      <td>秘密鍵など（所有者だけが読み書き）</td>
+    </tr>
+    <tr>
+      <td><strong>700</strong></td>
+      <td>rwx --- ---</td>
+      <td>ホームディレクトリ（所有者だけが全アクセス）</td>
+    </tr>
+    <tr>
+      <td><strong>777</strong></td>
+      <td>rwx rwx rwx</td>
+      <td><strong>全員が全権。超危険</strong></td>
+    </tr>
+  </tbody>
+</table>
 
 ## 実例：ls -l の出力の読み方
 
@@ -98,18 +127,56 @@ chmod 755 script.sh
 
 左から順に：
 
-| 文字 | 意味 |
-|---|---|
-| **-** | ファイルタイプ。`-` はふつうのファイル、`d` はディレクトリ、`l` はシンボリックリンク |
-| **rw-** | user（所有者 alice）のパーミッション |
-| **r--** | group のパーミッション |
-| **r--** | other のパーミッション |
-| **1** | ハードリンク数（前のレッスンのinode参照カウント） |
-| **alice** | ファイルの所有者（owner） |
-| **alice** | ファイルが所属するグループ |
-| **1234** | ファイルサイズ（バイト） |
-| **Jun 20 10:30** | 最終更新日時 |
-| **config.txt** | ファイル名 |
+<table>
+  <thead>
+    <tr>
+      <th>文字</th>
+      <th>意味</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>-</strong></td>
+      <td>ファイルタイプ。<code>-</code> はふつうのファイル、<code>d</code> はディレクトリ、<code>l</code> はシンボリックリンク</td>
+    </tr>
+    <tr>
+      <td><strong>rw-</strong></td>
+      <td>user（所有者 alice）のパーミッション</td>
+    </tr>
+    <tr>
+      <td><strong>r--</strong></td>
+      <td>group のパーミッション</td>
+    </tr>
+    <tr>
+      <td><strong>r--</strong></td>
+      <td>other のパーミッション</td>
+    </tr>
+    <tr>
+      <td><strong>1</strong></td>
+      <td>ハードリンク数（前のレッスンのinode参照カウント）</td>
+    </tr>
+    <tr>
+      <td><strong>alice</strong></td>
+      <td>ファイルの所有者（owner）</td>
+    </tr>
+    <tr>
+      <td><strong>alice</strong></td>
+      <td>ファイルが所属するグループ</td>
+    </tr>
+    <tr>
+      <td><strong>1234</strong></td>
+      <td>ファイルサイズ（バイト）</td>
+    </tr>
+    <tr>
+      <td><strong>Jun 20 10:30</strong></td>
+      <td>最終更新日時</td>
+    </tr>
+    <tr>
+      <td><strong>config.txt</strong></td>
+      <td>ファイル名</td>
+    </tr>
+  </tbody>
+</table>
 
 
 

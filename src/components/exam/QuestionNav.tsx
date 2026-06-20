@@ -24,22 +24,26 @@ export default function QuestionNav({
         const isCurrent = index === currentIndex;
         const isAnswered = ans.selectedAnswer !== null;
         const isFlagged = ans.flagged;
+        const isUncertain = ans.uncertain;
+        const label = isUncertain ? "？" : isFlagged ? "⚑" : index + 1;
 
         return (
           <button
             key={ans.questionId}
             onClick={() => onNavigate(index)}
             aria-current={isCurrent ? "step" : undefined}
+            aria-label={`問${index + 1}${isUncertain ? " 分からない" : ""}${isFlagged ? " フラグ" : ""}${isAnswered ? " 回答済み" : ""}`}
             className={`
               h-9 w-9 rounded-md text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600
               ${isAnswered ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"}
+              ${isUncertain ? "border border-sky-300 bg-sky-50 text-sky-800" : ""}
               ${isCurrent ? "outline outline-2 outline-offset-2 outline-blue-500" : ""}
-              ${isFlagged ? "border border-amber-400 bg-amber-50 text-amber-800" : ""}
+              ${isFlagged ? "border border-amber-400" : ""}
               hover:bg-blue-50 hover:text-blue-800
             `}
-            title={`問${index + 1}${isFlagged ? " (フラグ)" : ""}${isAnswered ? " (回答済)" : ""}`}
+            title={`問${index + 1}${isUncertain ? " (分からない)" : ""}${isFlagged ? " (フラグ)" : ""}${isAnswered ? " (回答済)" : ""}`}
           >
-            {isFlagged ? "⚑" : index + 1}
+            {label}
           </button>
         );
       })}

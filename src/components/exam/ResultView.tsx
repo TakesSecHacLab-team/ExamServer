@@ -90,9 +90,9 @@ export default function ResultView({
           return (
             <details
               key={r.questionId}
-              className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+              className="overflow-hidden rounded-lg border border-gray-200 bg-white"
             >
-              <summary className="px-4 py-3 cursor-pointer hover:bg-gray-50 flex items-center gap-3">
+              <summary className="flex cursor-pointer items-center gap-3 px-4 py-3 hover:bg-gray-50">
                 {/* 正誤アイコン */}
                 <span
                   className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${
@@ -178,13 +178,13 @@ export default function ResultView({
       <footer className="max-w-3xl mx-auto px-6 pb-12 flex gap-4">
         <Link
           href={setupHref}
-          className="px-6 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+          className="rounded-lg bg-blue-600 px-6 py-2 text-sm text-white transition-colors hover:bg-blue-700"
         >
           もう一度挑戦
         </Link>
         <Link
           href="/"
-          className="px-6 py-2 border border-gray-300 text-sm rounded-lg hover:bg-gray-50"
+          className="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm transition-colors hover:bg-gray-50"
         >
           トップに戻る
         </Link>

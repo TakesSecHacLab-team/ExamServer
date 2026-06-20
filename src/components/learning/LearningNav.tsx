@@ -34,10 +34,10 @@ export default function LearningNav({ map, activeNodeId }: LearningNavProps) {
       <Link
         href="/learn"
         aria-current={activeNodeId ? undefined : "page"}
-        className={`block rounded-md px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] ${
+        className={`block rounded-md border px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] ${
           activeNodeId
-            ? "text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
-            : "bg-[var(--primary-soft)] text-[var(--link)]"
+            ? "border-transparent text-[var(--text-muted)] hover:border-[var(--border)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+            : "border-[var(--border)] bg-[var(--primary-soft)] text-[var(--link)]"
         }`}
       >
         講義トップ
@@ -76,14 +76,9 @@ function ChapterGroup({
 
   return (
     <details className="group rounded-md" open={open}>
-      <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--surface-muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]">
+      <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between gap-3 rounded-md border border-transparent px-3 py-2 text-sm font-semibold text-[var(--foreground)] transition-colors hover:border-[var(--border)] hover:bg-[var(--surface-muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]">
         <span className="min-w-0 truncate">{chapter.title}</span>
-        <span
-          aria-hidden="true"
-          className="shrink-0 text-[var(--text-muted)] transition-transform group-open:rotate-180"
-        >
-          ↓
-        </span>
+        <DisclosureIcon />
       </summary>
       <div className="mt-1 space-y-1 border-l border-[var(--border)] pl-2">
         {lessons.map((lesson) => (
@@ -121,14 +116,31 @@ function LearningNavItem({
       href={`/learn/${node.lessonSlug}`}
       prefetch={false}
       aria-current={active ? "page" : undefined}
-      className={`block rounded-md px-3 py-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] ${
+      className={`block rounded-md border px-3 py-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] ${
         active
-          ? "bg-[var(--primary-soft)] font-semibold text-[var(--link)]"
-          : "text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+          ? "border-[var(--border)] bg-[var(--primary-soft)] font-semibold text-[var(--link)]"
+          : "border-transparent text-[var(--text-muted)] hover:border-[var(--border)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
       }`}
     >
       <span className="block truncate">{node.title}</span>
     </Link>
+  );
+}
+
+function DisclosureIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      className="h-4 w-4 shrink-0 text-[var(--text-muted)]"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    >
+      <path d="M4 8h8" />
+      <path d="M8 4v8" className="transition-opacity group-open:opacity-0" />
+    </svg>
   );
 }
 

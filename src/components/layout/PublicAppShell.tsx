@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import DocsWorkspace from "./DocsWorkspace";
 import ThemeSelector from "./ThemeSelector";
 
 type PublicSection = "learn" | "exam" | "admin";
@@ -46,10 +47,12 @@ export default function PublicAppShell({
   if (activeSection === "learn") {
     return (
       <DocsAppShell
+        activeSection={activeSection}
         title={title}
         description={description}
         eyebrow={eyebrow}
         sidebar={sidebar}
+        hideMobileTabs={hideMobileTabs}
       >
         {children}
       </DocsAppShell>
@@ -65,35 +68,34 @@ export default function PublicAppShell({
         本文へ移動
       </a>
 
-      <div className="mx-auto grid min-h-[100dvh] max-w-7xl lg:grid-cols-[16rem_minmax(0,1fr)]">
-        <SideNavigation activeSection={activeSection} sidebar={sidebar} />
+      <PublicHeader activeSection={activeSection} modernLightLabel="本番風" />
 
-        <div className="min-w-0 pb-24 lg:pb-0">
-          <header className="border-b border-[var(--border)] bg-[var(--surface)]/92 px-5 py-6 backdrop-blur sm:px-8 lg:px-10">
-            <div className="flex max-w-5xl flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="max-w-4xl">
-                {eyebrow && (
-                  <p className="text-sm font-semibold text-[var(--link)]">
-                    {eyebrow}
-                  </p>
-                )}
-                <h1 className="mt-2 text-2xl font-bold tracking-tight text-[var(--foreground)] sm:text-3xl">
-                  {title}
-                </h1>
-                {description && (
-                  <p className="mt-3 max-w-[65ch] text-base leading-7 text-[var(--text-muted)]">
-                    {description}
-                  </p>
-                )}
-              </div>
-              <ThemeSelector modernLightLabel="本番風" />
-            </div>
-          </header>
-
-          <main id="main-content" className="px-5 py-6 sm:px-8 lg:px-10">
-            {children}
-          </main>
+      <header className="border-b border-[var(--border)] bg-[var(--surface)]/92 px-5 py-6 backdrop-blur sm:px-8 lg:px-10">
+        <div className="mx-auto max-w-5xl">
+          <div className="max-w-4xl">
+            {eyebrow && (
+              <p className="text-sm font-semibold text-[var(--link)]">
+                {eyebrow}
+              </p>
+            )}
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-[var(--foreground)] sm:text-3xl">
+              {title}
+            </h1>
+            {description && (
+              <p className="mt-3 max-w-[65ch] text-base leading-7 text-[var(--text-muted)]">
+                {description}
+              </p>
+            )}
+          </div>
         </div>
+      </header>
+
+      <div className="mx-auto min-h-[calc(100dvh-10.5rem)] max-w-7xl pb-24 lg:pb-0">
+        <main id="main-content" className="px-5 py-6 sm:px-8 lg:px-10">
+          <div className="mx-auto max-w-5xl">
+            {children}
+          </div>
+        </main>
       </div>
 
       {!hideMobileTabs && <MobileBottomTabs activeSection={activeSection} />}
@@ -102,17 +104,21 @@ export default function PublicAppShell({
 }
 
 function DocsAppShell({
+  activeSection,
   title,
   description,
   eyebrow,
   sidebar,
   children,
+  hideMobileTabs,
 }: {
+  activeSection: PublicSection;
   title: string;
   description?: string;
   eyebrow?: string;
   sidebar?: ReactNode;
   children: ReactNode;
+  hideMobileTabs: boolean;
 }) {
   return (
     <div className="min-h-[100dvh] bg-[var(--background)] text-[var(--foreground)]">
@@ -123,86 +129,24 @@ function DocsAppShell({
         本文へ移動
       </a>
 
-      <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface)]/92 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-[92rem] items-center gap-3 px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/learn"
-            className="rounded-md text-sm font-semibold text-[var(--foreground)] transition-colors hover:text-[var(--link)]"
-          >
-            ExamServer Docs
-          </Link>
-          <nav
-            aria-label="主要ナビゲーション"
-            className="ml-4 hidden items-center gap-1 lg:flex"
-          >
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.section}
-                href={item.href}
-                aria-current={item.section === "learn" ? "page" : undefined}
-                className={`rounded-md px-3 py-1.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] ${
-                  item.section === "learn"
-                    ? "bg-[var(--primary-soft)] text-[var(--link)]"
-                    : "text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="ml-auto">
-            <ThemeSelector />
-          </div>
-        </div>
-
+      <div className="sticky top-0 z-40">
+        <PublicHeader activeSection={activeSection} />
         {sidebar && (
           <details className="group border-t border-[var(--border)] lg:hidden">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-4 text-sm font-semibold text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus)]">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between bg-[var(--surface)] px-4 text-sm font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--surface-muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus)]">
               <span>Navigation</span>
-              <span
-                aria-hidden="true"
-                className="text-[var(--text-muted)] transition-transform group-open:rotate-180"
-              >
-                ↓
-              </span>
+              <DisclosureIcon />
             </summary>
             <div className="max-h-[62dvh] overflow-y-auto border-t border-[var(--border)] bg-[var(--surface)] px-4 py-4">
-              <nav
-                aria-label="主要ナビゲーション"
-                className="mb-4 grid grid-cols-2 gap-2"
-              >
-                {NAV_ITEMS.map((item) => (
-                  <Link
-                    key={item.section}
-                    href={item.href}
-                    aria-current={
-                      item.section === "learn" ? "page" : undefined
-                    }
-                    className={`rounded-md px-3 py-2 text-center text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] ${
-                      item.section === "learn"
-                        ? "bg-[var(--primary-soft)] text-[var(--link)]"
-                        : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:text-[var(--foreground)]"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
               {sidebar}
             </div>
           </details>
         )}
-      </header>
+      </div>
 
-      <div className="mx-auto grid max-w-[92rem] lg:grid-cols-[18rem_minmax(0,1fr)]">
-        <aside className="hidden border-r border-[var(--border)] bg-[var(--surface-subtle)] lg:block">
-          <div className="sticky top-14 h-[calc(100dvh-3.5rem)] overflow-y-auto px-4 py-5">
-            {sidebar}
-          </div>
-        </aside>
-
+      <DocsWorkspace sidebar={sidebar}>
         <main id="main-content" className="min-w-0 px-5 py-8 sm:px-8 lg:px-10">
-          <div className="max-w-[48rem]">
+          <div className="mx-auto max-w-[76ch]">
             {eyebrow && (
               <p className="text-sm font-semibold text-[var(--link)]">
                 {eyebrow}
@@ -220,66 +164,84 @@ function DocsAppShell({
 
           <div className="mt-8">{children}</div>
         </main>
-      </div>
+      </DocsWorkspace>
+
+      {!hideMobileTabs && <MobileBottomTabs activeSection={activeSection} />}
     </div>
   );
 }
 
-function SideNavigation({
+function DisclosureIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      className="h-4 w-4 shrink-0 text-[var(--text-muted)]"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    >
+      <path d="M4 8h8" />
+      <path d="M8 4v8" className="transition-opacity group-open:opacity-0" />
+    </svg>
+  );
+}
+
+function PublicHeader({
   activeSection,
-  sidebar,
+  modernLightLabel,
 }: {
   activeSection: PublicSection;
-  sidebar?: ReactNode;
+  modernLightLabel?: string;
 }) {
   return (
-    <aside className="hidden border-r border-[var(--border)] bg-[var(--surface)] lg:block">
-      <div className="sticky top-0 flex h-[100dvh] flex-col overflow-y-auto px-4 py-5">
+    <header className="border-b border-[var(--border)] bg-[var(--surface)]/92 backdrop-blur">
+      <div className="mx-auto flex h-14 max-w-[92rem] items-center gap-3 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="rounded-md px-3 py-2 text-base font-bold text-[var(--foreground)] transition-colors hover:bg-[var(--surface-muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]"
+          className="rounded-md px-2 py-1.5 text-sm font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--link)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]"
         >
           ExamServer
         </Link>
 
-        <nav aria-label="公開ナビゲーション" className="mt-5 space-y-1">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.section}
-              href={item.href}
-              aria-current={
-                activeSection === item.section ? "page" : undefined
-              }
-              className={`block rounded-md px-3 py-2.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] ${
-                activeSection === item.section
-                  ? "bg-[var(--primary-soft)] text-[var(--link)]"
-                  : "text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
-              }`}
-            >
-              <span className="block text-sm font-semibold">{item.label}</span>
-              <span className="mt-0.5 block text-xs text-[var(--text-muted)]">
-                {item.description}
-              </span>
-            </Link>
-          ))}
-        </nav>
+        <SectionTabs activeSection={activeSection} />
 
-        {sidebar && (
-          <div className="mt-6 border-t border-[var(--border)] pt-5">
-            {sidebar}
-          </div>
-        )}
-
-        <div className="mt-auto border-t border-[var(--border)] pt-4">
+        <div className="ml-auto flex items-center gap-3">
+          <ThemeSelector modernLightLabel={modernLightLabel} />
           <Link
-            href="/TSHLadmin"
-            className="block rounded-md px-3 py-2 text-xs text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]"
+          href="/TSHLadmin"
+            className="hidden rounded-md px-2 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] sm:block"
           >
-            管理者ログイン
+            管理
           </Link>
         </div>
       </div>
-    </aside>
+    </header>
+  );
+}
+
+function SectionTabs({ activeSection }: { activeSection: PublicSection }) {
+  return (
+    <nav
+      aria-label="主要ナビゲーション"
+      className="ml-4 hidden items-center gap-1 lg:flex"
+    >
+      {NAV_ITEMS.map((item) => (
+        <Link
+          key={item.section}
+          href={item.href}
+          aria-current={activeSection === item.section ? "page" : undefined}
+          className={`rounded-md px-3 py-1.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] ${
+            activeSection === item.section
+              ? "bg-[var(--primary-soft)] text-[var(--link)]"
+              : "text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+          }`}
+        >
+          {item.label}
+        </Link>
+      ))}
+    </nav>
   );
 }
 
@@ -302,7 +264,7 @@ function MobileBottomTabs({
             className={`min-h-11 rounded-md px-3 py-2 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] ${
               activeSection === item.section
                 ? "bg-[var(--primary)] text-[var(--surface)]"
-                : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:bg-[var(--primary-soft)] hover:text-[var(--foreground)]"
+                : "border border-[var(--border)] bg-[var(--surface-muted)] text-[var(--text-muted)] hover:bg-[var(--primary-soft)] hover:text-[var(--foreground)]"
             }`}
           >
             <span className="block text-sm font-semibold">{item.label}</span>

@@ -128,6 +128,8 @@ export interface AnswerState {
   selectedAnswer: number | number[] | null;
   /** フラグ付き */
   flagged: boolean;
+  /** 意図的に「分からない」とした */
+  uncertain: boolean;
 }
 
 // ---------------------------------------------------------------------------

@@ -2,11 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PublicAppShell from "@/components/layout/PublicAppShell";
 import LearningNav from "@/components/learning/LearningNav";
+import LessonReadingLayout from "@/components/learning/LessonReadingLayout";
 import {
   findLearningNodeBySlug,
   getLearningMap,
   getLearningPath,
-  getNextLessonNode,
 } from "@/lib/learning";
 import {
   getLearningLessonHeadings,
@@ -34,7 +34,6 @@ export default async function LearningLessonPage({ params }: Props) {
 
   const Lesson = lessonModule.default;
   const currentPath = getLearningPath(learningMap, node.id);
-  const nextNode = getNextLessonNode(learningMap, node.id);
   const headings = getLearningLessonHeadings(slug);
 
   return (
@@ -45,8 +44,18 @@ export default async function LearningLessonPage({ params }: Props) {
       description={node.summary}
       sidebar={<LearningNav map={learningMap} activeNodeId={node.id} />}
     >
-      <div className="grid max-w-[64rem] gap-10 xl:grid-cols-[minmax(0,70ch)_13rem]">
-        <div className="min-w-0">
+      <LessonReadingLayout
+        outline={
+          <>
+            <p className="text-xs font-semibold text-[var(--foreground)]">
+              このページ
+            </p>
+            <div className="mt-3">
+              <ArticleOutline headings={headings} />
+            </div>
+          </>
+        }
+      >
           <nav
             aria-label="現在地"
             className="mb-6 text-sm text-[var(--text-muted)]"
@@ -83,14 +92,9 @@ export default async function LearningLessonPage({ params }: Props) {
           </nav>
 
           <details className="group mb-7 rounded-md border border-[var(--border)] bg-[var(--surface)] xl:hidden">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 text-sm font-semibold text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus)]">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 text-sm font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--surface-muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus)]">
               <span>このページ</span>
-              <span
-                aria-hidden="true"
-                className="text-[var(--text-muted)] transition-transform group-open:rotate-180"
-              >
-                ↓
-              </span>
+              <DisclosureIcon />
             </summary>
             <div className="border-t border-[var(--border)] px-3 py-3">
               <ArticleOutline headings={headings} />
@@ -102,24 +106,6 @@ export default async function LearningLessonPage({ params }: Props) {
           </article>
 
           <div className="mt-10 grid gap-3 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
-            {nextNode?.lessonSlug && (
-              <Link
-                href={`/learn/${nextNode.lessonSlug}`}
-                prefetch={false}
-                className="rounded-md border border-[var(--border)] bg-[var(--surface)] p-4 transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]"
-              >
-                <p className="text-sm font-semibold text-[var(--link)]">
-                  次に読む
-                </p>
-                <p className="mt-1 text-base font-semibold text-[var(--foreground)]">
-                  {nextNode.title}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-                  {nextNode.summary}
-                </p>
-              </Link>
-            )}
-
             {node.exerciseCategoryId && (
               <Link
                 href={`/exam/${node.exerciseCategoryId}`}
@@ -138,20 +124,25 @@ export default async function LearningLessonPage({ params }: Props) {
               </Link>
             )}
           </div>
-        </div>
-
-        <aside className="hidden xl:block">
-          <div className="sticky top-24 border-l border-[var(--border)] pl-4">
-            <p className="text-xs font-semibold text-[var(--foreground)]">
-              このページ
-            </p>
-            <div className="mt-3">
-              <ArticleOutline headings={headings} />
-            </div>
-          </div>
-        </aside>
-      </div>
+      </LessonReadingLayout>
     </PublicAppShell>
+  );
+}
+
+function DisclosureIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      className="h-4 w-4 shrink-0 text-[var(--text-muted)]"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    >
+      <path d="M4 8h8" />
+      <path d="M8 4v8" className="transition-opacity group-open:opacity-0" />
+    </svg>
   );
 }
 

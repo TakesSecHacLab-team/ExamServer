@@ -101,17 +101,62 @@ HTTP/1.1 200 OK
 
 `200` が「うまくいった」という意味の**ステータスコード**です。よく出るのは：
 
-| コード | 意味 | 説明 |
-|--------|------|------|
-| **200 OK** | 成功 | リクエストが正常に処理された |
-| **301 Moved Permanently** | 永続的な移動 | サイトが別の URL に引っ越した。ブラウザは自動で新しい URL にリダイレクト |
-| **302 Found** | 一時的なリダイレクト | 一時的に別の URL へ飛ばす |
-| **400 Bad Request** | リクエスト不正 | クライアントがおかしなリクエストを送った |
-| **401 Unauthorized** | 認証が必要 | ログインしてないか、トークンが無効 |
-| **403 Forbidden** | アクセス禁止 | ログインしていても、そのリソースにアクセスする権限がない |
-| **404 Not Found** | 見つからない | その URL は存在しない |
-| **500 Internal Server Error** | サーバーエラー | サーバー側で予期しないエラーが起きた |
-| **503 Service Unavailable** | サービス利用不可 | サーバーがメンテナンス中など |
+<table>
+  <thead>
+    <tr>
+      <th>コード</th>
+      <th>意味</th>
+      <th>説明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>200 OK</strong></td>
+      <td>成功</td>
+      <td>リクエストが正常に処理された</td>
+    </tr>
+    <tr>
+      <td><strong>301 Moved Permanently</strong></td>
+      <td>永続的な移動</td>
+      <td>サイトが別の URL に引っ越した。ブラウザは自動で新しい URL にリダイレクト</td>
+    </tr>
+    <tr>
+      <td><strong>302 Found</strong></td>
+      <td>一時的なリダイレクト</td>
+      <td>一時的に別の URL へ飛ばす</td>
+    </tr>
+    <tr>
+      <td><strong>400 Bad Request</strong></td>
+      <td>リクエスト不正</td>
+      <td>クライアントがおかしなリクエストを送った</td>
+    </tr>
+    <tr>
+      <td><strong>401 Unauthorized</strong></td>
+      <td>認証が必要</td>
+      <td>ログインしてないか、トークンが無効</td>
+    </tr>
+    <tr>
+      <td><strong>403 Forbidden</strong></td>
+      <td>アクセス禁止</td>
+      <td>ログインしていても、そのリソースにアクセスする権限がない</td>
+    </tr>
+    <tr>
+      <td><strong>404 Not Found</strong></td>
+      <td>見つからない</td>
+      <td>その URL は存在しない</td>
+    </tr>
+    <tr>
+      <td><strong>500 Internal Server Error</strong></td>
+      <td>サーバーエラー</td>
+      <td>サーバー側で予期しないエラーが起きた</td>
+    </tr>
+    <tr>
+      <td><strong>503 Service Unavailable</strong></td>
+      <td>サービス利用不可</td>
+      <td>サーバーがメンテナンス中など</td>
+    </tr>
+  </tbody>
+</table>
 
 `200` 系は成功、`300` 系はリダイレクト、`400` 系はクライアントのミス、`500` 系はサーバーのミスという分け方が基本です。
 
