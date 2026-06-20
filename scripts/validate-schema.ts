@@ -310,6 +310,16 @@ function listMdxFiles(dir: string): string[] {
   });
 }
 
+function getQuotedFigureAttrs(block: string): Record<string, string> {
+  const attrs: Record<string, string> = {};
+
+  for (const match of block.matchAll(/(\w+)="([^"]*)"/g)) {
+    attrs[match[1]] = match[2];
+  }
+
+  return attrs;
+}
+
 function validateLearningAssets() {
   console.log("\n📂 learning assets");
 
@@ -328,6 +338,28 @@ function validateLearningAssets() {
     const raw = fs.readFileSync(filePath, "utf-8");
     for (const match of raw.matchAll(/src="(\/learning\/[^"]+)"/g)) {
       refs.add(match[1]);
+    }
+
+    for (const match of raw.matchAll(/<QuotedFigure\s+([\s\S]*?)>/g)) {
+      const attrs = getQuotedFigureAttrs(match[1]);
+      const imageMeta = attrs.src ? imageMetaBySrc.get(attrs.src) : undefined;
+      if (!imageMeta) continue;
+
+      const relPath = path.relative(process.cwd(), filePath);
+      const expectedLicenseNote = `${imageMeta.licenseName} / ${imageMeta.publisher}`;
+      const expectedAttrs = {
+        sourceTitle: imageMeta.sourceTitle,
+        sourceUrl: imageMeta.sourceUrl,
+        licenseNote: expectedLicenseNote,
+      };
+
+      for (const [key, expectedValue] of Object.entries(expectedAttrs)) {
+        if (attrs[key] !== expectedValue) {
+          error(
+            `${relPath} の ${attrs.src} は ${key} が learning-images.json と一致しません: ${attrs[key] ?? "(未指定)"}`
+          );
+        }
+      }
     }
   }
 
