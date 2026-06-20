@@ -9,6 +9,7 @@
 
 import fs from "fs";
 import path from "path";
+import { createHash } from "crypto";
 import { getLearningSlugs } from "../src/lib/learning-content";
 import {
   getLearningMap,
@@ -37,6 +38,14 @@ function error(msg: string) {
 
 function info(msg: string) {
   console.log(`  ✔ ${msg}`);
+}
+
+function cryptoHash(value: string) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function normalizeSvgForHash(value: string) {
+  return value.replace(/\r\n/g, "\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -341,11 +350,26 @@ function validateLearningAssets() {
     if (image.kind === "adapted" && !image.modificationNote.trim()) {
       error(`加工引用の modificationNote が空です: ${image.src}`);
     }
-    if (image.sourceLanguage === "en" && !image.modificationNote.includes("日本語")) {
-      error(`英語出典画像は日本語化の加工メモが必要です: ${image.src}`);
+    if (
+      image.kind === "direct" &&
+      /日本語化|簡略化|再作図/.test(image.modificationNote)
+    ) {
+      error(`直接引用画像を加工図として説明しないでください: ${image.src}`);
     }
-    if (image.assetLanguage !== "ja") {
-      error(`教材画像は日本語化済みである必要があります: ${image.src}`);
+    if (
+      image.sourceLanguage === "en" &&
+      (!("translationNote" in image) ||
+        typeof image.translationNote !== "string" ||
+        !image.translationNote.trim())
+    ) {
+      error(`英語出典画像は日本語の訳注が必要です: ${image.src}`);
+    }
+    if (
+      image.assetLanguage !== "ja" &&
+      image.assetLanguage !== "en" &&
+      image.assetLanguage !== "multi"
+    ) {
+      error(`assetLanguage は ja/en/multi のみ許可: ${image.src}`);
     }
     for (const [key, value] of Object.entries(image)) {
       if (typeof value === "string" && value.trim() === "") {
@@ -380,6 +404,17 @@ function validateLearningAssets() {
       const rawAsset = fs.readFileSync(assetPath, "utf-8");
       if (rawAsset.includes("ExamServer learning diagram")) {
         error(`自動生成/自作図マーカーが残っています: ${ref}`);
+      }
+
+      if (imageMeta?.kind === "direct") {
+        if (!/^[a-f0-9]{64}$/.test(imageMeta.localSha256 ?? "")) {
+          error(`直接引用画像は localSha256 が必要です: ${ref}`);
+        } else {
+          const hash = cryptoHash(normalizeSvgForHash(rawAsset));
+          if (hash !== imageMeta.localSha256) {
+            error(`直接引用画像の SHA-256 が manifest と一致しません: ${ref}`);
+          }
+        }
       }
     }
   }

@@ -235,7 +235,7 @@
      id="tspan1013"
      x="249.06456"
      y="-204.42261"
-     style="stroke-width:0.75">ネットワークID</tspan></text>
+     style="stroke-width:0.75">Network ID</tspan></text>
 
 
 
@@ -250,12 +250,12 @@
      id="tspan1013-7"
      x="101.90253"
      y="-217.1194"
-     style="stroke-width:0.75">予約</tspan><tspan
+     style="stroke-width:0.75">Reserved </tspan><tspan
      sodipodi:role="line"
      x="99.070503"
      y="-192.1194"
      style="stroke-width:0.75"
-     id="tspan1056">ビット</tspan></text>
+     id="tspan1056">bits</tspan></text>
 
 
 
@@ -280,7 +280,7 @@
      id="tspan1013-3"
      x="511.16852"
      y="-204.42261"
-     style="stroke-width:0.75">ホストID</tspan></text>
+     style="stroke-width:0.75">Host ID</tspan></text>
 
 
 
@@ -375,7 +375,7 @@
      id="tspan1013-33"
      x="250.44522"
      y="-106.31483"
-     style="stroke-width:0.75">ネットワークID</tspan></text>
+     style="stroke-width:0.75">Network ID</tspan></text>
 
 <text
    xml:space="preserve"
@@ -388,12 +388,12 @@
      id="tspan1013-7-6"
      x="103.28317"
      y="-119.01163"
-     style="stroke-width:0.75">予約</tspan><tspan
+     style="stroke-width:0.75">Reserved </tspan><tspan
      sodipodi:role="line"
      x="100.45114"
      y="-94.011627"
      style="stroke-width:0.75"
-     id="tspan1056-0">ビット</tspan></text>
+     id="tspan1056-0">bits</tspan></text>
 
 <g
    id="g54-9-8-6-8"
@@ -416,7 +416,7 @@
      id="tspan1013-3-5"
      x="554.21057"
      y="-106.9374"
-     style="stroke-width:0.75">ホストID</tspan></text>
+     style="stroke-width:0.75">Host ID</tspan></text>
 
 <text
    xml:space="preserve"
@@ -465,7 +465,7 @@
      id="tspan1013-3-5-7"
      x="414.38068"
      y="-106.40746"
-     style="stroke-width:0.75">サブネットID</tspan></text>
+     style="stroke-width:0.75">Subnet ID</tspan></text>
 
 <g
    id="g54-9-8-6-8-7"
@@ -498,12 +498,12 @@
      id="tspan1013-3-9"
      x="-18.420666"
      y="-222.14722"
-     style="stroke-width:0.75">サブネット</tspan><tspan
+     style="stroke-width:0.75">Before</tspan><tspan
      sodipodi:role="line"
      x="-18.420666"
      y="-190.89722"
      style="stroke-width:0.75"
-     id="tspan3018">化前</tspan></text>
+     id="tspan3018">subnetting</tspan></text>
 
 <text
    xml:space="preserve"
@@ -516,11 +516,11 @@
      id="tspan1013-3-9-0"
      x="-19.357212"
      y="-122.31941"
-     style="stroke-width:0.75">サブネット</tspan><tspan
+     style="stroke-width:0.75">After</tspan><tspan
      sodipodi:role="line"
      x="-19.357212"
      y="-91.069412"
      style="stroke-width:0.75"
-     id="tspan3018-4">化後</tspan></text>
+     id="tspan3018-4">subnetting</tspan></text>
 
 </g></svg>

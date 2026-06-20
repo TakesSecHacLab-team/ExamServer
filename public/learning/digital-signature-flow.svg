@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Adapted from Digital_Signature_diagram.svg on Wikimedia Commons; labels translated to Japanese for ExamServer. -->
-<svg role="img" aria-label="電子署名の作成と検証の流れ" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1500px" height="1125px" enable-background="new">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1500px" height="1125px" enable-background="new">
 	<defs>
 	    <style type="text/css"><![CDATA[
 	        text {
@@ -105,40 +104,40 @@
         <g transform="translate(68 130)">
             <g>
                 <use xlink:href="#page"/>
-                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="188" id="trsvg31-ca" systemLanguage="ca"><tspan id="trsvg3-ca">Dades</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="188" id="trsvg31"><tspan id="trsvg3">データ</tspan></text></switch>
+                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="188" id="trsvg31-ca" systemLanguage="ca"><tspan id="trsvg3-ca">Dades</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="188" id="trsvg31"><tspan id="trsvg3">Data</tspan></text></switch>
             </g>
 
             <g transform="translate(155 17.5)">
                 <use xlink:href="#arrowRight"/>
                 <switch><text fill="#000000" font-family="DejaVu Sans" font-size="22.5" transform="translate(63 57)" id="trsvg32-ca" systemLanguage="ca"><tspan x="0" id="trsvg4-ca">Funció</tspan>
                     <tspan x="0" y="25" id="trsvg5-ca">resum</tspan>
-                </text><text fill="#000000" font-family="DejaVu Sans" font-size="22.5" transform="translate(63 57)" id="trsvg32"><tspan x="0" id="trsvg4">ハッシュ</tspan>
-                    <tspan x="0" y="25" id="trsvg5">関数</tspan>
+                </text><text fill="#000000" font-family="DejaVu Sans" font-size="22.5" transform="translate(63 57)" id="trsvg32"><tspan x="0" id="trsvg4">Hash</tspan>
+                    <tspan x="0" y="25" id="trsvg5">function</tspan>
                 </text></switch>
             </g>
 
             <g transform="translate(346 54)">
                 <use xlink:href="#hash"/>
-                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg33-ca" systemLanguage="ca"><tspan id="trsvg6-ca">Empremta electrònica</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg33"><tspan id="trsvg6">ハッシュ</tspan></text></switch>
+                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg33-ca" systemLanguage="ca"><tspan id="trsvg6-ca">Empremta electrònica</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg33"><tspan id="trsvg6">Hash</tspan></text></switch>
             </g>
 
             <g transform="translate(325 173)">
                 <use xlink:href="#largeArrowDownKey"/>
                 <switch><text fill="#000000" font-family="DejaVu Sans" font-size="21" transform="translate(122 40)" id="trsvg34-ca" systemLanguage="ca"><tspan x="0" id="trsvg7-ca">Encriptar empremta</tspan><tspan x="0" y="25" id="trsvg8-ca">usant la clau</tspan>
                     <tspan x="0" y="50" id="trsvg9-ca">privada del signant</tspan>
-                </text><text fill="#000000" font-family="DejaVu Sans" font-size="21" transform="translate(122 40)" id="trsvg34"><tspan x="0" id="trsvg7">ハッシュを暗号化</tspan><tspan x="0" y="25" id="trsvg8">署名者の</tspan>
-                    <tspan x="0" y="50" id="trsvg9">秘密鍵で</tspan>
+                </text><text fill="#000000" font-family="DejaVu Sans" font-size="21" transform="translate(122 40)" id="trsvg34"><tspan x="0" id="trsvg7">Encrypt hash</tspan><tspan x="0" y="25" id="trsvg8">using signer's</tspan>
+                    <tspan x="0" y="50" id="trsvg9">private key</tspan>
                 </text></switch>
             </g>
 
             <g transform="translate(346 392)">
                 <use xlink:href="#signature"/>
-                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg35-ca" systemLanguage="ca"><tspan id="trsvg10-ca">Signatura</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg35"><tspan id="trsvg10">署名</tspan></text></switch>
+                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg35-ca" systemLanguage="ca"><tspan id="trsvg10-ca">Signatura</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg35"><tspan id="trsvg10">Signature</tspan></text></switch>
             </g>
 
             <g transform="translate(157 320)">
                 <use xlink:href="#smallRibbonPage"/>
-                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="44" y="162" id="trsvg36-ca" systemLanguage="ca"><tspan id="trsvg11-ca">Certificat</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="44" y="162" id="trsvg36"><tspan id="trsvg11">証明書</tspan></text></switch>
+                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="44" y="162" id="trsvg36-ca" systemLanguage="ca"><tspan id="trsvg11-ca">Certificat</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="44" y="162" id="trsvg36"><tspan id="trsvg11">Certificate</tspan></text></switch>
             </g>
 
             <g transform="translate(340 485)">
@@ -150,21 +149,21 @@
                 <use xlink:href="#arrowDown"/>
                 <switch><text fill="#000000" font-family="DejaVu Sans" font-size="24" transform="translate(86 40)" id="trsvg37-ca" systemLanguage="ca"><tspan x="0" id="trsvg12-ca">Afegir a</tspan>
                     <tspan x="0" y="28" id="trsvg13-ca">les dades</tspan>
-                </text><text fill="#000000" font-family="DejaVu Sans" font-size="24" transform="translate(86 40)" id="trsvg37"><tspan x="0" id="trsvg12">データへ</tspan>
-                    <tspan x="0" y="28" id="trsvg13">添付</tspan>
+                </text><text fill="#000000" font-family="DejaVu Sans" font-size="24" transform="translate(86 40)" id="trsvg37"><tspan x="0" id="trsvg12">Attach</tspan>
+                    <tspan x="0" y="28" id="trsvg13">to data</tspan>
                 </text></switch>
             </g>
 
             <g transform="translate(280 755)">
                 <use xlink:href="#ribbonPage"/>
-                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="205" id="trsvg38-ca" systemLanguage="ca"><tspan id="trsvg14-ca">Dades signades digitalment</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="205" id="trsvg38"><tspan id="trsvg14">電子署名付きデータ</tspan></text></switch>
+                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="205" id="trsvg38-ca" systemLanguage="ca"><tspan id="trsvg14-ca">Dades signades digitalment</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="205" id="trsvg38"><tspan id="trsvg14">Digitally signed data</tspan></text></switch>
             </g>
         </g>
 
         <g transform="translate(802 145)">
             <g transform="translate(240 0)">
                 <use xlink:href="#ribbonPage"/>
-                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="205" id="trsvg39-ca" systemLanguage="ca"><tspan id="trsvg15-ca">Dades signades digitalment</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="205" id="trsvg39"><tspan id="trsvg15">電子署名付きデータ</tspan></text></switch>
+                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="205" id="trsvg39-ca" systemLanguage="ca"><tspan id="trsvg15-ca">Dades signades digitalment</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="205" id="trsvg39"><tspan id="trsvg15">Digitally signed data</tspan></text></switch>
             </g>
 
             <g transform="translate(108 208)">
@@ -177,40 +176,40 @@
 
             <g transform="translate(38 282)">
                 <use xlink:href="#page"/>
-                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="188" id="trsvg40-ca" systemLanguage="ca"><tspan id="trsvg16-ca">Dades</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="188" id="trsvg40"><tspan id="trsvg16">データ</tspan></text></switch>
+                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="188" id="trsvg40-ca" systemLanguage="ca"><tspan id="trsvg16-ca">Dades</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="60" y="188" id="trsvg40"><tspan id="trsvg16">Data</tspan></text></switch>
             </g>
 
             <g transform="scale(0.95 0.95) translate(18 522)">
                 <use xlink:href="#arrowDown"/>
                 <switch><text fill="#000000" font-family="DejaVu Sans" font-size="24" transform="translate(86 40)" id="trsvg41-ca" systemLanguage="ca"><tspan x="0" id="trsvg17-ca">Funció</tspan>
                     <tspan x="0" y="28" id="trsvg18-ca">resum</tspan>
-                </text><text fill="#000000" font-family="DejaVu Sans" font-size="24" transform="translate(86 40)" id="trsvg41"><tspan x="0" id="trsvg17">ハッシュ</tspan>
-                    <tspan x="0" y="28" id="trsvg18">関数</tspan>
+                </text><text fill="#000000" font-family="DejaVu Sans" font-size="24" transform="translate(86 40)" id="trsvg41"><tspan x="0" id="trsvg17">Hash</tspan>
+                    <tspan x="0" y="28" id="trsvg18">function</tspan>
                 </text></switch>
             </g>
 
             <g transform="translate(0 652)">
                 <use xlink:href="#hash"/>
-                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg42-ca" systemLanguage="ca"><tspan id="trsvg19-ca">Empremta electrònica</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg42"><tspan id="trsvg19">ハッシュ</tspan></text></switch>
+                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg42-ca" systemLanguage="ca"><tspan id="trsvg19-ca">Empremta electrònica</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg42"><tspan id="trsvg19">Hash</tspan></text></switch>
             </g>
 
             <g transform="translate(405 292)">
                 <use xlink:href="#signature"/>
-                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg43-ca" systemLanguage="ca"><tspan id="trsvg20-ca">Signatura</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg43"><tspan id="trsvg20">署名</tspan></text></switch>
+                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg43-ca" systemLanguage="ca"><tspan id="trsvg20-ca">Signatura</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg43"><tspan id="trsvg20">Signature</tspan></text></switch>
             </g>
 
             <g transform="translate(385 422)">
                 <use xlink:href="#largeArrowDownKey"/>
                 <switch><text fill="#000000" font-family="DejaVu Sans" font-size="21" transform="translate(122 40)" id="trsvg44-ca" systemLanguage="ca"><tspan x="0" id="trsvg21-ca">Desencriptar</tspan><tspan x="0" y="25" id="trsvg22-ca">usant la clau</tspan>
                     <tspan x="0" y="50" id="trsvg23-ca">publica del signant</tspan>
-                </text><text fill="#000000" font-family="DejaVu Sans" font-size="21" transform="translate(122 40)" id="trsvg44"><tspan x="0" id="trsvg21">復号</tspan><tspan x="0" y="25" id="trsvg22">署名者の</tspan>
-                    <tspan x="0" y="50" id="trsvg23">公開鍵で</tspan>
+                </text><text fill="#000000" font-family="DejaVu Sans" font-size="21" transform="translate(122 40)" id="trsvg44"><tspan x="0" id="trsvg21">Decrypt</tspan><tspan x="0" y="25" id="trsvg22">using signer's</tspan>
+                    <tspan x="0" y="50" id="trsvg23">public key</tspan>
                 </text></switch>
             </g>
 
             <g transform="translate(405 652)">
                 <use xlink:href="#hash"/>
-                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg45-ca" systemLanguage="ca"><tspan id="trsvg24-ca">Empremta electrònica</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg45"><tspan id="trsvg24">ハッシュ</tspan></text></switch>
+                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg45-ca" systemLanguage="ca"><tspan id="trsvg24-ca">Empremta electrònica</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="26" x="100" y="88" id="trsvg45"><tspan id="trsvg24">Hash</tspan></text></switch>
             </g>
 
             <g transform="translate(300 664)">
@@ -220,13 +219,13 @@
             </g>
 
             <g transform="translate(300 830)">
-                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="25" id="trsvg47-ca" systemLanguage="ca"><tspan id="trsvg26-ca">Si les empremtes electròniques són iguals, la signatura és vàlida</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="25" id="trsvg47"><tspan id="trsvg26">ハッシュが一致すれば、署名は有効</tspan></text></switch>
+                <switch><text fill="#000000" font-family="DejaVu Sans" font-size="25" id="trsvg47-ca" systemLanguage="ca"><tspan id="trsvg26-ca">Si les empremtes electròniques són iguals, la signatura és vàlida</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="25" id="trsvg47"><tspan id="trsvg26">If the hashes are equal, the signature is valid.</tspan></text></switch>
             </g>
         </g>
 
         <line stroke="#000000" stroke-width="1" x1="730" y1="0" x2="730" y2="1125"/>
 
-        <switch><text fill="#000000" font-family="DejaVu Sans" font-size="50" x="380" y="85" id="trsvg48-ca" systemLanguage="ca"><tspan id="trsvg27-ca">Signatura</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="50" x="380" y="85" id="trsvg48"><tspan id="trsvg27">署名</tspan></text></switch>
-        <switch><text fill="#000000" font-family="DejaVu Sans" font-size="50" x="1095" y="85" id="trsvg49-ca" systemLanguage="ca"><tspan id="trsvg28-ca">Verificació</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="50" x="1095" y="85" id="trsvg49"><tspan id="trsvg28">検証</tspan></text></switch>
+        <switch><text fill="#000000" font-family="DejaVu Sans" font-size="50" x="380" y="85" id="trsvg48-ca" systemLanguage="ca"><tspan id="trsvg27-ca">Signatura</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="50" x="380" y="85" id="trsvg48"><tspan id="trsvg27">Signing</tspan></text></switch>
+        <switch><text fill="#000000" font-family="DejaVu Sans" font-size="50" x="1095" y="85" id="trsvg49-ca" systemLanguage="ca"><tspan id="trsvg28-ca">Verificació</tspan></text><text fill="#000000" font-family="DejaVu Sans" font-size="50" x="1095" y="85" id="trsvg49"><tspan id="trsvg28">Verification</tspan></text></switch>
     </g>
 </svg>
