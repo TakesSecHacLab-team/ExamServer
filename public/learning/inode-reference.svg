@@ -12,34 +12,34 @@
 <!-- fildesc -->
 <g id="node1" class="node"><title>fildesc</title>
 <polygon fill="none" stroke="black" points="0.5,-11.5 0.5,-172.5 101.5,-172.5 101.5,-11.5 0.5,-11.5"/>
-<text text-anchor="middle" x="51" y="-157.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">ファイル記述子</text>
+<text text-anchor="middle" x="51" y="-157.3" font-family="Times,serif" font-size="14.00">File descriptors</text>
 <polyline fill="none" stroke="black" points="0.5,-149.5 101.5,-149.5 "/>
-<text text-anchor="middle" x="51" y="-134.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">0</text>
+<text text-anchor="middle" x="51" y="-134.3" font-family="Times,serif" font-size="14.00">0</text>
 <polyline fill="none" stroke="black" points="0.5,-126.5 101.5,-126.5 "/>
-<text text-anchor="middle" x="51" y="-111.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">1</text>
+<text text-anchor="middle" x="51" y="-111.3" font-family="Times,serif" font-size="14.00">1</text>
 <polyline fill="none" stroke="black" points="0.5,-103.5 101.5,-103.5 "/>
-<text text-anchor="middle" x="51" y="-88.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">2</text>
+<text text-anchor="middle" x="51" y="-88.3" font-family="Times,serif" font-size="14.00">2</text>
 <polyline fill="none" stroke="black" points="0.5,-80.5 101.5,-80.5 "/>
-<text text-anchor="middle" x="51" y="-65.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">3</text>
+<text text-anchor="middle" x="51" y="-65.3" font-family="Times,serif" font-size="14.00">3</text>
 <polyline fill="none" stroke="black" points="0.5,-57.5 101.5,-57.5 "/>
-<text text-anchor="middle" x="51" y="-42.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">4</text>
+<text text-anchor="middle" x="51" y="-42.3" font-family="Times,serif" font-size="14.00">4</text>
 <polyline fill="none" stroke="black" points="0.5,-34.5 101.5,-34.5 "/>
-<text text-anchor="middle" x="51" y="-19.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">...</text>
+<text text-anchor="middle" x="51" y="-19.3" font-family="Times,serif" font-size="14.00">...</text>
 </g>
 <!-- filetab -->
 <g id="node2" class="node"><title>filetab</title>
 <polygon fill="none" stroke="black" points="138,-23 138,-161 210,-161 210,-23 138,-23"/>
-<text text-anchor="middle" x="174" y="-145.8" font-family="Noto Sans JP, sans-serif" font-size="14.00">ファイル表</text>
+<text text-anchor="middle" x="174" y="-145.8" font-family="Times,serif" font-size="14.00">File table</text>
 <polyline fill="none" stroke="black" points="138,-138 210,-138 "/>
-<text text-anchor="middle" x="174" y="-122.8" font-family="Noto Sans JP, sans-serif" font-size="14.00">読取</text>
+<text text-anchor="middle" x="174" y="-122.8" font-family="Times,serif" font-size="14.00">read</text>
 <polyline fill="none" stroke="black" points="138,-115 210,-115 "/>
-<text text-anchor="middle" x="174" y="-99.8" font-family="Noto Sans JP, sans-serif" font-size="14.00">...</text>
+<text text-anchor="middle" x="174" y="-99.8" font-family="Times,serif" font-size="14.00">...</text>
 <polyline fill="none" stroke="black" points="138,-92 210,-92 "/>
-<text text-anchor="middle" x="174" y="-76.8" font-family="Noto Sans JP, sans-serif" font-size="14.00">書込</text>
+<text text-anchor="middle" x="174" y="-76.8" font-family="Times,serif" font-size="14.00">write</text>
 <polyline fill="none" stroke="black" points="138,-69 210,-69 "/>
-<text text-anchor="middle" x="174" y="-53.8" font-family="Noto Sans JP, sans-serif" font-size="14.00">読取/書込</text>
+<text text-anchor="middle" x="174" y="-53.8" font-family="Times,serif" font-size="14.00">read&#45;write</text>
 <polyline fill="none" stroke="black" points="138,-46 210,-46 "/>
-<text text-anchor="middle" x="174" y="-30.8" font-family="Noto Sans JP, sans-serif" font-size="14.00">...</text>
+<text text-anchor="middle" x="174" y="-30.8" font-family="Times,serif" font-size="14.00">...</text>
 </g>
 <!-- fildesc&#45;&gt;filetab -->
 <g id="edge1" class="edge"><title>fildesc:0&#45;&gt;filetab:0</title>
@@ -64,15 +64,15 @@
 <!-- inotab -->
 <g id="node3" class="node"><title>inotab</title>
 <polygon fill="none" stroke="black" points="246.5,0.5 246.5,-114.5 359.5,-114.5 359.5,0.5 246.5,0.5"/>
-<text text-anchor="middle" x="303" y="-99.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">inode表</text>
+<text text-anchor="middle" x="303" y="-99.3" font-family="Times,serif" font-size="14.00">Inode table</text>
 <polyline fill="none" stroke="black" points="246.5,-91.5 359.5,-91.5 "/>
-<text text-anchor="middle" x="303" y="-76.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">/home/joe/wikidb</text>
+<text text-anchor="middle" x="303" y="-76.3" font-family="Times,serif" font-size="14.00">/home/joe/wikidb</text>
 <polyline fill="none" stroke="black" points="246.5,-68.5 359.5,-68.5 "/>
-<text text-anchor="middle" x="303" y="-53.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">...</text>
+<text text-anchor="middle" x="303" y="-53.3" font-family="Times,serif" font-size="14.00">...</text>
 <polyline fill="none" stroke="black" points="246.5,-45.5 359.5,-45.5 "/>
-<text text-anchor="middle" x="303" y="-30.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">/etc/passwd</text>
+<text text-anchor="middle" x="303" y="-30.3" font-family="Times,serif" font-size="14.00">/etc/passwd</text>
 <polyline fill="none" stroke="black" points="246.5,-22.5 359.5,-22.5 "/>
-<text text-anchor="middle" x="303" y="-7.3" font-family="Noto Sans JP, sans-serif" font-size="14.00">...</text>
+<text text-anchor="middle" x="303" y="-7.3" font-family="Times,serif" font-size="14.00">...</text>
 </g>
 <!-- filetab&#45;&gt;inotab -->
 <g id="edge5" class="edge"><title>filetab:0&#45;&gt;inotab:1</title>

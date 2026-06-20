@@ -29,7 +29,7 @@ describe("QuotedFigure", () => {
     expect(screen.getByText(/CC0 1.0 Universal/)).toBeInTheDocument();
   });
 
-  it("renders manifest-backed adapted quotation information", () => {
+  it("renders manifest-backed direct quotation and translation note", () => {
     render(
       <QuotedFigure
         src="/learning/cors-preflight.svg"
@@ -42,8 +42,9 @@ describe("QuotedFigure", () => {
 
     expect(screen.getByText(/preflight-correct.svg/)).toBeInTheDocument();
     expect(screen.getByText(/MDN Web Docs \/ mdn\/shared-assets/)).toBeInTheDocument();
-    expect(screen.getByText(/加工引用/)).toBeInTheDocument();
-    expect(screen.getByText(/役割ラベルを日本語化/)).toBeInTheDocument();
+    expect(screen.getByText(/引用/)).toBeInTheDocument();
+    expect(screen.getByText(/出典SVGの図形・文字を改変せずに引用/)).toBeInTheDocument();
+    expect(screen.getByText(/Preflight request は事前確認リクエスト/)).toBeInTheDocument();
     expect(screen.getByText(/参照日: 2026-06-20/)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "CC BY-SA 2.5 or later" })

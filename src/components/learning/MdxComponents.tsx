@@ -197,7 +197,7 @@ export function QuotedFigure({
         alt={alt}
         width={width}
         height={height}
-        loading="lazy"
+        loading="eager"
         decoding="async"
         className="max-h-[520px] w-full bg-[var(--surface)] object-contain p-4"
       />
@@ -235,6 +235,9 @@ export function QuotedFigure({
             {imageMeta.kind === "adapted" ? "加工引用" : "引用"}:{" "}
             {imageMeta.modificationNote} 参照日: {imageMeta.accessedAt}
           </span>
+        )}
+        {imageMeta?.translationNote && (
+          <span className="block">訳注: {imageMeta.translationNote}</span>
         )}
       </figcaption>
     </figure>

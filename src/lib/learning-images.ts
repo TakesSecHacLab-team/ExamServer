@@ -11,8 +11,10 @@ export interface LearningImageMeta {
   licenseName: string;
   licenseUrl: string;
   sourceLanguage: "ja" | "en" | "multi";
-  assetLanguage: "ja";
+  assetLanguage: "ja" | "en" | "multi";
   modificationNote: string;
+  translationNote?: string;
+  localSha256?: string;
   accessedAt: string;
 }
 

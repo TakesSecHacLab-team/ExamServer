@@ -4,10 +4,10 @@
   <ellipse cx="250" cy="285" rx="210" ry="185" fill="#dde9af"/>
   <ellipse cx="250" cy="320" rx="170" ry="130" fill="#eef4d7"/>
   <ellipse cx="250" cy="355" rx="120" ry="75" fill="#fff"/>
-  <g font-family="Noto Sans JP, sans-serif" font-size="40px" text-anchor="middle" stroke="none">
-    <text x="250" y="70">ネットワーク</text>
-    <text x="250" y="160">ホスト</text>
-    <text x="250" y="260">アプリ</text>
-    <text x="250" y="370">データ</text>
+  <g font-family="DejaVuSans" font-size="40px" text-anchor="middle" stroke="none">
+    <text x="250" y="70">network</text>
+    <text x="250" y="160">host</text>
+    <text x="250" y="260">application</text>
+    <text x="250" y="370">data</text>
   </g>
 </svg>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Adapted from Standard-unix-filesystem-hierarchy.svg on Wikimedia Commons; labels translated to Japanese for ExamServer. -->
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
-<svg role="img" aria-label="UNIX系ファイルシステム階層"
+<svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -88,7 +87,7 @@
            y="28.076488"
            x="452.62244"
            id="tspan3357"
-           sodipodi:role="line">/    &quot;ルート&quot;</tspan></text>
+           sodipodi:role="line">/    &quot;root&quot;</tspan></text>
       <path
          inkscape:connector-curvature="0"
          id="path3443"
@@ -114,11 +113,11 @@
              sodipodi:role="line"
              x="1.488121"
              y="105.84435"
-             id="tspan4328">&quot;必須ユーザー</tspan><tspan
+             id="tspan4328">&quot;essential user </tspan><tspan
              sodipodi:role="line"
              x="1.488121"
              y="121.46935"
-             id="tspan4330">コマンド実行ファイル&quot;</tspan><tspan
+             id="tspan4330">command binaries&quot;</tspan><tspan
              sodipodi:role="line"
              x="1.488121"
              y="137.09435"
@@ -301,11 +300,11 @@
              sodipodi:role="line"
              x="979.48541"
              y="116.44841"
-             id="tspan4330-1-6">&quot;デバイスファイル</tspan><tspan
+             id="tspan4330-1-6">&quot;device files</tspan><tspan
              sodipodi:role="line"
              x="979.48541"
              y="132.07341"
-             id="tspan8182">/dev/null など&quot;</tspan><tspan
+             id="tspan8182">incl. /dev/null&quot;</tspan><tspan
              sodipodi:role="line"
              x="979.48541"
              y="147.69841"
@@ -347,11 +346,11 @@
                id="tspan8182-8"
                y="179.77834"
                x="979.97369"
-               sodipodi:role="line">&quot;ユーザーのホーム</tspan><tspan
+               sodipodi:role="line">&quot;user home</tspan><tspan
                y="195.40334"
                x="979.97369"
                sodipodi:role="line"
-               id="tspan8272">ディレクトリ&quot;</tspan><tspan
+               id="tspan8272">directories&quot;</tspan><tspan
                id="tspan4332-3-11-8"
                y="211.02834"
                x="979.97369"
@@ -394,11 +393,11 @@
                y="179.77834"
                x="979.97369"
                sodipodi:role="line"
-               id="tspan8272-9">&quot;プロセスとカーネル</tspan><tspan
+               id="tspan8272-9">&quot;process &amp; kernel</tspan><tspan
                id="tspan4466"
                y="195.40334"
                x="979.97369"
-               sodipodi:role="line">情報ファイル&quot;</tspan><tspan
+               sodipodi:role="line">information files&quot;</tspan><tspan
                id="tspan4332-3-11-8-5"
                y="211.02834"
                x="979.97369"
@@ -440,11 +439,11 @@
                y="285.88745"
                x="980.83154"
                sodipodi:role="line"
-               id="tspan8272-9-0">&quot;ライブラリと</tspan><tspan
+               id="tspan8272-9-0">&quot;libraries &amp;</tspan><tspan
                id="tspan8470"
                y="301.51245"
                x="980.83154"
-               sodipodi:role="line">カーネルモジュール&quot;</tspan><tspan
+               sodipodi:role="line">kernel modules&quot;</tspan><tspan
                id="tspan4332-3-11-8-5-7"
                y="317.13745"
                x="980.83154"
@@ -484,15 +483,15 @@
              id="tspan8272-9-0-2"
              sodipodi:role="line"
              x="981.38739"
-             y="338.96869">&quot;一時ファイルシステムの</tspan><tspan
+             y="338.96869">&quot;mount files for</tspan><tspan
              id="tspan8488"
              sodipodi:role="line"
              x="981.38739"
-             y="354.59369">マウント先</tspan><tspan
+             y="354.59369">temporary </tspan><tspan
              id="tspan8490"
              sodipodi:role="line"
              x="981.38739"
-             y="370.21869">&quot;</tspan><tspan
+             y="370.21869">filesystems&quot;</tspan><tspan
              sodipodi:role="line"
              x="981.38739"
              y="385.84369"
@@ -532,11 +531,11 @@
                  sodipodi:role="line"
                  x="335.61404"
                  y="121.09817"
-                 id="tspan4330-1-2">&quot;読み取り専用のユーザーアプリ</tspan><tspan
+                 id="tspan4330-1-2">&quot;read-only user application</tspan><tspan
                  sodipodi:role="line"
                  x="335.61404"
                  y="136.72318"
-                 id="tspan5309">支援データと実行ファイル&quot;</tspan><tspan
+                 id="tspan5309">support data &amp; binaries&quot;</tspan><tspan
                  sodipodi:role="line"
                  x="335.61404"
                  y="152.34818"
@@ -560,11 +559,11 @@
                  id="tspan5410-2"
                  sodipodi:role="line"
                  x="423.61087"
-                 y="255.49771">&quot;Cコード用の標準</tspan><tspan
+                 y="255.49771">&quot;standard include</tspan><tspan
                  id="tspan5472"
                  sodipodi:role="line"
                  x="423.61087"
-                 y="271.12271">インクルードファイル&quot;</tspan><tspan
+                 y="271.12271">files for 'C' code&quot;</tspan><tspan
                  sodipodi:role="line"
                  x="423.61087"
                  y="286.74771"
@@ -585,15 +584,15 @@
                  id="tspan5472-4"
                  sodipodi:role="line"
                  x="423.61087"
-                 y="318.48975">&quot;開発/パッケージ用の</tspan><tspan
+                 y="318.48975">&quot;obj, bin, lib</tspan><tspan
                  id="tspan5508"
                  sodipodi:role="line"
                  x="423.61087"
-                 y="334.11475">obj/bin/lib</tspan><tspan
+                 y="334.11475">files for coding</tspan><tspan
                  id="tspan5510"
                  sodipodi:role="line"
                  x="423.61087"
-                 y="349.73975">ファイル&quot;</tspan><tspan
+                 y="349.73975">&amp; packages&quot;</tspan><tspan
                  sodipodi:role="line"
                  x="423.61087"
                  y="365.36475"
@@ -631,11 +630,11 @@
                  id="tspan4330-1-9"
                  y="191.0387"
                  x="423.33621"
-                 sodipodi:role="line">&quot;多くのユーザー</tspan><tspan
+                 sodipodi:role="line">&quot;most user</tspan><tspan
                  y="206.6637"
                  x="423.33621"
                  sodipodi:role="line"
-                 id="tspan5410">コマンド&quot;</tspan><tspan
+                 id="tspan5410">commands&quot;</tspan><tspan
                  id="tspan4332-3-1"
                  y="222.2887"
                  x="423.33621"
@@ -704,7 +703,7 @@
                  id="tspan5570"
                  y="399.82547"
                  x="422.68314"
-                 sodipodi:role="line">&quot;ローカルソフトウェア&quot;</tspan><tspan
+                 sodipodi:role="line">&quot;local software&quot;</tspan><tspan
                  id="tspan4332-3-1-9"
                  y="415.45047"
                  x="422.68314"
@@ -768,11 +767,11 @@
                  y="529.31421"
                  x="423.33621"
                  sodipodi:role="line"
-                 id="tspan5410-8">&quot;全アーキテクチャで共有できる</tspan><tspan
+                 id="tspan5410-8">&quot;static data sharable</tspan><tspan
                  id="tspan5641"
                  y="544.93921"
                  x="423.33621"
-                 sodipodi:role="line">静的データ&quot;</tspan><tspan
+                 sodipodi:role="line">accross all architectures&quot;</tspan><tspan
                  id="tspan4332-3-1-0"
                  y="560.56421"
                  x="423.33621"
@@ -809,7 +808,7 @@
                  id="tspan5641-0"
                  y="579.01837"
                  x="455.48779"
-                 sodipodi:role="line">&quot;マニュアルページ&quot;</tspan><tspan
+                 sodipodi:role="line">&quot;manual pages&quot;</tspan><tspan
                  id="tspan4332-3-1-0-4"
                  y="594.64337"
                  x="455.48779"
@@ -852,11 +851,11 @@
                id="tspan4328-1-5"
                y="130.79739"
                x="225.13699"
-               sodipodi:role="line">&quot;システムの</tspan><tspan
+               sodipodi:role="line">&quot;configuration files </tspan><tspan
                id="tspan4330-1-7"
                y="146.42239"
                x="225.13699"
-               sodipodi:role="line">設定ファイル&quot;</tspan><tspan
+               sodipodi:role="line">for the system&quot;</tspan><tspan
                id="tspan4332-3-9"
                y="162.04739"
                x="225.13699"
@@ -1016,7 +1015,7 @@
              sodipodi:role="line"
              x="605.31458"
              y="107.37861"
-             id="tspan5309-0">&quot;可変データファイル&quot;</tspan><tspan
+             id="tspan5309-0">&quot;variable data files&quot;</tspan><tspan
              sodipodi:role="line"
              x="605.31458"
              y="123.00361"
@@ -1056,11 +1055,11 @@
                id="tspan5410-7"
                sodipodi:role="line"
                x="663.74231"
-               y="166.20746">&quot;アプリケーション</tspan><tspan
+               y="166.20746">&quot;application </tspan><tspan
                id="tspan6416"
                sodipodi:role="line"
                x="663.74231"
-               y="181.83246">キャッシュデータ&quot;</tspan><tspan
+               y="181.83246">cache data&quot;</tspan><tspan
                sodipodi:role="line"
                x="663.74231"
                y="197.45746"
@@ -1089,11 +1088,11 @@
                y="230.66647"
                x="664.01697"
                sodipodi:role="line"
-               id="tspan5472-3">&quot;プログラム実行中に</tspan><tspan
+               id="tspan5472-3">&quot;data modified as</tspan><tspan
                id="tspan6420"
                y="246.29147"
                x="664.01697"
-               sodipodi:role="line">変更されるデータ&quot;</tspan><tspan
+               sodipodi:role="line">programmes run&quot;</tspan><tspan
                id="tspan4332-3-1-3-4"
                y="261.91647"
                x="664.01697"
@@ -1133,11 +1132,11 @@
                id="tspan6427"
                y="293.65851"
                x="664.01697"
-               sodipodi:role="line">&quot;使用中リソースを追跡する</tspan><tspan
+               sodipodi:role="line">&quot;lock files to track </tspan><tspan
                id="tspan6429"
                y="309.28351"
                x="664.01697"
-               sodipodi:role="line">ロックファイル&quot;</tspan><tspan
+               sodipodi:role="line">resources in use&quot;</tspan><tspan
                id="tspan4332-3-1-3-7-4"
                y="324.90851"
                x="664.01697"
@@ -1189,7 +1188,7 @@
                sodipodi:role="line"
                x="663.08923"
                y="374.99423"
-               id="tspan5570-8">&quot;ログファイル&quot;</tspan><tspan
+               id="tspan5570-8">&quot;log files&quot;</tspan><tspan
                sodipodi:role="line"
                x="663.08923"
                y="390.61923"
@@ -1227,7 +1226,7 @@
              id="tspan5641-2"
              y="448.76868"
              x="663.74231"
-             sodipodi:role="line">&quot;処理待ちタスク</tspan><tspan
+             sodipodi:role="line">&quot;tasks waiting to</tspan><tspan
              y="464.39368"
              x="663.74231"
              sodipodi:role="line"
