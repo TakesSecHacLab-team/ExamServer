@@ -320,7 +320,15 @@ export function useExamSession(
       }),
     });
     const data = (await res.json()) as BatchAnswerResponse;
-    setBatchResult(data);
+    const resultOrder = new Map(
+      questions.map((question, index) => [question.id, index])
+    );
+    const orderedResults = [...data.results].sort(
+      (a, b) =>
+        (resultOrder.get(a.questionId) ?? Number.MAX_SAFE_INTEGER) -
+        (resultOrder.get(b.questionId) ?? Number.MAX_SAFE_INTEGER)
+    );
+    setBatchResult({ ...data, results: orderedResults });
     setFinished(true);
     clearSessionState();
   }, [categoryId, questions, answers]);
