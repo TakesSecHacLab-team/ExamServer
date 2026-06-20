@@ -29,8 +29,12 @@ export default function ExamSetupForm({
     Math.min(10, totalQuestions)
   );
   const [timerEnabled, setTimerEnabled] = useState(true);
+  const selectedCount = useAllQuestions ? totalQuestions : questionCount;
+  const canStart = selectedCount >= 1 && selectedCount <= totalQuestions;
 
   const handleStart = () => {
+    if (!canStart) return;
+
     sessionStorage.removeItem("exam-session-state");
     // クエリパラメータで設定を渡す
     const params = new URLSearchParams({
@@ -42,13 +46,16 @@ export default function ExamSetupForm({
   };
 
   return (
-    <div className="space-y-6">
-      {/* モード選択 */}
-      <fieldset>
-        <legend className="text-sm font-semibold text-gray-700 mb-3">
-          受験モード
-        </legend>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div className="rounded-lg border border-gray-200 bg-white p-5 sm:p-6">
+      <div className="space-y-7">
+        <fieldset>
+          <legend className="text-base font-bold text-gray-950">
+            1. 受験モード
+          </legend>
+          <p className="mt-1 text-sm leading-6 text-gray-600">
+            採点タイミングを選びます。迷ったら本番モードで十分です。
+          </p>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <ModeOption
             selected={mode === "exam"}
             onClick={() => setMode("exam")}
@@ -64,13 +71,15 @@ export default function ExamSetupForm({
         </div>
       </fieldset>
 
-      {/* 問題数 */}
-      <fieldset>
-        <legend className="text-sm font-semibold text-gray-700 mb-3">
-          出題数（全{totalQuestions}問）
+        <fieldset className="border-t border-gray-200 pt-6">
+          <legend className="text-base font-bold text-gray-950">
+            2. 出題数
         </legend>
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 cursor-pointer">
+          <p className="mt-1 text-sm leading-6 text-gray-600">
+            このカテゴリには全{totalQuestions}問あります。
+          </p>
+          <div className="mt-3 space-y-3">
+          <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 px-3 py-2 transition-colors hover:bg-gray-50">
             <input
               type="radio"
               name="questionCount"
@@ -78,9 +87,9 @@ export default function ExamSetupForm({
               onChange={() => setUseAllQuestions(true)}
               className="accent-blue-600"
             />
-            <span className="text-sm text-gray-700">全問</span>
+            <span className="text-sm font-medium text-gray-800">全問</span>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex min-h-11 cursor-pointer flex-wrap items-center gap-3 rounded-md border border-gray-200 px-3 py-2 transition-colors hover:bg-gray-50">
             <input
               type="radio"
               name="questionCount"
@@ -88,27 +97,32 @@ export default function ExamSetupForm({
               onChange={() => setUseAllQuestions(false)}
               className="accent-blue-600"
             />
-            <span className="text-sm text-gray-700">ランダムで</span>
+            <span className="text-sm font-medium text-gray-800">
+              ランダムで
+            </span>
             <input
               type="number"
               min={1}
               max={totalQuestions}
               value={questionCount}
-              onChange={(e) => setQuestionCount(Number(e.target.value))}
+              onChange={(e) =>
+                setQuestionCount(
+                  Math.max(1, Math.min(totalQuestions, Number(e.target.value)))
+                )
+              }
               disabled={useAllQuestions}
-              className="w-16 px-2 py-1 text-sm border border-gray-300 rounded disabled:opacity-50"
+              className="w-20 rounded-md border border-gray-300 px-2 py-1 text-sm disabled:bg-gray-100 disabled:opacity-60"
             />
             <span className="text-sm text-gray-700">問</span>
           </label>
         </div>
       </fieldset>
 
-      {/* タイマー */}
-      <fieldset>
-        <legend className="text-sm font-semibold text-gray-700 mb-3">
-          タイマー
+        <fieldset className="border-t border-gray-200 pt-6">
+          <legend className="text-base font-bold text-gray-950">
+            3. タイマー
         </legend>
-        <label className="flex items-center gap-2 cursor-pointer">
+          <label className="mt-3 flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 px-3 py-2 transition-colors hover:bg-gray-50">
           <input
             type="checkbox"
             checked={timerEnabled}
@@ -121,13 +135,22 @@ export default function ExamSetupForm({
         </label>
       </fieldset>
 
-      {/* 開始ボタン */}
-      <button
-        onClick={handleStart}
-        className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-      >
-        {categoryName} を開始
-      </button>
+        <div className="border-t border-gray-200 pt-6">
+          <p className="mb-3 text-sm leading-6 text-gray-600">
+            {mode === "exam"
+              ? "全問解答後にまとめて採点します。"
+              : "1問ごとに答え合わせします。"}
+            出題数は{selectedCount}問です。
+          </p>
+          <button
+            onClick={handleStart}
+            disabled={!canStart}
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-blue-600 px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 sm:w-auto"
+          >
+            {categoryName} を開始
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -151,10 +174,11 @@ function ModeOption({
     <button
       type="button"
       onClick={onClick}
-      className={`text-left p-4 rounded-lg border-2 transition-all ${
+      aria-pressed={selected}
+      className={`min-h-28 rounded-md border p-4 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
         selected
           ? "border-blue-500 bg-blue-50"
-          : "border-gray-200 bg-white hover:border-gray-300"
+          : "border-gray-200 bg-white hover:bg-gray-50"
       }`}
     >
       <span className="block font-semibold text-sm text-gray-900">

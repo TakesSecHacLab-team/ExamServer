@@ -1,0 +1,155 @@
+## DevToolsを開いて、クッキーを見てみる
+
+ブラウザで任意のサイトを開いて、F12（またはCommand+Option+I）を押す。「Application」タブ→「Cookies」を開くと、そのサイトが保存しているクッキーの一覧が見える。
+
+名前、値、ドメイン、有効期限、HttpOnly……数十件ずらりと並んでいる。これは「サーバーがブラウザに預けているメモ」です。
+
+なぜサーバーはブラウザにメモを預けるのか。HTTPはリクエストが独立しているから——前のリクエストのことを何も覚えていない。「1秒前にログインした人」と「今クリックした人」が同じかどうかをサーバーは判断できない。そこでサーバーは「お前にこれを持っておいてくれ」という識別子をブラウザに渡す。次回アクセス時にブラウザがそれを送り返せば、「あ、さっきの人だ」と分かる。これがクッキーの本質です。
+
+## Set-CookieとCookieヘッダー
+
+クッキーはHTTPヘッダーでやり取りされます。
+
+**サーバー → ブラウザ（レスポンス時）:**
+
+```
+HTTP/1.1 200 OK
+Set-Cookie: sessionId=abc123def456; Path=/; HttpOnly; Secure; Max-Age=3600
+```
+
+`Set-Cookie` が「これを保存しておいてくれ」という指示。ブラウザはこれをローカルに保存します。
+
+**ブラウザ → サーバー（次のリクエスト時）:**
+
+```
+GET /dashboard HTTP/1.1
+Host: example.com
+Cookie: sessionId=abc123def456
+```
+
+ブラウザが自動で `Cookie` ヘッダーに付けて送る。人間が何かする必要はない。JavaScriptも書かなくていい。ブラウザが勝手にやる。
+
+この「自動で送る」という動作が、便利さとリスクの両方の根源です（CORSやCSRFの話が出てきたときに繋がります）。
+
+<QuotedFigure
+  src="/learning/cookie-http-exchange.svg"
+  alt="HTTPクッキーのやり取り。ブラウザがサーバーへ初回アクセス → Set-Cookieレスポンス → 保存 → 次のリクエストで自動送信の流れ"
+  width={700}
+  height={380}
+  sourceTitle="Http cookie exchange.png"
+  sourceUrl="https://commons.wikimedia.org/wiki/File:Http_cookie_exchange.png"
+  licenseNote="CC BY-SA 3.0 / Wikimedia Commons"
+>
+  1回目の訪問でサーバーがSet-Cookieを返す。2回目以降、ブラウザは自動的にCookieヘッダーを付けて送信する。
+</QuotedFigure>
+
+## Set-Cookieの属性を読む
+
+```
+Set-Cookie: sessionId=abc123; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600
+```
+
+それぞれ何を意味するか、一個ずつ見ていきます。
+
+**`name=value`**（クッキー本体）
+保存するデータ。認証には `sessionId=ランダムな文字列` が典型的。値自体にユーザー情報は入れない——入れてはいけない。
+
+**`Path=/`**
+どのパスへのリクエストに付けるか。`Path=/api` にすれば `/api` 配下だけ。全部に付けたければ `Path=/`。
+
+**`HttpOnly`**
+JavaScriptから読めなくする。`document.cookie` でアクセス不可になる。XSS（クロスサイトスクリプティング）でスクリプトを仕込まれても、セッションIDを盗めなくなる。
+
+**`Secure`**
+HTTPS接続でのみ送信。HTTPでは送らない。通信盗聴への対策。本番環境では必須。
+
+**`SameSite`**
+クロスサイトリクエスト（別ドメインからの遷移）のときにクッキーを送るか。
+- `Strict`: 別サイトからの遷移では一切送らない。CSRF対策として最強だが、メール内リンクからのジャンプでもクッキーが送られず「ログアウトして見える」状態になりやすい
+- `Lax`: GETのナビゲーション（リンクのクリックなど）では送る。POSTやiframe内では送らない。多くのサービスのデフォルト
+- `None`: 制限なし。ただし `Secure` 必須
+
+**`Max-Age=3600`**
+何秒後に削除するか。3600秒 = 1時間。指定しないと「セッションクッキー」になり、ブラウザを閉じたら消える。
+
+<Callout title="DevToolsで実際に確認する">
+  DevTools → Application → Cookies で各属性の値が見られる。HttpOnly 列にチェックが入っていれば、そのクッキーはコンソールから `document.cookie` で取れない。試してみると実感が掴める。
+</Callout>
+
+## セッションIDとは何か
+
+認証で最もよく使われるパターンは、クッキーに「セッションID」という識別子を入れる方法です。
+
+```
+// ログイン後のSet-Cookie
+Set-Cookie: sessionId=8f3a9b7c4d12e6f0; HttpOnly; Secure; Path=/
+```
+
+この `8f3a9b7c4d12e6f0` にユーザー情報は含まれていない。ランダムな文字列です。
+
+サーバー側には「このIDに対応するユーザー情報」を別途保持しています。
+
+```javascript
+// サーバー内のセッションストア（概念的なイメージ）
+sessionStore = {
+  "8f3a9b7c4d12e6f0": {
+    userId: 42,
+    username: "taro",
+    loginAt: "2026-06-20T10:30:00Z"
+  }
+}
+```
+
+ブラウザからIDが届くたびに「このIDはどのユーザーか」をサーバーが引いてくる。パスワードはログイン時の1回きりで、その後はランダムIDだけでユーザーを識別できる仕組みです。
+
+なぜパスワードそのものをクッキーに入れないか——セッションIDを盗まれてもパスワードは漏れない、IDは失効させられる（サーバー側から削除すれば次のリクエストは弾かれる）、ためです。
+
+## 通説の訂正——「HttpOnlyがあれば、クッキーは安全」
+
+HttpOnlyは「JavaScriptからセッションIDを読まれない」という意味。XSSで `document.cookie` を盗まれることを防ぐ。
+
+でも **CSRF（クロスサイトリクエストフォージェリ）には無力** です。
+
+CSRFの攻撃は「被害者のブラウザを使って、被害者の名前でリクエストを送らせる」もの。ブラウザが「自動でクッキーを付けて送る」動作を悪用する。この送信は被害者本人がリンクをクリックするだけで起き、JavaScriptもDOMアクセスも不要。つまりHttpOnlyは関係ない。
+
+CSRF対策にはSameSite属性（または別途CSRFトークン）が必要です。
+
+「HttpOnly入れたから安全」はよくある誤解。HttpOnly + Secure + SameSite の3点セットで初めて実用的なセキュリティになります。
+
+<QuotedFigure
+  src="/learning/csrf-attack-concept.svg"
+  alt="CSRF攻撃の概念図。攻撃者のサイトが被害者のブラウザに偽リクエストを送らせる。ブラウザは自動でクッキーを添付する"
+  width={700}
+  height={340}
+  sourceTitle="Cross-site request forgery.svg"
+  sourceUrl="https://commons.wikimedia.org/wiki/File:Cross-site_request_forgery.svg"
+  licenseNote="CC BY-SA 4.0 / Wikimedia Commons"
+>
+  HttpOnlyはJSによるクッキー読み取りを防ぐが、CSRFは「ブラウザが自動送信する」動作を使うため関係ない。SameSiteが必要。
+</QuotedFigure>
+
+## サードパーティクッキーの終焉
+
+`example.com` を見ているのに、`ads.tracking.io` がSet-Cookieを送る——これがサードパーティクッキーです。広告ネットワークが複数サイトをまたいだ行動追跡に使っていました。
+
+Chromeは2024年から段階的にサードパーティクッキーをブロック。Firefox・Safariはすでに制限済み。これを受けてGoogleはPrivacy Sandboxという代替仕様を提案しています（ただし業界の反発も強く、仕様は流動的）。
+
+ファーストパーティクッキー（自分のドメインが発行するクッキー）は影響なし。認証や設定保存には引き続き普通に使えます。
+
+<SourceNote
+  title="RFC 6265: HTTP State Management Mechanism"
+  url="https://datatracker.ietf.org/doc/html/rfc6265"
+  publisher="IETF"
+  licenseNote="Public domain (RFC)"
+/>
+
+## ここで押さえること
+
+- クッキーはサーバーが `Set-Cookie` ヘッダーで指示し、ブラウザが自動保存・自動送信する仕組み
+- **HttpOnly**: JSから読めない（XSS対策）/ **Secure**: HTTPSのみ送信 / **SameSite**: クロスサイト送信を制御（CSRF対策）
+- 認証で使われるのはセッションID——パスワードではなくランダムな識別子をクッキーに入れる
+- 「HttpOnly入れたから安全」は誤り。CSRF にはSameSiteが別途必要
+
+<NextStep href="/learn/web/auth" title="認証と認可">
+  セッションIDでログイン状態を維持する仕組みは分かりました。では「パスワードをどこにどう保存するか」「認証と認可の違いは何か」——Webアプリのアクセス制御の本丸へ進みます。
+</NextStep>

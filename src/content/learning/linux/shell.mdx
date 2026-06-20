@@ -1,0 +1,266 @@
+## GUIのボタンの代わりに、なぜエンジニアは黒い画面を使うのか
+
+Windows や Mac のデスクトップを使ってれば、マウスでボタンをクリックすることが「当たり前」です。なのにエンジニアはなぜターミナル（黒い画面）を開いてコマンドをタイプするのか。
+
+答え：**より細かく、より早く、より確実に、自動化できるから。**
+
+この「黒い画面」の正体がシェル。ここからは、シェルとは何か、どうやって使うのか、をやります。
+
+## シェルとは「OS とユーザーの橋渡し」
+
+**シェル** = コマンドラインインターフェース（CLI）。ユーザーが打ったコマンドを解釈して OS に指示を出し、結果をユーザーに返す。
+
+```
+User → Shell → OS → 実行 → 結果をShell → User へ
+```
+
+ボタンをクリックするのは GUI（グラフィカルユーザーインターフェース）。CLI は文字。速度と柔軟性で CLI が勝ります。
+
+なぜなら、**自動化できるから**。同じ操作を何度も繰り返したいとき：
+
+**GUI の場合**：毎回マウスで操作。何千回もボタンをクリックしたらどうしますか？実務では無理。
+
+**CLI の場合**：コマンドをファイル（スクリプト）に書いて実行。OS が自動的に何千回も処理してくれます。
+
+```bash
+# スクリプトに書く
+for file in *.jpg; do
+    convert "$file" "${file%.jpg}.png"
+done
+
+# 実行
+bash script.sh
+
+# 100個のJPGが自動的にPNGに変換される
+```
+
+## bash / zsh / sh / dash——シェルの種類と関係
+
+「シェル」は複数あります。
+
+| シェル | 特徴 | 使われるとこ |
+|---|---|---|
+| **sh** | 最小限の POSIX 標準シェル | スクリプトの互換性重視 |
+| **bash** | sh を拡張。配列、関数などが豊富 | ほとんどのLinuxデスクトップ・サーバー |
+| **zsh** | bash より高機能。補完が強い | macOS（最近はデフォルト）。こだわり勢 |
+| **dash** | 軽量。`/bin/sh` の正体 | サーバー初期起動時など |
+| **fish** | 親切な補完。スクリプト互換性は低 | ユーザーのカスタマイズ環境 |
+
+ここで重要な点：**スクリプトの先頭に `#!/bin/sh` と書いても、システムによって sh の実装が異なる** ことがあります。
+
+Linux では `/bin/sh` → `/bin/dash`（または `/bin/bash`）にシンボリックリンクされていることが多い。macOS では `/bin/sh` → `/bin/bash`（5.1以前）。
+
+結果：bash 固有の機能（配列 `${array[0]}`、`[[ ]]` 条件演算など）を sh 向けスクリプトに書くと、dash では動きません。
+
+```bash
+#!/bin/bash
+# OK: bash 固有
+array=(a b c)
+echo ${array[0]}   # a
+
+#!/bin/sh
+# NG: sh では配列サポートなし。dash で実行されると失敗
+array=(a b c)      # Syntax Error
+```
+
+経験則：**`sh` と書いたら POSIX 互換性を最優先。bash 機能は使わない。bash でいいなら `#!/bin/bash` と明示。**
+
+## 標準入力・標準出力・標準エラー
+
+CLI では「データの流れ」を理解することが重要。3つの流路があります。
+
+**stdin**（標準入力）= ユーザーからのデータ。キーボード入力がデフォルト。
+
+**stdout**（標準出力）= プログラムの出力。ターミナルに表示されるのがデフォルト。
+
+**stderr**（標準エラー）= エラーメッセージ。stdout とは別の流路。
+
+```
+User のキーボード
+       ↓
+    stdin
+       ↓
+  [ Program ]
+       ↓ ↓
+   stdout stderr
+       ↓ ↓
+  ターミナル画面に表示
+```
+
+例えば：
+
+```bash
+ls /nonexistent 2>&1
+```
+
+`2>&1` は「stderr (2 番) を stdout (1 番) にリダイレクトする」という意味。結果、エラーメッセージも通常出力も同じ流として見える。
+
+## パイプ（|）とリダイレクト（> / >> / 2>）
+
+CLI の強力さはここにあります。
+
+**パイプ（|）**：あるプログラムの stdout を、別のプログラムの stdin に繋ぐ。
+
+```bash
+cat bigfile.txt | grep "error" | wc -l
+
+# 流れ：
+# cat bigfile.txt → 標準出力
+#       ↓（パイプで接続）
+#     grep "error" → マッチ行だけを標準出力
+#       ↓（パイプで接続）
+#       wc -l → 行数をカウント・表示
+```
+
+**リダイレクト（>）**：stdout をファイルに書き込む。
+
+```bash
+ls > file_list.txt     # file_list.txt に上書き
+ls >> file_list.txt    # file_list.txt に追記
+```
+
+**エラーリダイレクト（2>）**：stderr をファイルに書き込む。
+
+```bash
+program 2> errors.log      # エラーだけを errors.log に保存
+program > out.log 2>&1     # stdout と stderr を out.log にまとめる
+```
+
+組み合わせ：
+
+```bash
+cat data.txt | grep -v "^#" | sort | uniq > result.txt 2> errors.log
+# コメント行を除いて、ソートして、重複削除して、結果をファイルに。エラーは別ファイル。
+```
+
+<QuotedFigure
+  src="/learning/unix-standard-streams.svg"
+  alt="Unixの標準ストリーム（stdin・stdout・stderr）とパイプの接続図。プログラムAのstdoutがパイプでプログラムBのstdinに接続される"
+  width={640}
+  height={260}
+  sourceTitle="Standard streams - Wikipedia"
+  sourceUrl="https://en.wikipedia.org/wiki/Standard_streams"
+  licenseNote="CC BY-SA 4.0 / Wikipedia"
+>
+  パイプはプロセスのstdoutとstdinをつなぐ。小さなコマンドを連鎖させることで複雑な処理を1行で書ける——これがUnixの設計思想。
+</QuotedFigure>
+
+## よく使うコマンド——その実体
+
+ここからは「実務で毎日使う」コマンドたちの概要。詳細は随時。
+
+| コマンド | 何をするのか |
+|---|---|
+| **ls** | ファイル一覧表示。`-la` で詳細・隠しファイル表示 |
+| **cd** | ディレクトリ移動。`..` で親へ、`~` でホームへ |
+| **pwd** | 現在のディレクトリをフルパスで表示 |
+| **cat** | ファイルの中身をすべて表示。`< file` でstdin から読むのと同じ |
+| **grep** | 文字列検索。`grep "pattern" file` で pattern にマッチ行を抽出 |
+| **find** | ファイルシステム全体を検索。`find . -name "*.txt"` など |
+| **chmod** | パーミッション変更（前レッスン） |
+| **ps** | プロセス一覧表示。`ps aux` で全プロセス（前レッスン） |
+| **kill** | プロセス終了。`kill -9 PID` で強制（前レッスン） |
+| **curl** | URL へHTTPリクエスト送信。`curl https://example.com` |
+
+```bash
+# 実例
+cat /var/log/syslog | grep "error" | tail -20
+# ログの最後20行から「error」を含む行を抽出
+
+find /home -name "*.log" -mtime +30 -delete
+# 30日以上前の .log ファイルを削除（危険なので確認後に実行）
+
+ps aux | grep nginx | grep -v grep
+# 実行中の nginx プロセスを探す（-v は逆マッチ）
+```
+
+<Callout title="シェルの補完機能">
+  bash / zsh では、コマンドやファイル名の途中まで打ってからTABキーを押すと補完してくれます。`ls /ho` → TAB で `/home` に補完。スクリプト操作を高速化する必須スキル。
+</Callout>
+
+## PATH 環境変数——「コマンドがどこから実行されるか」
+
+「`ls` コマンドって、どこにあるんですか」という質問をよく聞きます。
+
+```bash
+which ls
+# /usr/bin/ls
+
+file /usr/bin/ls
+# /usr/bin/ls: ELF 64-bit LSB executable
+```
+
+つまり、`/usr/bin/ls` という実行ファイル。でも、毎回フルパス `/usr/bin/ls` を打たなくてもいい。「`ls`」だけで動く理由が **PATH** 環境変数。
+
+```bash
+echo $PATH
+# /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+```
+
+シェルは「`ls` というコマンドが打たれた」と認識したら、PATH に列挙されたディレクトリを **左から順に** 探します。最初に見つかった実行ファイルを実行。
+
+```bash
+# PATH の順序で検索
+/usr/local/sbin/ls  # なし
+/usr/local/bin/ls   # なし
+/usr/sbin/ls        # なし
+/usr/bin/ls         # あった！ → これを実行
+```
+
+カスタムスクリプトを `PATH` に登録したければ、PATH に含まれるディレクトリ（例：`/usr/local/bin`）に配置するか、PATH を修正します。
+
+```bash
+# ~/.bashrc に追記
+export PATH="/my/scripts:$PATH"
+
+# 以後、bash 起動時に PATH が更新される
+```
+
+## シェルスクリプトへの軽い言及
+
+コマンドを **スクリプトファイル** に書いて実行することで、複雑な処理を自動化できます。
+
+```bash
+#!/bin/bash
+# 自動バックアップスクリプト
+
+SOURCE="/home/alice/documents"
+DEST="/backup/documents"
+
+if [ -d "$SOURCE" ]; then
+    cp -r "$SOURCE"/* "$DEST"
+    echo "Backup completed at $(date)"
+else
+    echo "Source directory not found" >&2
+    exit 1
+fi
+```
+
+実行：
+
+```bash
+chmod +x backup.sh
+./backup.sh   # または bash backup.sh
+```
+
+シェルスクリプトは「複数のコマンドを組み合わせて自動化」する最初のステップ。条件分岐、ループ、関数も使える。本格的なプログラミングは Python や Go に任せるのが慣例ですが、軽い管理タスクはシェルスクリプトで十分。
+
+<SourceNote
+  title="Bash Reference Manual"
+  url="https://www.gnu.org/software/bash/manual/"
+  publisher="GNU"
+  licenseNote="GPL / GNU Documentation"
+/>
+
+## ここで押さえること
+
+- **シェル** = 文字ベースの OS インターフェース。自動化・柔軟性で GUI に勝る
+- **bash / zsh / sh / dash** — 複数の実装がある。互換性重視なら `sh` と明示し、bash 機能は使わない
+- **stdin / stdout / stderr** — 3つのデータ流路。パイプとリダイレクトで柔軟に制御
+- **パイプ（|）** でプログラム間を繋ぎ、**リダイレクト（> / >> / 2>）** でファイル へ出力
+- **PATH** 環境変数 — コマンド検索の優先順位を定める。カスタムコマンドは PATH に登録
+- **シェルスクリプト** — コマンドを自動化。条件分岐・ループ・関数で複雑な処理も可能
+
+<NextStep href="/learn/linux/logs" title="ログの読み方（在り処とコマンド）">
+  シェルと基本コマンドが使えるようになった。次は「トラブル診断の最重要スキル」——サーバーのログの読み方。サーバーが応答しなくなったとき、まず何を見るか、どう読むかを詳しく解説します。
+</NextStep>

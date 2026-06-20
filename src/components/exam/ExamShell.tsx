@@ -42,64 +42,101 @@ export default function ExamShell({
   onFinish,
   children,
 }: Props) {
+  const answeredCount = answers.filter(
+    (answer) => answer.selectedAnswer !== null
+  ).length;
+  const flaggedCount = answers.filter((answer) => answer.flagged).length;
+  const progress = Math.round(((currentIndex + 1) / totalCount) * 100);
+
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* ヘッダー */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-gray-700">
+    <div className="exam-production-surface flex h-[100dvh] min-h-[100dvh] flex-col overflow-hidden bg-gray-50">
+      <header className="z-30 shrink-0 border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur">
+        <div
+          className={`mx-auto ${
+            isScenario ? "max-w-7xl" : "max-w-5xl"
+          }`}
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-gray-950">
               {categoryName}
-            </span>
-            <span className="text-sm text-gray-500">
-              問{currentIndex + 1}/{totalCount}
-            </span>
+              </p>
+              <p className="mt-0.5 text-xs text-gray-500">
+                問{currentIndex + 1}/{totalCount} ・ 解答済み {answeredCount}
+                問 ・ フラグ {flaggedCount}件
+              </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* フラグボタン */}
+            <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={onFlag}
-              className={`text-sm px-2 py-1 rounded transition-colors ${
+                className={`min-h-10 rounded-md border px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
                 isFlagged
-                  ? "bg-amber-100 text-amber-700"
-                  : "text-gray-400 hover:text-amber-600"
+                    ? "border-amber-300 bg-amber-50 text-amber-800"
+                    : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-amber-700"
               }`}
               title="フラグを切り替え"
+                aria-pressed={isFlagged}
             >
               ⚑
             </button>
 
-            {/* タイマー */}
             {remainingTime !== null && (
-              <span className="text-sm font-mono text-gray-600">
+                <span className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 font-mono text-sm font-semibold tabular-nums text-gray-800">
                 {formatTime(remainingTime)}
               </span>
             )}
+            </div>
+          </div>
+
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
+            <div
+              className="h-full bg-blue-600 transition-[width]"
+              style={{ width: `${progress}%` }}
+            />
           </div>
         </div>
       </header>
 
-      {/* 本体 */}
-      <main className="flex-1 overflow-auto">
+      <main className="min-h-0 flex-1 overflow-y-auto">
         <div
-          className={`mx-auto px-4 py-6 ${
-            isScenario ? "max-w-7xl" : "max-w-4xl"
+          className={`mx-auto grid gap-5 px-4 py-6 ${
+            isScenario
+              ? "max-w-7xl pb-32 lg:grid-cols-[14rem_minmax(0,1fr)] lg:pb-6"
+              : "max-w-5xl pb-32 lg:grid-cols-[14rem_minmax(0,1fr)] lg:pb-6"
           }`}
         >
-          {children}
+          <aside className="hidden lg:block">
+            <div className="sticky top-24 rounded-lg border border-gray-200 bg-white p-4">
+              <p className="text-sm font-semibold text-gray-950">問題一覧</p>
+              <p className="mt-1 text-xs leading-5 text-gray-500">
+                青は解答済み、旗は見直し対象です。
+              </p>
+              <div className="mt-3">
+                <QuestionNav
+                  answers={answers}
+                  currentIndex={currentIndex}
+                  onNavigate={onNavigate}
+                />
+              </div>
+            </div>
+          </aside>
+
+          <section className="min-w-0">{children}</section>
         </div>
       </main>
 
-      {/* フッター: 前へ/次へ + ナビゲーション */}
-      <footer className="bg-white border-t border-gray-200 px-4 py-3">
-        <div className="max-w-4xl mx-auto space-y-3">
-          {/* 前へ/次へボタン */}
+      <footer className="z-30 shrink-0 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur">
+        <div
+          className={`mx-auto space-y-3 ${
+            isScenario ? "max-w-7xl" : "max-w-5xl"
+          }`}
+        >
           <div className="flex items-center justify-between">
             <button
               onClick={onPrev}
               disabled={currentIndex === 0}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-30 hover:bg-gray-50 transition-colors"
+              className="min-h-10 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             >
               前へ
             </button>
@@ -108,14 +145,14 @@ export default function ExamShell({
               {currentIndex < totalCount - 1 ? (
                 <button
                   onClick={onNext}
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="min-h-10 rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
                 >
                   次へ
                 </button>
               ) : (
                 <button
                   onClick={onFinish}
-                  className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  className="min-h-10 rounded-md bg-green-700 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-700 focus-visible:ring-offset-2"
                 >
                   終了
                 </button>
@@ -123,12 +160,13 @@ export default function ExamShell({
             </div>
           </div>
 
-          {/* 問題ナビゲーション */}
-          <QuestionNav
-            answers={answers}
-            currentIndex={currentIndex}
-            onNavigate={onNavigate}
-          />
+          <div className="lg:hidden">
+            <QuestionNav
+              answers={answers}
+              currentIndex={currentIndex}
+              onNavigate={onNavigate}
+            />
+          </div>
         </div>
       </footer>
     </div>

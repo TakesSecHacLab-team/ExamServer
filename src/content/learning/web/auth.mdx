@@ -1,0 +1,198 @@
+## パスワードをデータベースに保存するとき、何を入れる？
+
+「パスワードそのまま入れちゃダメなんでしょ」というのは知っている。では何を入れるのか。
+
+```sql
+-- ダメな例
+INSERT INTO users (email, password) VALUES ('taro@example.com', 'secret123');
+
+-- 正しい例（何が入っているのか？）
+INSERT INTO users (email, password) VALUES ('taro@example.com', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHBe');
+```
+
+正しい例の長い文字列は「bcryptハッシュ」です。`secret123` を**ハッシュ関数**に通したもので、元のパスワードには戻せない。
+
+ログイン時にやることは「入力されたパスワードを同じ関数に通して、保存済みのハッシュと比較する」だけ。DBにはパスワードの実体を持たない——これが正しいパスワード管理の出発点です。
+
+ここから、認証と認可の話を組み立てていきます。
+
+## 認証と認可は別の問いに答えている
+
+混同されがちな2つを、まず分けておきます。
+
+**認証（Authentication）**：「お前が本当にお前か」を確認する。ユーザーの身元確認。
+
+**認可（Authorization）**：「お前にその操作をする権利があるか」を確認する。権限チェック。
+
+```
+ログインにパスワードを入れる  → 認証
+管理画面にアクセスしようとする → 認可（管理者権限があるか？）
+```
+
+ミスとしてよくあるのが「認証だけして認可を忘れる」です。ログインを正しく実装しても、各エンドポイントで権限チェックをしなければ、ログイン済みユーザーが他人のデータを見られる。
+認証は「誰か」を確認するだけで、「何をしていいか」は認可が決める。
+
+## ハッシュ化の仕組み——なぜbcryptか
+
+パスワードのハッシュ化は単純な `SHA-256` ではなく、**bcrypt** や **Argon2** を使います。理由があります。
+
+**SHA-256のような汎用ハッシュはとにかく速い。**
+
+速いと何が問題か——総当たり攻撃（ブルートフォース）で全パターンを試されたとき、1秒に億単位の試行ができてしまう。「password123」のような弱いパスワードはすぐ割れる。
+
+**bcryptはわざと遅く設計されている。**
+
+`$2b$10$...` の `10` がコストファクター（ストレッチング回数）。2の10乗 = 1024回繰り返す計算をすることで、ハッシュ1回の計算時間を数十〜数百ミリ秒に引き延ばしている。1秒に10回しか試せなければ、総当たりに数百年かかる。
+
+```javascript
+const bcrypt = require('bcrypt');
+
+// ハッシュ化（ユーザー登録時）
+const SALT_ROUNDS = 10;
+const hash = await bcrypt.hash('secret123', SALT_ROUNDS);
+// → '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHBe'
+
+// 検証（ログイン時）
+const isMatch = await bcrypt.compare('secret123', hash); // true
+const isMatch2 = await bcrypt.compare('wrong_password', hash); // false
+```
+
+`bcrypt.compare` は「入力値をハッシュして保存済みと一致するか」を調べる。元のパスワードを復号しているわけじゃない——そもそも復号できない。
+
+<QuotedFigure
+  src="/learning/password-hashing-flow.svg"
+  alt="パスワードハッシュ化の流れ。登録時はパスワード→bcrypt→ハッシュをDB保存。ログイン時は入力→bcrypt→比較"
+  width={700}
+  height={320}
+  sourceTitle="Cryptographic hash function"
+  sourceUrl="https://en.wikipedia.org/wiki/Cryptographic_hash_function"
+  licenseNote="CC BY-SA 4.0 / Wikipedia"
+>
+  bcryptは一方向変換。DBに入るのはハッシュだけ。漏洩しても元のパスワードには戻せない。
+</QuotedFigure>
+
+## セッションベース認証の実装
+
+パスワードが合っているとしたら、サーバーはどう「ログイン状態」を維持するか。
+
+前のクッキーの回で出てきたセッションIDです。
+
+```javascript
+// ログイン処理（サーバーサイド）
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  
+  const user = await db.findUserByEmail(email);
+  if (!user) return res.status(401).json({ error: '認証失敗' });
+  
+  const isValid = await bcrypt.compare(password, user.passwordHash);
+  if (!isValid) return res.status(401).json({ error: '認証失敗' });
+  
+  // ランダムなセッションIDを生成
+  const sessionId = crypto.randomBytes(32).toString('hex');
+  
+  // セッションストア（Redis等）に保存
+  await sessionStore.set(sessionId, { userId: user.id, role: user.role });
+  
+  // セッションIDをクッキーで返す（HttpOnly + Secure + SameSite必須）
+  res.cookie('sid', sessionId, {
+    httpOnly: true, secure: true, sameSite: 'Lax', maxAge: 3600 * 1000
+  });
+  
+  res.json({ success: true });
+});
+```
+
+重要な実装の詳細：
+
+- **認証失敗のメッセージを統一する**：「メールが違う」「パスワードが違う」と分けて返すと、どちらが正しいかの情報を与えてしまう。「認証失敗」の1メッセージのみ
+- **セッションIDは暗号的乱数で生成**：`Math.random()` は予測可能なので使わない
+- **ログイン後にセッションIDを再発行**：ログイン前のセッションIDを引き継ぐと「セッション固定攻撃」に弱くなる
+
+## 認可——「誰か」が分かったあとの権限チェック
+
+ログインしていることが確認できたら、次に「この操作をしていいか」を確認します。
+
+最もシンプルなのはRBAC（ロールベースアクセス制御）：
+
+```javascript
+// 認証ミドルウェア
+const requireAuth = (req, res, next) => {
+  const sessionId = req.cookies.sid;
+  const session = await sessionStore.get(sessionId);
+  if (!session) return res.status(401).json({ error: 'ログインが必要です' });
+  req.user = session;
+  next();
+};
+
+// 認可ミドルウェア
+const requireRole = (role) => (req, res, next) => {
+  if (req.user.role !== role) return res.status(403).json({ error: '権限がありません' });
+  next();
+};
+
+// 使い方
+app.get('/admin/users', requireAuth, requireRole('admin'), (req, res) => {
+  res.json(getAllUsers());
+});
+```
+
+`401 Unauthorized`（ログインが必要）と `403 Forbidden`（ログイン済みだが権限なし）は意味が違う。混同しているコードをよく見かけますが、APIの応答として意味が変わります。
+
+<Callout title="デフォルト拒否の原則">
+  認可の設計原則は「明示的に許可したもの以外は禁止」。「管理者以外は弾く」ではなく「adminロールを持つ者のみ通す」と書く。条件が増えたとき、前者は漏れが生じやすい。
+</Callout>
+
+## 通説の訂正——「セッションIDはランダムだから安全」
+
+セッションIDが推測困難なランダム値であることは前提として必要だが、それだけでは安全ではありません。
+
+**セッションIDを盗まれると、パスワードを知らずにログイン状態を乗っ取れる。**
+
+これをセッションハイジャックと呼ぶ。攻撃者がセッションIDを入手できる経路はいくつかある：
+- XSS（HttpOnlyがなければ `document.cookie` で直接取得）
+- 通信盗聴（HTTPなら平文で流れる）
+- ログファイルにセッションIDが残っている
+- 「セッション固定攻撃」（ログイン前に攻撃者が仕込んだIDを使わせる）
+
+セッションIDは「そのIDを持っている者がそのユーザーとして扱われる」ため、パスワードと同等の秘匿価値を持つ。ブラウザのLocalStorageに保存するのは危険（XSSで盗まれる）。HttpOnly クッキーに保存するのが正解。
+
+<QuotedFigure
+  src="/learning/session-hijacking.svg"
+  alt="セッションハイジャックの概念図。攻撃者がセッションIDを盗み、正規ユーザーとしてサーバーにアクセスする"
+  width={700}
+  height={320}
+  sourceTitle="OWASP Session Management Cheat Sheet"
+  sourceUrl="https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html"
+  licenseNote="CC BY-SA 4.0 / OWASP"
+>
+  セッションIDはパスワードに匹敵する価値を持つ。盗まれた時点で攻撃者はそのユーザーとして行動できる。
+</QuotedFigure>
+
+## よくある脆弱性の対照表
+
+| 脆弱性 | 原因 | 対策 |
+|---|---|---|
+| パスワード平文保存 | bcryptを使っていない | bcrypt / Argon2 でハッシュ化 |
+| セッション固定攻撃 | ログイン前後でセッションID変わらない | ログイン成功後にセッションID再発行 |
+| ブルートフォース | ログイン試行を制限していない | レート制限（5回失敗→1分ロック等） |
+| 認可忘れ | 認証だけしてエンドポイントを保護していない | 全エンドポイントで権限チェック |
+| エラーメッセージ漏洩 | 「メールが存在しない」等の詳細を返す | 「認証失敗」のみ返す |
+
+<SourceNote
+  title="OWASP Authentication Cheat Sheet"
+  url="https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html"
+  publisher="OWASP"
+  licenseNote="CC BY-SA 4.0 / OWASP"
+/>
+
+## ここで押さえること
+
+- **パスワードはハッシュ化して保存**——bcrypt/Argon2を使う。SHA-256は速すぎて総当たりに弱い
+- **認証**（お前は誰か）と**認可**（何をしていいか）は別問題。両方を全エンドポイントで確認する
+- **セッションIDはパスワードと同等の秘匿価値**——HttpOnlyクッキーで管理し、ログイン後は再発行する
+- 認証失敗のエラーメッセージは「どちらが違うか」を教えない
+
+<NextStep href="/learn/web/cors" title="CORS と Same-Origin Policy">
+  認証の次は、ブラウザのセキュリティの壁——同一オリジンポリシーとCORSです。フロントエンドを書いているとほぼ確実に踏むあのエラーの正体を解説します。
+</NextStep>

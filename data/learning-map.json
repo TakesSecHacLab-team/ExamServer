@@ -23,7 +23,14 @@
       "summary": "IPアドレス、ポート、DNS、HTTP、TLSを、ひと続きの通信として見ます。",
       "kind": "chapter",
       "status": "ready",
-      "children": ["osi-model"]
+      "children": [
+        "osi-model",
+        "dns-resolution",
+        "network-ip-addressing",
+        "network-ports",
+        "network-http",
+        "network-tls"
+      ]
     },
     {
       "id": "osi-model",
@@ -58,44 +65,304 @@
       ]
     },
     {
+      "id": "dns-resolution",
+      "title": "DNSと名前解決",
+      "summary": "URLを打ったらIPアドレスが返るまで、再帰クエリの旅を追います。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "network/dns-resolution",
+      "prerequisites": ["osi-model"]
+    },
+    {
+      "id": "network-ip-addressing",
+      "title": "IPアドレスとサブネット",
+      "summary": "192.168から始まるアドレスの正体、グローバルIPとNATの役割を解きほぐします。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "network/ip-addressing",
+      "prerequisites": ["dns-resolution"]
+    },
+    {
+      "id": "network-ports",
+      "title": "ポートとサービス",
+      "summary": "同じサーバーで複数サービスが動ける理由と、ファイアウォールとの関係を見ます。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "network/ports",
+      "prerequisites": ["network-ip-addressing"]
+    },
+    {
+      "id": "network-http",
+      "title": "HTTP: リクエストとレスポンス",
+      "summary": "ブラウザが何を送り、サーバーが何を返すか。DevToolsで追いかけます。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "network/http",
+      "prerequisites": ["network-ports"]
+    },
+    {
+      "id": "network-tls",
+      "title": "TLS と HTTPS",
+      "summary": "なぜ鍵交換の相手を信用できるのか、証明書の連鎖を辿ります。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "network/tls",
+      "prerequisites": ["network-http"]
+    },
+    {
       "id": "os-linux-foundations",
       "title": "OS / Linux基礎",
       "summary": "ファイル、権限、プロセス、シェル、ログを、手元で迷わない粒度まで分解します。",
       "kind": "chapter",
-      "status": "planned",
-      "children": []
+      "status": "ready",
+      "children": [
+        "linux-filesystem",
+        "linux-permissions",
+        "linux-processes",
+        "linux-shell",
+        "linux-logs"
+      ]
+    },
+    {
+      "id": "linux-filesystem",
+      "title": "Linuxファイルシステム",
+      "summary": "/から始まるディレクトリツリーと、重要ディレクトリの役割を整理します。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "linux/filesystem",
+      "prerequisites": ["os-linux-foundations"]
+    },
+    {
+      "id": "linux-permissions",
+      "title": "パーミッションと所有権",
+      "summary": "rwxの数字と、sudoが何をしているかを理解します。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "linux/permissions",
+      "prerequisites": ["linux-filesystem"]
+    },
+    {
+      "id": "linux-processes",
+      "title": "プロセスとシグナル",
+      "summary": "ps・top・killを使いながら、プロセスの生死を管理する方法を見ます。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "linux/processes",
+      "prerequisites": ["linux-permissions"]
+    },
+    {
+      "id": "linux-shell",
+      "title": "シェルとコマンドライン",
+      "summary": "パイプ、リダイレクト、変数、スクリプトの基本をひと通り見ます。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "linux/shell",
+      "prerequisites": ["linux-processes"]
+    },
+    {
+      "id": "linux-logs",
+      "title": "ログと監査",
+      "summary": "syslog、journalctl、アクセスログの読み方と、何を見るべきかを整理します。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "linux/logs",
+      "prerequisites": ["linux-shell"]
     },
     {
       "id": "web-foundations",
       "title": "Web基礎",
       "summary": "HTTPやCookieを、ログインが動くまでの流れで見ます。SOPやCORSはそのあとです。",
       "kind": "chapter",
-      "status": "planned",
-      "children": []
+      "status": "ready",
+      "children": [
+        "web-cookies",
+        "web-auth",
+        "web-cors"
+      ]
+    },
+    {
+      "id": "web-cookies",
+      "title": "Cookie とセッション管理",
+      "summary": "ブラウザが「覚えておく」仕組みと、HttpOnly/Secure/SameSiteの意味を理解します。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "web/cookies",
+      "prerequisites": ["web-foundations"]
+    },
+    {
+      "id": "web-auth",
+      "title": "認証と認可",
+      "summary": "パスワードをどこにどう保存するか、セッションIDが漏れたら何が起きるかを見ます。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "web/auth",
+      "prerequisites": ["web-cookies"]
+    },
+    {
+      "id": "web-cors",
+      "title": "CORS と Same-Origin Policy",
+      "summary": "あのCORSエラーが出る本当の理由と、正しい設定方法を解説します。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "web/cors",
+      "prerequisites": ["web-auth"]
     },
     {
       "id": "memory-binary-foundations",
       "title": "メモリとバイナリ基礎",
       "summary": "メモリ、アドレス、スタック、ヒープ、ポインタを、図で追えるところから始めます。",
       "kind": "chapter",
-      "status": "planned",
-      "children": []
+      "status": "ready",
+      "children": [
+        "binary-numeral-systems",
+        "binary-memory",
+        "binary-stack-heap",
+        "binary-file-format"
+      ]
+    },
+    {
+      "id": "binary-numeral-systems",
+      "title": "2進数・16進数",
+      "summary": "0xDEADBEEFが読める目を養います。CTFで必須の数値表現を基礎から。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "binary/numeral-systems",
+      "prerequisites": ["memory-binary-foundations"]
+    },
+    {
+      "id": "binary-memory",
+      "title": "メモリとアドレス空間",
+      "summary": "変数がメモリのどこに置かれるか、ポインタは何を指すかを追います。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "binary/memory",
+      "prerequisites": ["binary-numeral-systems"]
+    },
+    {
+      "id": "binary-stack-heap",
+      "title": "スタックとヒープ",
+      "summary": "関数呼び出しでスタックに何が積まれるか。バッファオーバーフローの入口。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "binary/stack-heap",
+      "prerequisites": ["binary-memory"]
+    },
+    {
+      "id": "binary-file-format",
+      "title": "ファイルフォーマットとバイナリ",
+      "summary": "マジックバイトで種類を判別し、xxdで中を覗く。CTFのバイナリ問の入口。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "binary/file-format",
+      "prerequisites": ["binary-stack-heap"]
     },
     {
       "id": "crypto-foundations",
       "title": "暗号基礎",
       "summary": "ハッシュ、共通鍵、公開鍵、署名、証明書を、何を守っているかで分けます。",
       "kind": "chapter",
-      "status": "planned",
-      "children": []
+      "status": "ready",
+      "children": [
+        "crypto-hash",
+        "crypto-symmetric",
+        "crypto-asymmetric",
+        "crypto-signature",
+        "crypto-pki"
+      ]
+    },
+    {
+      "id": "crypto-hash",
+      "title": "ハッシュ関数",
+      "summary": "MD5、SHA-256が何をしているか。衝突耐性と一方向性の意味を理解します。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "crypto/hash",
+      "prerequisites": ["crypto-foundations"]
+    },
+    {
+      "id": "crypto-symmetric",
+      "title": "共通鍵暗号",
+      "summary": "AESの動作原理とブロック暗号のモード（ECB/CBC）の違いを見ます。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "crypto/symmetric",
+      "prerequisites": ["crypto-hash"]
+    },
+    {
+      "id": "crypto-asymmetric",
+      "title": "公開鍵暗号",
+      "summary": "RSAの鍵ペアが成立する理由と、何を公開して何を秘密にするかを整理します。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "crypto/asymmetric",
+      "prerequisites": ["crypto-symmetric"]
+    },
+    {
+      "id": "crypto-signature",
+      "title": "デジタル署名",
+      "summary": "公開鍵で署名を検証するとはどういうことか。改ざん検知の仕組みを追います。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "crypto/signature",
+      "prerequisites": ["crypto-asymmetric"]
+    },
+    {
+      "id": "crypto-pki",
+      "title": "PKIと証明書",
+      "summary": "CAが証明書に署名することで、見知らぬ相手を信頼できる仕組みを解説します。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "crypto/pki",
+      "prerequisites": ["crypto-signature"]
     },
     {
       "id": "security-basics",
       "title": "セキュリティ基礎",
       "summary": "脆弱性、攻撃の入口、防御、検知、ログ読解を、ひとつずつ足していきます。",
       "kind": "chapter",
-      "status": "planned",
-      "children": []
+      "status": "ready",
+      "children": [
+        "security-vulnerabilities",
+        "security-attack-surface",
+        "security-defense",
+        "security-logs"
+      ]
+    },
+    {
+      "id": "security-vulnerabilities",
+      "title": "脆弱性とは何か",
+      "summary": "CVE、CVSS、OWASP Top 10の意味と、脆弱性が生まれる構造を見ます。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "security/vulnerabilities",
+      "prerequisites": ["security-basics"]
+    },
+    {
+      "id": "security-attack-surface",
+      "title": "攻撃対象領域（Attack Surface）",
+      "summary": "攻撃者の目線で「どこが入口か」を整理し、最小化の考え方を学びます。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "security/attack-surface",
+      "prerequisites": ["security-vulnerabilities"]
+    },
+    {
+      "id": "security-defense",
+      "title": "多層防御と基本的な防御策",
+      "summary": "多層防御（Defense in Depth）の考え方と、代表的な防御コントロールを整理します。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "security/defense",
+      "prerequisites": ["security-attack-surface"]
+    },
+    {
+      "id": "security-logs",
+      "title": "ログと検知",
+      "summary": "セキュリティログから何を読み取るか。インシデントの痕跡を追います。",
+      "kind": "lesson",
+      "status": "ready",
+      "lessonSlug": "security/logs",
+      "prerequisites": ["security-defense"]
     },
     {
       "id": "bridge-to-hackerlake",
