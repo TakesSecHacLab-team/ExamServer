@@ -62,6 +62,7 @@ export default function DocsWorkspace({
       {hasSidebar && (
         <aside
           aria-hidden={!isSidebarOpen}
+          inert={!isSidebarOpen}
           className={`hidden overflow-hidden bg-[var(--surface-subtle)] transition-[opacity,border-color] duration-200 lg:block ${
             isSidebarOpen
               ? "border-r border-[var(--border)] opacity-100"

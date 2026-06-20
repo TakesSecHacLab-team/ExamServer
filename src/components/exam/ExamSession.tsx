@@ -133,8 +133,13 @@ export default function ExamSession({
       return;
     }
 
-    if (currentDrillResult || currentAnswer.selectedAnswer === null) {
+    if (currentDrillResult) {
       session.nextDrill();
+      return;
+    }
+
+    if (currentAnswer.selectedAnswer === null) {
+      void session.submitUnknownDrill();
       return;
     }
 
@@ -146,8 +151,13 @@ export default function ExamSession({
       return;
     }
 
-    if (currentDrillResult || currentAnswer.selectedAnswer === null) {
+    if (currentDrillResult) {
       session.nextDrill();
+      return;
+    }
+
+    if (currentAnswer.selectedAnswer === null) {
+      void session.submitUnknownDrill();
       return;
     }
 
