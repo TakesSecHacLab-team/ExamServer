@@ -3,22 +3,30 @@
  * モード選択（本番/一問一答）、問題数、タイマーON/OFFを設定して試験を開始する。
  */
 
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCategoryById, getAllQuestions } from "@/lib/questions";
 import ExamSetupForm from "@/components/exam/ExamSetupForm";
+import FlowBackLink from "@/components/FlowBackLink";
 import PublicAppShell from "@/components/layout/PublicAppShell";
+import type { CategoryBucket } from "@/components/CategorySelector";
 
 interface Props {
   params: Promise<{ categoryId: string }>;
+  searchParams?: Promise<{ bucket?: string | string[] }>;
 }
 
-export default async function ExamSetupPage({ params }: Props) {
+export default async function ExamSetupPage({ params, searchParams }: Props) {
   const { categoryId } = await params;
+  const query = await searchParams;
   const category = getCategoryById(categoryId);
   if (!category) notFound();
 
-  const totalQuestions = getAllQuestions(categoryId).length;
+  const questions = getAllQuestions(categoryId);
+  const totalQuestions = questions.length;
+  const bucket = normalizeBucket(query?.bucket) ?? bucketFromGroup(category.group);
+  const domainOptions = [...new Set(questions.map((q) => q.domain).filter(Boolean))]
+    .sort()
+    .map((domain) => domain as string);
 
   return (
     <PublicAppShell
@@ -26,27 +34,9 @@ export default async function ExamSetupPage({ params }: Props) {
       eyebrow="演習設定"
       title={category.name}
       description={category.description}
-      sidebar={
-        <div className="space-y-4">
-          <Link
-            href="/"
-            className="block rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-          >
-            カテゴリ選択に戻る
-          </Link>
-          <div>
-            <p className="text-sm font-semibold text-gray-950">設定の順番</p>
-            <ol className="mt-2 space-y-2 text-sm leading-6 text-gray-600">
-              <li>1. 受験モード</li>
-              <li>2. 出題数</li>
-              <li>3. タイマー</li>
-              <li>4. 開始</li>
-            </ol>
-          </div>
-        </div>
-      }
     >
       <section className="max-w-3xl">
+        <FlowBackLink href={`/?bucket=${bucket}`} label="カテゴリ一覧に戻る" />
         {totalQuestions === 0 ? (
           <div className="rounded-lg border border-gray-200 bg-white px-5 py-12 text-center text-gray-500">
             <p className="text-lg font-semibold text-gray-800">
@@ -62,9 +52,21 @@ export default async function ExamSetupPage({ params }: Props) {
             categoryName={category.name}
             totalQuestions={totalQuestions}
             timeLimit={category.timeLimit}
+            returnBucket={bucket}
+            domainOptions={domainOptions}
           />
         )}
       </section>
     </PublicAppShell>
   );
+}
+
+function normalizeBucket(value?: string | string[]): CategoryBucket | null {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (raw === "certification" || raw === "other") return raw;
+  return null;
+}
+
+function bucketFromGroup(group: string): CategoryBucket {
+  return group === "certification" ? "certification" : "other";
 }

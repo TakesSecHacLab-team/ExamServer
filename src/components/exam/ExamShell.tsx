@@ -24,6 +24,7 @@ interface Props {
   onNext: () => void;
   onNavigate: (index: number) => void;
   onFinish: () => void;
+  onExit: () => void;
   children: ReactNode;
 }
 
@@ -40,6 +41,7 @@ export default function ExamShell({
   onNext,
   onNavigate,
   onFinish,
+  onExit,
   children,
 }: Props) {
   const answeredCount = answers.filter(
@@ -68,6 +70,13 @@ export default function ExamShell({
           </div>
 
             <div className="flex shrink-0 items-center gap-2">
+            <button
+              onClick={onExit}
+              className="min-h-10 rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+            >
+              試験終了
+            </button>
+
             <button
               onClick={onFlag}
                 className={`min-h-10 rounded-md border px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${

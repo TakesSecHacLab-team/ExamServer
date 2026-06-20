@@ -1,25 +1,14 @@
-"use client";
-
-/**
- * カテゴリ選択コンポーネント
- * 目的別にカテゴリを選択し、概要・出題範囲・学習進捗を表示する。
- */
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { ReactNode } from "react";
-import type { CategoryProgress, QuestionStyle } from "@/types/exam";
-import {
-  CATEGORY_DETAILS,
-  CATEGORY_GROUPS,
-  type CategoryDetail as CategoryDetailData,
-  type CategoryGroup,
-} from "@/lib/category-details";
-import { loadCategoryProgress } from "@/lib/storage";
+import FlowBackLink from "@/components/FlowBackLink";
+import type { CategoryGroup, QuestionStyle } from "@/types/exam";
+
+export type CategoryBucket = "certification" | "other";
 
 interface CategoryWithCount {
   id: string;
   name: string;
+  description: string;
+  group: CategoryGroup;
   defaultStyle: QuestionStyle;
   timeLimit: number;
   questionCount: number;
@@ -27,343 +16,175 @@ interface CategoryWithCount {
 
 interface Props {
   categories: CategoryWithCount[];
+  bucket: CategoryBucket | null;
 }
 
-export default function CategorySelector({ categories }: Props) {
-  const initialCategory =
-    categories.find((category) => category.questionCount > 0) ?? categories[0];
-  const [selectedId, setSelectedId] = useState(initialCategory?.id ?? "");
-  const [progress, setProgress] = useState<CategoryProgress | null>(null);
+const GROUP_ORDER: Record<CategoryGroup, number> = {
+  certification: 0,
+  lab: 1,
+  demo: 2,
+};
 
-  const selected = categories.find((c) => c.id === selectedId);
-  const detail = selectedId ? CATEGORY_DETAILS[selectedId] : null;
+export default function CategorySelector({ categories, bucket }: Props) {
+  if (!bucket) {
+    return <BucketChoices categories={categories} />;
+  }
 
-  const handleCategoryChange = (nextId: string) => {
-    if (nextId === selectedId) return;
-
-    setSelectedId(nextId);
-    setProgress(null);
-  };
-
-  useEffect(() => {
-    let cancelled = false;
-
-    queueMicrotask(() => {
-      if (!cancelled) {
-        setProgress(selectedId ? loadCategoryProgress(selectedId) : null);
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedId]);
+  const visibleCategories = sortCategoriesForSelection(
+    categories.filter((category) => categoryMatchesBucket(category, bucket))
+  );
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
-      <div className="order-2 lg:hidden">
-        <details className="group rounded-lg border border-gray-200 bg-white">
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-gray-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600">
-            <span>カテゴリを切り替える</span>
-            <span className="flex min-w-0 items-center gap-2 text-xs font-medium text-gray-500">
-              <span className="max-w-[12rem] truncate text-right">
-                {selected?.name ?? "未選択"}
-              </span>
-              <span
-                aria-hidden="true"
-                className="transition-transform group-open:rotate-180"
-              >
-                ↓
-              </span>
-            </span>
-          </summary>
-          <nav
-            aria-label="カテゴリ一覧"
-            className="border-t border-gray-200 px-4 py-4"
-          >
-            <CategoryList
-              categories={categories}
-              selectedId={selectedId}
-              onSelect={handleCategoryChange}
-              idPrefix="mobile"
-            />
-          </nav>
-        </details>
+    <div>
+      <FlowBackLink href="/" label="演習の種類に戻る" />
+
+      <div className="space-y-3">
+        {visibleCategories.map((category) => (
+          <CategoryRow key={category.id} category={category} bucket={bucket} />
+        ))}
       </div>
-
-      <nav
-        aria-label="カテゴリ一覧"
-        className="order-1 hidden rounded-lg border border-gray-200 bg-white p-4 lg:block"
-      >
-        <CategoryList
-          categories={categories}
-          selectedId={selectedId}
-          onSelect={handleCategoryChange}
-          idPrefix="desktop"
-        />
-      </nav>
-
-      {selected && detail && (
-        <CategoryDetail
-          selected={selected}
-          detail={detail}
-          progress={progress}
-        />
-      )}
     </div>
   );
 }
 
-function CategoryList({
-  categories,
-  selectedId,
-  onSelect,
-  idPrefix,
-}: {
-  categories: CategoryWithCount[];
-  selectedId: string;
-  onSelect: (nextId: string) => void;
-  idPrefix: string;
-}) {
+function BucketChoices({ categories }: { categories: CategoryWithCount[] }) {
+  const certificationCount = categories.filter(
+    (category) => category.group === "certification"
+  ).length;
+  const otherCount = categories.length - certificationCount;
+
   return (
-    <>
-      <div className="mb-4">
-        <h2 className="text-base font-bold text-gray-950">カテゴリ</h2>
-        <p className="mt-1 text-sm leading-6 text-gray-500">
-          ほかのカテゴリに切り替える時だけ使います。
-        </p>
-      </div>
-
-      <div className="space-y-5">
-        {CATEGORY_GROUPS.map((group) => {
-          const groupCategories = categories.filter(
-            (category) => getCategoryGroup(category.id) === group.id
-          );
-
-          if (groupCategories.length === 0) return null;
-
-          const headingId = `group-${idPrefix}-${group.key}`;
-
-          return (
-            <section key={group.id} aria-labelledby={headingId}>
-              <div>
-                <h3
-                  id={headingId}
-                  className="text-sm font-semibold text-gray-900"
-                >
-                  {group.id}
-                </h3>
-                <p className="mt-1 hidden text-xs leading-5 text-gray-500 sm:block">
-                  {group.description}
-                </p>
-              </div>
-
-              <div className="mt-2 space-y-1">
-                {groupCategories.map((category) => (
-                  <CategoryButton
-                    key={category.id}
-                    category={category}
-                    selected={category.id === selectedId}
-                    onSelect={() => onSelect(category.id)}
-                  />
-                ))}
-              </div>
-            </section>
-          );
-        })}
-      </div>
-    </>
+    <div className="grid gap-3 sm:grid-cols-2">
+      <BucketChoice
+        href="/?bucket=certification"
+        title="資格試験"
+        description={`${certificationCount}カテゴリ`}
+      />
+      <BucketChoice
+        href="/?bucket=other"
+        title="それ以外"
+        description={`${otherCount}カテゴリ`}
+      />
+    </div>
   );
 }
 
-function CategoryDetail({
-  selected,
-  detail,
-  progress,
-}: {
-  selected: CategoryWithCount;
-  detail: CategoryDetailData;
-  progress: CategoryProgress | null;
-}) {
-  const questionReady = selected.questionCount > 0;
-
-  return (
-    <section className="order-1 min-w-0 rounded-lg border border-gray-200 bg-white p-5 sm:p-6 lg:order-2">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-blue-700">選択中</p>
-          <h2 className="mt-1 text-xl font-bold tracking-tight text-gray-950">
-            {selected.name}
-          </h2>
-        </div>
-        <StatusBadge ready={questionReady} count={selected.questionCount} />
-      </div>
-
-      <dl className="mt-5 grid gap-3 sm:grid-cols-3">
-        <InfoBlock
-          label="形式"
-          value={
-            selected.defaultStyle === "scenario" ? "長文シナリオ" : "一問一答"
-          }
-        />
-        <InfoBlock
-          label="制限時間"
-          value={`${Math.floor(selected.timeLimit / 60)}分`}
-        />
-        <InfoBlock label="問題数" value={`${selected.questionCount}問`} />
-      </dl>
-
-      <div className="mt-6">
-        {questionReady ? (
-          <Link
-            href={`/exam/${selected.id}`}
-            className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 sm:w-auto"
-          >
-            設定へ進む
-          </Link>
-        ) : (
-          <p className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-            このカテゴリは準備中です。問題が登録されるまで開始できません。
-          </p>
-        )}
-      </div>
-
-      <div className="mt-6 divide-y divide-gray-200 border-t border-gray-200">
-        <DisclosureSection title="概要">
-          <p className="max-w-[65ch] text-sm leading-7 text-gray-600">
-            {detail.overview}
-          </p>
-        </DisclosureSection>
-
-        <DisclosureSection title="出題範囲">
-          <div className="divide-y divide-gray-100">
-            {detail.domains.map((domain) => (
-              <div key={domain.name} className="py-3 first:pt-0 last:pb-0">
-                <p className="text-sm font-medium text-gray-900">
-                  {domain.name}
-                </p>
-                <p className="mt-1 text-sm leading-6 text-gray-600">
-                  {domain.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </DisclosureSection>
-
-        {progress && (
-          <DisclosureSection title="学習進捗">
-            <dl className="grid gap-3 sm:grid-cols-3">
-              <InfoBlock label="最高得点" value={`${progress.bestScore}%`} />
-              <InfoBlock label="挑戦回数" value={`${progress.attempts}`} />
-              <InfoBlock
-                label="解答済み"
-                value={`${Object.keys(progress.questionHistory).length}`}
-              />
-            </dl>
-          </DisclosureSection>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function DisclosureSection({
+function BucketChoice({
+  href,
   title,
-  children,
+  description,
 }: {
+  href: string;
   title: string;
-  children: ReactNode;
+  description: string;
 }) {
   return (
-    <details className="group">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 py-3 text-sm font-semibold text-gray-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600">
-        <span>{title}</span>
-        <span
-          aria-hidden="true"
-          className="text-gray-500 transition-transform group-open:rotate-180"
-        >
-          ↓
-        </span>
-      </summary>
-      <div className="pb-4">{children}</div>
-    </details>
+    <Link
+      href={href}
+      className="group flex min-h-28 items-center justify-between rounded-lg border border-gray-200 bg-white px-5 py-4 transition-colors hover:border-blue-300 hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+    >
+      <span>
+        <span className="block text-lg font-bold text-gray-950">{title}</span>
+        <span className="mt-1 block text-sm text-gray-500">{description}</span>
+      </span>
+      <span
+        aria-hidden="true"
+        className="text-lg font-semibold text-gray-400 transition-colors group-hover:text-blue-700"
+      >
+        →
+      </span>
+    </Link>
   );
 }
 
-function CategoryButton({
+function CategoryRow({
   category,
-  selected,
-  onSelect,
+  bucket,
 }: {
   category: CategoryWithCount;
-  selected: boolean;
-  onSelect: () => void;
+  bucket: CategoryBucket;
 }) {
-  const detail = CATEGORY_DETAILS[category.id];
-  const stateLabel =
-    category.questionCount === 0 ? "準備中" : `${category.questionCount}問`;
+  const ready = category.questionCount > 0;
+  const setupHref = `/exam/${category.id}?bucket=${bucket}`;
 
   return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      onClick={onSelect}
-      className={`min-h-11 w-full rounded-md px-3 py-2 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
-        selected
-          ? "bg-blue-50 text-blue-900"
-          : "text-gray-700 hover:bg-gray-50 hover:text-gray-950"
-      }`}
-    >
-      <span className="block text-sm font-semibold">{category.name}</span>
-      <span className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-        <span>{styleLabel(category.defaultStyle)}</span>
-        <span aria-hidden="true">/</span>
-        <span>{Math.floor(category.timeLimit / 60)}分</span>
-        <span aria-hidden="true">/</span>
-        <span
-          className={
-            category.questionCount === 0 ? "text-amber-700" : "text-gray-600"
-          }
-        >
-          {stateLabel}
-        </span>
-      </span>
-      {selected && detail && (
-        <span className="mt-1 block text-xs font-medium text-blue-700">
-          選択中
-        </span>
-      )}
-    </button>
+    <article className="rounded-lg border border-gray-200 bg-white">
+      <div className="grid gap-2 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        {ready ? (
+          <Link
+            href={setupHref}
+            className="min-w-0 rounded-md py-1 text-base font-bold text-gray-950 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+          >
+            {category.name}
+          </Link>
+        ) : (
+          <span className="min-w-0 py-1 text-base font-bold text-gray-500">
+            {category.name}
+          </span>
+        )}
+
+        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+          <span>{styleLabel(category.defaultStyle)}</span>
+          <span aria-hidden="true">/</span>
+          <span>{Math.floor(category.timeLimit / 60)}分</span>
+          <span aria-hidden="true">/</span>
+          <span className={ready ? "text-gray-600" : "text-amber-700"}>
+            {ready ? `${category.questionCount}問` : "準備中"}
+          </span>
+        </div>
+      </div>
+
+      <details className="group border-t border-gray-100">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-sm font-semibold text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600">
+          <span>概要</span>
+          <span
+            aria-hidden="true"
+            className="text-gray-500 transition-transform group-open:rotate-180"
+          >
+            ↓
+          </span>
+        </summary>
+        <div className="px-4 pb-4 text-sm leading-7 text-gray-600">
+          <p>{category.description}</p>
+          {!ready && (
+            <p className="mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900">
+              このカテゴリは問題が登録されるまで開始できません。
+            </p>
+          )}
+        </div>
+      </details>
+    </article>
   );
 }
 
-function StatusBadge({ ready, count }: { ready: boolean; count: number }) {
-  return (
-    <span
-      className={`inline-flex w-fit rounded-md border px-2.5 py-1 text-xs font-semibold ${
-        ready
-          ? "border-blue-200 bg-blue-50 text-blue-800"
-          : "border-amber-200 bg-amber-50 text-amber-800"
-      }`}
-    >
-      {ready ? `${count}問` : "準備中"}
-    </span>
-  );
+function sortCategoriesForSelection(
+  categories: CategoryWithCount[]
+): CategoryWithCount[] {
+  return categories
+    .map((category, index) => ({ category, index }))
+    .sort((a, b) => {
+      const groupDiff =
+        GROUP_ORDER[a.category.group] - GROUP_ORDER[b.category.group];
+      if (groupDiff !== 0) return groupDiff;
+
+      const readyDiff =
+        Number(b.category.questionCount > 0) -
+        Number(a.category.questionCount > 0);
+      if (readyDiff !== 0) return readyDiff;
+
+      return a.index - b.index;
+    })
+    .map(({ category }) => category);
 }
 
-function InfoBlock({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-md border border-gray-200 bg-gray-50 px-3 py-3">
-      <dt className="text-xs font-medium text-gray-500">{label}</dt>
-      <dd className="mt-1 text-sm font-semibold text-gray-950">{value}</dd>
-    </div>
-  );
+function categoryMatchesBucket(
+  category: CategoryWithCount,
+  bucket: CategoryBucket
+): boolean {
+  if (bucket === "certification") return category.group === "certification";
+  return category.group !== "certification";
 }
 
 function styleLabel(style: QuestionStyle): string {
   return style === "scenario" ? "長文" : "一問一答";
-}
-
-function getCategoryGroup(categoryId: string): CategoryGroup {
-  return CATEGORY_DETAILS[categoryId]?.group ?? "その他";
 }
