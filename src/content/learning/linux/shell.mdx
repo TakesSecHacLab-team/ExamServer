@@ -133,17 +133,7 @@ cat data.txt | grep -v "^#" | sort | uniq > result.txt 2> errors.log
 # コメント行を除いて、ソートして、重複削除して、結果をファイルに。エラーは別ファイル。
 ```
 
-<QuotedFigure
-  src="/learning/unix-standard-streams.svg"
-  alt="Unixの標準ストリーム（stdin・stdout・stderr）とパイプの接続図。プログラムAのstdoutがパイプでプログラムBのstdinに接続される"
-  width={640}
-  height={260}
-  sourceTitle="Standard streams - Wikipedia"
-  sourceUrl="https://en.wikipedia.org/wiki/Standard_streams"
-  licenseNote="CC BY-SA 4.0 / Wikipedia"
->
-  パイプはプロセスのstdoutとstdinをつなぐ。小さなコマンドを連鎖させることで複雑な処理を1行で書ける——これがUnixの設計思想。
-</QuotedFigure>
+
 
 ## よく使うコマンド——その実体
 

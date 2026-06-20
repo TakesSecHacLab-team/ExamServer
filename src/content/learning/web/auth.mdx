@@ -59,17 +59,7 @@ const isMatch2 = await bcrypt.compare('wrong_password', hash); // false
 
 `bcrypt.compare` は「入力値をハッシュして保存済みと一致するか」を調べる。元のパスワードを復号しているわけじゃない——そもそも復号できない。
 
-<QuotedFigure
-  src="/learning/password-hashing-flow.svg"
-  alt="パスワードハッシュ化の流れ。登録時はパスワード→bcrypt→ハッシュをDB保存。ログイン時は入力→bcrypt→比較"
-  width={700}
-  height={320}
-  sourceTitle="Cryptographic hash function"
-  sourceUrl="https://en.wikipedia.org/wiki/Cryptographic_hash_function"
-  licenseNote="CC BY-SA 4.0 / Wikipedia"
->
-  bcryptは一方向変換。DBに入るのはハッシュだけ。漏洩しても元のパスワードには戻せない。
-</QuotedFigure>
+
 
 ## セッションベース認証の実装
 
@@ -157,17 +147,7 @@ app.get('/admin/users', requireAuth, requireRole('admin'), (req, res) => {
 
 セッションIDは「そのIDを持っている者がそのユーザーとして扱われる」ため、パスワードと同等の秘匿価値を持つ。ブラウザのLocalStorageに保存するのは危険（XSSで盗まれる）。HttpOnly クッキーに保存するのが正解。
 
-<QuotedFigure
-  src="/learning/session-hijacking.svg"
-  alt="セッションハイジャックの概念図。攻撃者がセッションIDを盗み、正規ユーザーとしてサーバーにアクセスする"
-  width={700}
-  height={320}
-  sourceTitle="OWASP Session Management Cheat Sheet"
-  sourceUrl="https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html"
-  licenseNote="CC BY-SA 4.0 / OWASP"
->
-  セッションIDはパスワードに匹敵する価値を持つ。盗まれた時点で攻撃者はそのユーザーとして行動できる。
-</QuotedFigure>
+
 
 ## よくある脆弱性の対照表
 

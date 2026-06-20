@@ -78,17 +78,7 @@ int main() {
 
 この「引数 + リターンアドレス + ローカル変数」の束を **スタックフレーム** と呼びます。関数が呼ばれるたびに1つのスタックフレームが積まれ、関数が終わると破棄される。
 
-<QuotedFigure
-  src="/learning/call-stack-layout.svg"
-  alt="コールスタックのレイアウト。main()がgreeting()を呼ぶとき、スタックにリターンアドレス・ローカル変数が積まれる様子"
-  width={560}
-  height={380}
-  sourceTitle="Call stack - Wikipedia"
-  sourceUrl="https://en.wikipedia.org/wiki/Call_stack"
-  licenseNote="CC BY-SA 4.0 / Wikipedia"
->
-  関数呼び出しのたびに「スタックフレーム」が積まれる。引数→リターンアドレス→ローカル変数の順。このリターンアドレスを書き換えるのがバッファオーバーフロー攻撃。
-</QuotedFigure>
+
 
 <Callout title="リターンアドレスが重要">
   関数が終わるとき、「どこに戻るか」の情報がスタック上にあります。これを書き換えると、プログラムの実行フローを乗っ取れます。バッファオーバーフロー攻撃の本質。

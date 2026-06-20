@@ -14,6 +14,7 @@ import {
   getLearningMap,
   validateLearningContentRegistry,
 } from "../src/lib/learning";
+import { getLearningImageMetas } from "../src/lib/learning-images";
 
 // ---------------------------------------------------------------------------
 // 型定義（ランタイムチェック用に独立して定義）
@@ -304,7 +305,15 @@ function validateLearningAssets() {
   console.log("\n📂 learning assets");
 
   const contentDir = path.join(process.cwd(), "src", "content", "learning");
+  const publicDir = path.join(process.cwd(), "public");
+  const generatedAssetScript = path.join(
+    process.cwd(),
+    "scripts",
+    "ensure-learning-assets.mjs"
+  );
   const refs = new Set<string>();
+  const imageMetas = getLearningImageMetas();
+  const imageMetaBySrc = new Map(imageMetas.map((image) => [image.src, image]));
 
   for (const filePath of listMdxFiles(contentDir)) {
     const raw = fs.readFileSync(filePath, "utf-8");
@@ -313,10 +322,71 @@ function validateLearningAssets() {
     }
   }
 
+  if (fs.existsSync(generatedAssetScript)) {
+    error(
+      "自動生成の学習画像スクリプトは禁止です: scripts/ensure-learning-assets.mjs"
+    );
+  }
+
+  const seenManifestSrc = new Set<string>();
+  for (const image of imageMetas) {
+    if (seenManifestSrc.has(image.src)) {
+      error(`learning-images.json の src が重複しています: ${image.src}`);
+    }
+    seenManifestSrc.add(image.src);
+
+    if (image.kind !== "direct" && image.kind !== "adapted") {
+      error(`画像は direct/adapted のみ許可: ${image.src}`);
+    }
+    if (image.kind === "adapted" && !image.modificationNote.trim()) {
+      error(`加工引用の modificationNote が空です: ${image.src}`);
+    }
+    if (image.sourceLanguage === "en" && !image.modificationNote.includes("日本語")) {
+      error(`英語出典画像は日本語化の加工メモが必要です: ${image.src}`);
+    }
+    if (image.assetLanguage !== "ja") {
+      error(`教材画像は日本語化済みである必要があります: ${image.src}`);
+    }
+    for (const [key, value] of Object.entries(image)) {
+      if (typeof value === "string" && value.trim() === "") {
+        error(`learning-images.json の ${key} が空です: ${image.src}`);
+      }
+    }
+    for (const urlKey of ["sourceUrl", "licenseUrl"] as const) {
+      try {
+        const url = new URL(image[urlKey]);
+        if (url.protocol !== "https:") {
+          error(`${urlKey} は https URL にしてください: ${image.src}`);
+        }
+      } catch {
+        error(`${urlKey} が不正です: ${image.src}`);
+      }
+    }
+  }
+
   for (const ref of [...refs].sort()) {
-    const assetPath = path.join(process.cwd(), "public", ref.slice(1));
+    const imageMeta = imageMetaBySrc.get(ref);
+    if (!imageMeta) {
+      error(`学習画像が learning-images.json に未登録です: ${ref}`);
+    }
+
+    const assetPath = path.join(publicDir, ref.slice(1));
     if (!fs.existsSync(assetPath)) {
       error(`学習コンテンツの参照画像が見つかりません: ${ref}`);
+      continue;
+    }
+
+    if (path.extname(assetPath) === ".svg") {
+      const rawAsset = fs.readFileSync(assetPath, "utf-8");
+      if (rawAsset.includes("ExamServer learning diagram")) {
+        error(`自動生成/自作図マーカーが残っています: ${ref}`);
+      }
+    }
+  }
+
+  for (const image of imageMetas) {
+    if (!refs.has(image.src)) {
+      error(`learning-images.json の画像が教材から参照されていません: ${image.src}`);
     }
   }
 

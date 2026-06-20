@@ -56,17 +56,7 @@ init (PID 1)
 
 「なぜそんなこと知る必要があるのか」——プロセスを終了したいとき、親プロセスの状態が影響することがあります。例えば bash（親）を kill すると、bash から起動した全ての子プロセスも自動的に終了します。
 
-<QuotedFigure
-  src="/learning/process-tree.svg"
-  alt="プロセスツリーの図。init (PID=1) が根で、そこから sshd、bash、grep などが枝状に派生する"
-  width={650}
-  height={300}
-  sourceTitle="Process_tree.svg"
-  sourceUrl="https://commons.wikimedia.org/wiki/File:Process_tree.svg"
-  licenseNote="CC BY-SA 3.0 / Wikimedia Commons"
->
-  プロセスツリー。init（PID=1）が根。その下に systemd、sshd、bash などが階層的に生まれていく。
-</QuotedFigure>
+
 
 ## fork と exec——プロセスが生まれるメカニズム
 
@@ -198,17 +188,7 @@ SIGKILL は無視できません。ただし、リソースのクリーンアッ
 
 原則：**まず SIGTERM で。応答しなければ SIGKILL で。**
 
-<QuotedFigure
-  src="/learning/signal-flow.svg"
-  alt="シグナルの流れ。プロセスがシグナルをキャッチして、クリーンアップ後に終了するか、シグナルハンドラで独自処理をするかの図"
-  width={650}
-  height={280}
-  sourceTitle="Signal_handling.svg"
-  sourceUrl="https://commons.wikimedia.org/wiki/File:Signal_handling.svg"
-  licenseNote="CC BY-SA 3.0 / Wikimedia Commons"
->
-  シグナル SIGTERM と SIGKILL の違い。SIGTERM はキャッチ・無視できるが、SIGKILL は強制。
-</QuotedFigure>
+
 
 ## /proc 仮想ファイルシステム——プロセス情報を「ファイル」として見る
 

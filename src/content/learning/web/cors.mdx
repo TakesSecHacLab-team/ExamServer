@@ -33,17 +33,7 @@ https://example.com:8080 ← ポートが違う    → 別オリジン
 
 SOPはこれを防ぐ。**別オリジンへのJSからの読み取りを禁止する**のがSOPの核心です。
 
-<QuotedFigure
-  src="/learning/same-origin-policy.svg"
-  alt="Same-Origin Policyの概念図。同一オリジン間の通信は許可。異なるオリジン（例：evil.comからbank.com）へのJS読み取りはブロック"
-  width={700}
-  height={360}
-  sourceTitle="Same-origin policy"
-  sourceUrl="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy"
-  licenseNote="CC BY-SA 2.5 / MDN Web Docs"
->
-  SOPは「JavaScriptによる別オリジンのレスポンス読み取り」を禁止する。フォーム送信やimgタグのリクエストはSOPの対象外（そこはCSRFの話）。
-</QuotedFigure>
+
 
 ## CORSは「例外を認める仕組み」
 

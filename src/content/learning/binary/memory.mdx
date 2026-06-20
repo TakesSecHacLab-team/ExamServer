@@ -126,17 +126,7 @@ CTFでこんな問題が出ます：
 
 地味だけど超重要：メモリレイアウトを頭に入れておくと、後のセクションで出てくる「スタックオーバーフロー」が理解できます。
 
-<QuotedFigure
-  src="/learning/process-memory-layout.svg"
-  alt="プロセスのメモリレイアウト図。下位アドレスからコード領域・データ領域・ヒープ（上向き成長）、スタック（下向き成長）の配置"
-  width={480}
-  height={360}
-  sourceTitle="Virtual address space - Wikipedia"
-  sourceUrl="https://en.wikipedia.org/wiki/Virtual_address_space"
-  licenseNote="CC BY-SA 4.0 / Wikipedia"
->
-  スタックとヒープが互いに向かい合って成長する。両者が衝突するとメモリ不足。この構造がバッファオーバーフロー攻撃の舞台になる。
-</QuotedFigure>
+
 
 <Callout title="64ビットOSの場合">
   64ビットプロセスのアドレス空間は理論上2⁶⁴バイト（約18EB）ですが、実装上は何十テラバイト程度にとどまります。ただ個々のプログラムが使える容量は数ギガバイト程度。十分すぎます。

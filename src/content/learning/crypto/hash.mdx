@@ -32,15 +32,16 @@
 
 <QuotedFigure
   src="/learning/hash-function-concept.svg"
-  alt="ハッシュ関数の一方向性を示す図。任意長の入力→固定長の出力、逆向きの矢印がない"
+  alt="ハッシュ関数の一方向性を示す図。任意長の入力から固定長のハッシュ値が出力される"
   width={600}
   height={280}
   sourceTitle="Cryptographic_Hash_Function.svg"
   sourceUrl="https://commons.wikimedia.org/wiki/File:Cryptographic_Hash_Function.svg"
-  licenseNote="CC BY-SA 3.0 / Wikimedia Commons"
+  licenseNote="Public domain / Wikimedia Commons"
 >
-  ハッシュは一方通行。入力→出力はできるが、出力→入力に戻す方法は数学的に存在しない。
+  ハッシュは一方通行。入力から固定長の値は作れるが、その値から元の入力を復元する仕組みではない。
 </QuotedFigure>
+
 
 ## ハッシュの3つの特性
 
@@ -145,17 +146,7 @@ Argon2("password", salt, time=2, memory=65MB)
 
 メモリを大量に使うと、ハッカーが並列攻撃（複数PCで同時に試す）をやりづらくなります。メモリは CPUほど簡単に増設できないから。OWASP（セキュリティのベストプラクティス機関）は Argon2 を「パスワード保存の最優先選択肢」と推奨しています。
 
-<QuotedFigure
-  src="/learning/password-hashing-comparison.svg"
-  alt="Argon2のメモリ・時間コストパラメータの関係図。メモリ使用量が増えるほど攻撃者のGPU並列攻撃が難しくなる"
-  width={650}
-  height={300}
-  sourceTitle="Argon2_memory_time_tradeoff.svg"
-  sourceUrl="https://commons.wikimedia.org/wiki/File:Argon2_Memory_Time_Tradeoff.svg"
-  licenseNote="CC BY-SA 4.0 / Wikimedia Commons"
->
-  Argon2はメモリを大量に消費する設計。GPUでの並列攻撃に対して、メモリが並列化のボトルネックになる。
-</QuotedFigure>
+
 
 ## レインボーテーブル攻撃とソルト
 

@@ -6,6 +6,7 @@ import type {
   ReactNode,
 } from "react";
 import { slugifyHeading } from "@/lib/heading-slug";
+import { getLearningImageMeta } from "@/lib/learning-images";
 
 interface CalloutProps {
   title?: string;
@@ -164,15 +165,29 @@ export function QuotedFigure({
   height,
   children,
 }: QuotedFigureProps) {
+  const imageMeta = getLearningImageMeta(src);
+  const resolvedSourceTitle = imageMeta?.sourceTitle ?? sourceTitle;
+  const resolvedSourceUrl = imageMeta?.sourceUrl ?? sourceUrl;
+  const resolvedLicenseNote = imageMeta
+    ? `${imageMeta.licenseName} / ${imageMeta.publisher}`
+    : licenseNote;
+
   assertRequired("QuotedFigure", {
     src,
     alt,
-    sourceTitle,
-    sourceUrl,
-    licenseNote,
+    sourceTitle: resolvedSourceTitle,
+    sourceUrl: resolvedSourceUrl,
+    licenseNote: resolvedLicenseNote,
   });
   const safeSrc = assertSafeAssetUrl("QuotedFigure", "src", src);
-  const safeSourceUrl = assertHttpsUrl("QuotedFigure", "sourceUrl", sourceUrl);
+  const safeSourceUrl = assertHttpsUrl(
+    "QuotedFigure",
+    "sourceUrl",
+    resolvedSourceUrl
+  );
+  const safeLicenseUrl = imageMeta
+    ? assertHttpsUrl("QuotedFigure", "licenseUrl", imageMeta.licenseUrl)
+    : undefined;
 
   return (
     <figure className="my-8 overflow-hidden rounded-md border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-soft)]">
@@ -198,10 +213,29 @@ export function QuotedFigure({
             rel="noreferrer"
             className="font-medium text-[var(--link)] hover:text-[var(--primary-hover)]"
           >
-            {sourceTitle}
+            {resolvedSourceTitle}
           </a>{" "}
-          / {licenseNote}
+          / {resolvedLicenseNote}
         </span>
+        {imageMeta && safeLicenseUrl && (
+          <span className="block">
+            ライセンス:{" "}
+            <a
+              href={safeLicenseUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-[var(--link)] hover:text-[var(--primary-hover)]"
+            >
+              {imageMeta.licenseName}
+            </a>
+          </span>
+        )}
+        {imageMeta && (
+          <span className="block">
+            {imageMeta.kind === "adapted" ? "加工引用" : "引用"}:{" "}
+            {imageMeta.modificationNote} 参照日: {imageMeta.accessedAt}
+          </span>
+        )}
       </figcaption>
     </figure>
   );

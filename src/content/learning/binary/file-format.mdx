@@ -136,17 +136,7 @@ $ xxd image.jpg | head -10
 
 最初の `ffd8` と `ffe0` が見えます。これが JPEG のシグネチャ。一目瞭然。
 
-<QuotedFigure
-  src="/learning/file-magic-bytes.svg"
-  alt="ファイルシグネチャ（マジックバイト）一覧。JPEG(FFD8FF)、PNG(89504E47)、PDF(25504446)、ZIP(504B0304)の先頭バイト列"
-  width={680}
-  height={300}
-  sourceTitle="List of file signatures - Wikipedia"
-  sourceUrl="https://en.wikipedia.org/wiki/List_of_file_signatures"
-  licenseNote="CC BY-SA 4.0 / Wikipedia"
->
-  主要なファイル形式のマジックバイト。`file` コマンドはこの辞書を参照してファイル種別を判定する。拡張子は一切見ない。
-</QuotedFigure>
+
 
 ```bash
 $ xxd document.pdf | head -5

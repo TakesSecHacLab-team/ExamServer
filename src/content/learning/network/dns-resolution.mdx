@@ -38,17 +38,7 @@
 
 リゾルバはこの答えをあなたの PC へ渡す。ブラウザはその IP へ接続する。
 
-<QuotedFigure
-  src="/learning/dns-resolution.svg"
-  alt="DNS の問い合わせ経路を示す図：クライアント → リゾルバ → ルートサーバー → TLD サーバー → 権威 DNS サーバーと段階的に問い合わせが進む様子"
-  width={800}
-  height={480}
-  sourceTitle="Example of an iterative DNS resolver.svg"
-  sourceUrl="https://commons.wikimedia.org/wiki/File:Example_of_an_iterative_DNS_resolver.svg"
-  licenseNote="CC BY-SA 3.0 / Wikimedia Commons"
->
-  リゾルバがルートから順に問い合わせを追う。クライアントはリゾルバに 1 回聞くだけで答えが返ってくる。
-</QuotedFigure>
+
 
 この仕組みを **再帰問い合わせ**（recursive query）と呼びます。あなたの PC は「1 回投げたら答えが返ってくる」ように見えますが、裏ではリゾルバが「ルートサーバー → TLD サーバー → 権威 DNS サーバー」と連鎖して問い合わせを追っています。クライアントがその全部を意識しなくてよいのが、再帰問い合わせの仕組みです。
 
