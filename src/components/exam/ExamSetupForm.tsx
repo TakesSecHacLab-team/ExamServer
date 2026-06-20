@@ -17,6 +17,7 @@ interface Props {
   timeLimit: number;
   returnBucket: CategoryBucket;
   domainOptions: string[];
+  domainQuestionCounts: Record<string, number>;
 }
 
 export default function ExamSetupForm({
@@ -26,6 +27,7 @@ export default function ExamSetupForm({
   timeLimit,
   returnBucket,
   domainOptions,
+  domainQuestionCounts,
 }: Props) {
   const router = useRouter();
   const [mode, setMode] = useState<ExamMode>("exam");
@@ -36,8 +38,22 @@ export default function ExamSetupForm({
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [randomEnabled, setRandomEnabled] = useState(false);
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
-  const selectedCount = useAllQuestions ? totalQuestions : questionCount;
-  const canStart = selectedCount >= 1 && selectedCount <= totalQuestions;
+  const availableQuestionCount =
+    selectedDomains.length === 0
+      ? totalQuestions
+      : selectedDomains.reduce(
+          (sum, domain) => sum + (domainQuestionCounts[domain] ?? 0),
+          0
+        );
+  const customQuestionCount = Math.min(
+    questionCount,
+    Math.max(1, availableQuestionCount)
+  );
+  const selectedCount = useAllQuestions
+    ? availableQuestionCount
+    : customQuestionCount;
+  const canStart =
+    selectedCount >= 1 && selectedCount <= availableQuestionCount;
 
   const handleStart = () => {
     if (!canStart) return;
@@ -45,7 +61,7 @@ export default function ExamSetupForm({
     sessionStorage.removeItem("exam-session-state");
     const params = new URLSearchParams({
       mode,
-      count: useAllQuestions ? String(totalQuestions) : String(questionCount),
+      count: String(selectedCount),
       timer: timerEnabled ? "1" : "0",
       random: randomEnabled ? "1" : "0",
       bucket: returnBucket,
@@ -102,7 +118,7 @@ export default function ExamSetupForm({
                 問題数
               </legend>
               <p className="mt-1 text-sm leading-6 text-gray-600">
-                このカテゴリには全{totalQuestions}問あります。
+                対象は全{availableQuestionCount}問です。
               </p>
               <div className="mt-3 space-y-3">
                 <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-gray-200 px-3 py-2 transition-colors hover:bg-gray-50">
@@ -131,13 +147,16 @@ export default function ExamSetupForm({
                   <input
                     type="number"
                     min={1}
-                    max={totalQuestions}
-                    value={questionCount}
+                    max={availableQuestionCount}
+                    value={customQuestionCount}
                     onChange={(e) =>
                       setQuestionCount(
                         Math.max(
                           1,
-                          Math.min(totalQuestions, Number(e.target.value))
+                          Math.min(
+                            availableQuestionCount,
+                            Number(e.target.value)
+                          )
                         )
                       )
                     }
@@ -176,6 +195,7 @@ export default function ExamSetupForm({
             {domainOptions.length > 0 && (
               <DomainOptions
                 domains={domainOptions}
+                domainQuestionCounts={domainQuestionCounts}
                 selectedDomains={selectedDomains}
                 onChange={setSelectedDomains}
               />
@@ -235,10 +255,12 @@ function ModeOption({
 
 function DomainOptions({
   domains,
+  domainQuestionCounts,
   selectedDomains,
   onChange,
 }: {
   domains: string[];
+  domainQuestionCounts: Record<string, number>;
   selectedDomains: string[];
   onChange: (domains: string[]) => void;
 }) {
@@ -267,7 +289,9 @@ function DomainOptions({
               onChange={() => toggleDomain(domain)}
               className="accent-blue-600"
             />
-            <span className="text-sm text-gray-700">{domain}</span>
+            <span className="text-sm text-gray-700">
+              {domain}（{domainQuestionCounts[domain] ?? 0}問）
+            </span>
           </label>
         ))}
       </div>

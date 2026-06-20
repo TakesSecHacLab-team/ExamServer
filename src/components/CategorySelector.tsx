@@ -1,6 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import FlowBackLink from "@/components/FlowBackLink";
-import type { CategoryGroup, QuestionStyle } from "@/types/exam";
+import { useEffect, useState } from "react";
+import { loadCategoryProgress } from "@/lib/storage";
+import type {
+  CategoryGroup,
+  CategoryProgress,
+  QuestionStyle,
+} from "@/types/exam";
 
 export type CategoryBucket = "certification" | "other";
 
@@ -106,6 +114,21 @@ function CategoryRow({
 }) {
   const ready = category.questionCount > 0;
   const setupHref = `/exam/${category.id}?bucket=${bucket}`;
+  const [progress, setProgress] = useState<CategoryProgress | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setProgress(loadCategoryProgress(category.id));
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [category.id]);
 
   return (
     <article className="rounded-lg border border-gray-200 bg-white">
@@ -151,9 +174,28 @@ function CategoryRow({
               このカテゴリは問題が登録されるまで開始できません。
             </p>
           )}
+          {progress && (
+            <dl className="mt-3 grid gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 sm:grid-cols-3">
+              <ProgressItem label="最高得点" value={`${progress.bestScore}%`} />
+              <ProgressItem label="挑戦" value={`${progress.attempts}回`} />
+              <ProgressItem
+                label="解答済み"
+                value={`${Object.keys(progress.questionHistory).length}問`}
+              />
+            </dl>
+          )}
         </div>
       </details>
     </article>
+  );
+}
+
+function ProgressItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs font-medium text-gray-500">{label}</dt>
+      <dd className="mt-0.5 text-sm font-semibold text-gray-900">{value}</dd>
+    </div>
   );
 }
 

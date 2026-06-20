@@ -24,9 +24,15 @@ export default async function ExamSetupPage({ params, searchParams }: Props) {
   const questions = getAllQuestions(categoryId);
   const totalQuestions = questions.length;
   const bucket = normalizeBucket(query?.bucket) ?? bucketFromGroup(category.group);
-  const domainOptions = [...new Set(questions.map((q) => q.domain).filter(Boolean))]
-    .sort()
-    .map((domain) => domain as string);
+  const domainQuestionCounts = questions.reduce<Record<string, number>>(
+    (counts, question) => {
+      if (!question.domain) return counts;
+      counts[question.domain] = (counts[question.domain] ?? 0) + 1;
+      return counts;
+    },
+    {}
+  );
+  const domainOptions = Object.keys(domainQuestionCounts).sort();
 
   return (
     <PublicAppShell
@@ -54,6 +60,7 @@ export default async function ExamSetupPage({ params, searchParams }: Props) {
             timeLimit={category.timeLimit}
             returnBucket={bucket}
             domainOptions={domainOptions}
+            domainQuestionCounts={domainQuestionCounts}
           />
         )}
       </section>
