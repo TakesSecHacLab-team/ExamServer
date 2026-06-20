@@ -45,11 +45,7 @@ export function Heading3({ children, ...props }: HeadingProps) {
   const id = props.id ?? slugifyHeading(toPlainText(children));
 
   return (
-    <h3
-      {...props}
-      id={id}
-      className="mt-7 scroll-mt-24 text-lg font-semibold leading-7 text-[var(--foreground)]"
-    >
+    <h3 {...props} id={id} className="scroll-mt-24">
       {children}
     </h3>
   );

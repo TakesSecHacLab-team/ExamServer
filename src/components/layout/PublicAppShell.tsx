@@ -208,11 +208,11 @@ function DocsAppShell({
                 {eyebrow}
               </p>
             )}
-            <h1 className="mt-2 text-[2rem] font-semibold leading-tight text-[var(--foreground)] sm:text-[2.35rem]">
+            <h1 className="docs-page-title mt-2 text-[2rem] leading-tight text-[var(--foreground)] sm:text-[2.35rem]">
               {title}
             </h1>
             {description && (
-              <p className="mt-4 max-w-[66ch] text-base leading-8 text-[var(--text-muted)]">
+              <p className="docs-page-description mt-4 max-w-[62ch] text-base text-[var(--text-muted)]">
                 {description}
               </p>
             )}
