@@ -16,7 +16,7 @@ colors:
   danger: "#B91C1C"
 typography:
   display:
-    fontFamily: "Geist Sans"
+    fontFamily: "Noto Serif JP"
     fontSize: "1.875rem"
     fontWeight: 700
     lineHeight: "1.25"
@@ -98,7 +98,9 @@ Do not use decorative gradients, glow, glassmorphism, purple-blue neon, or edito
 
 ## Typography
 
-Use Noto Sans JP for Japanese UI and prose, Geist Sans as Latin fallback, and Geist Mono for code, IDs, numbers, and tabular values. Japanese text must be direct and task-oriented. Body prose is capped at roughly 65 characters per line. Labels are short; helper copy is used only when it changes a decision.
+Use Noto Serif JP for lecture page titles and h2/h3 headings only, creating the quieter documentation tone requested for the learning surface. Use Noto Sans JP for Japanese UI and prose, Geist Sans as Latin fallback, and Geist Mono for code, IDs, numbers, and tabular values. Japanese text must be direct and task-oriented. Body prose is capped at roughly 65 characters per line. Labels are short; helper copy is used only when it changes a decision.
+
+Do not move the exercise UI to serif typography. The serif layer belongs to lecture hierarchy, not answer controls, setup forms, or production-test surfaces.
 
 Do not use centered body copy for app workflows. Strong left alignment is the default because it creates a clear reading edge and reduces scan cost.
 

@@ -29,7 +29,7 @@
 - Visual tone: calm, instructional, restrained. Lecture pages use a modern documentation palette; exercise pages use a neutral production-test palette with one blue accent.
 - Allowed components: side navigation, bottom tabs, segmented controls, compact lists, bounded cards for selectable units, inline callouts.
 - Components/patterns to avoid: decorative dashboards, nested cards, large marketing heroes, ranking/progress gamification, excessive badges.
-- Typography/spacing rules: Noto Sans JP for Japanese, Geist Mono for code/numbers, readable prose width, 8px max radius, stable touch targets, no horizontal mobile overflow.
+- Typography/spacing rules: lecture titles and headings may use Noto Serif JP for a quiet documentation tone; Japanese prose and UI use Noto Sans JP; Geist Mono is used for code/numbers; prose keeps a readable width, 8px max radius, stable touch targets, and no horizontal mobile overflow.
 
 ## Architecture Grammar
 
