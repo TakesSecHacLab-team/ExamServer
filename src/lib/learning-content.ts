@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import type { ComponentType } from "react";
-import { slugifyHeading } from "@/components/learning/MdxComponents";
+import { slugifyHeading } from "@/lib/heading-slug";
 
 type LessonModule = {
   default: ComponentType<Record<string, unknown>>;

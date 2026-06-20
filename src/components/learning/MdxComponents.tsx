@@ -5,6 +5,7 @@ import type {
   ImgHTMLAttributes,
   ReactNode,
 } from "react";
+import { slugifyHeading } from "@/lib/heading-slug";
 
 interface CalloutProps {
   title?: string;
@@ -288,16 +289,6 @@ function assertSafeAssetUrl(component: string, prop: string, value: string) {
 
 function isInternalHref(value: string) {
   return value.startsWith("/") && !value.startsWith("//");
-}
-
-export function slugifyHeading(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[\\`*_{}[\]()#+.!?:"'|<>]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
 }
 
 function toPlainText(node: ReactNode): string {
