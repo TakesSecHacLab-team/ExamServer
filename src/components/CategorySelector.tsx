@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import type { CategoryProgress, QuestionStyle } from "@/types/exam";
 import {
   CATEGORY_DETAILS,
@@ -60,53 +61,46 @@ export default function CategorySelector({ categories }: Props) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
+      <div className="order-2 lg:hidden">
+        <details className="group rounded-lg border border-gray-200 bg-white">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-gray-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600">
+            <span>カテゴリを切り替える</span>
+            <span className="flex min-w-0 items-center gap-2 text-xs font-medium text-gray-500">
+              <span className="max-w-[12rem] truncate text-right">
+                {selected?.name ?? "未選択"}
+              </span>
+              <span
+                aria-hidden="true"
+                className="transition-transform group-open:rotate-180"
+              >
+                ↓
+              </span>
+            </span>
+          </summary>
+          <nav
+            aria-label="カテゴリ一覧"
+            className="border-t border-gray-200 px-4 py-4"
+          >
+            <CategoryList
+              categories={categories}
+              selectedId={selectedId}
+              onSelect={handleCategoryChange}
+              idPrefix="mobile"
+            />
+          </nav>
+        </details>
+      </div>
+
       <nav
         aria-label="カテゴリ一覧"
-        className="order-2 rounded-lg border border-gray-200 bg-white p-4 lg:order-1"
+        className="order-1 hidden rounded-lg border border-gray-200 bg-white p-4 lg:block"
       >
-        <div className="mb-4">
-          <h2 className="text-base font-bold text-gray-950">カテゴリ</h2>
-          <p className="mt-1 text-sm leading-6 text-gray-500">
-            ほかのカテゴリに切り替える時だけ使います。
-          </p>
-        </div>
-
-        <div className="space-y-5">
-          {CATEGORY_GROUPS.map((group) => {
-            const groupCategories = categories.filter(
-              (category) => getCategoryGroup(category.id) === group.id
-            );
-
-            if (groupCategories.length === 0) return null;
-
-            return (
-              <section key={group.id} aria-labelledby={`group-${group.key}`}>
-                <div>
-                  <h3
-                    id={`group-${group.key}`}
-                    className="text-sm font-semibold text-gray-900"
-                  >
-                    {group.id}
-                  </h3>
-                  <p className="mt-1 hidden text-xs leading-5 text-gray-500 sm:block">
-                    {group.description}
-                  </p>
-                </div>
-
-                <div className="mt-2 space-y-1">
-                  {groupCategories.map((category) => (
-                    <CategoryButton
-                      key={category.id}
-                      category={category}
-                      selected={category.id === selectedId}
-                      onSelect={() => handleCategoryChange(category.id)}
-                    />
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-        </div>
+        <CategoryList
+          categories={categories}
+          selectedId={selectedId}
+          onSelect={handleCategoryChange}
+          idPrefix="desktop"
+        />
       </nav>
 
       {selected && detail && (
@@ -117,6 +111,68 @@ export default function CategorySelector({ categories }: Props) {
         />
       )}
     </div>
+  );
+}
+
+function CategoryList({
+  categories,
+  selectedId,
+  onSelect,
+  idPrefix,
+}: {
+  categories: CategoryWithCount[];
+  selectedId: string;
+  onSelect: (nextId: string) => void;
+  idPrefix: string;
+}) {
+  return (
+    <>
+      <div className="mb-4">
+        <h2 className="text-base font-bold text-gray-950">カテゴリ</h2>
+        <p className="mt-1 text-sm leading-6 text-gray-500">
+          ほかのカテゴリに切り替える時だけ使います。
+        </p>
+      </div>
+
+      <div className="space-y-5">
+        {CATEGORY_GROUPS.map((group) => {
+          const groupCategories = categories.filter(
+            (category) => getCategoryGroup(category.id) === group.id
+          );
+
+          if (groupCategories.length === 0) return null;
+
+          const headingId = `group-${idPrefix}-${group.key}`;
+
+          return (
+            <section key={group.id} aria-labelledby={headingId}>
+              <div>
+                <h3
+                  id={headingId}
+                  className="text-sm font-semibold text-gray-900"
+                >
+                  {group.id}
+                </h3>
+                <p className="mt-1 hidden text-xs leading-5 text-gray-500 sm:block">
+                  {group.description}
+                </p>
+              </div>
+
+              <div className="mt-2 space-y-1">
+                {groupCategories.map((category) => (
+                  <CategoryButton
+                    key={category.id}
+                    category={category}
+                    selected={category.id === selectedId}
+                    onSelect={() => onSelect(category.id)}
+                  />
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    </>
   );
 }
 
@@ -172,43 +228,65 @@ function CategoryDetail({
         )}
       </div>
 
-      <div className="mt-6 border-t border-gray-200 pt-5">
-        <h3 className="text-sm font-semibold text-gray-950">概要</h3>
-        <p className="mt-2 max-w-[65ch] text-sm leading-7 text-gray-600">
-          {detail.overview}
-        </p>
-      </div>
+      <div className="mt-6 divide-y divide-gray-200 border-t border-gray-200">
+        <DisclosureSection title="概要">
+          <p className="max-w-[65ch] text-sm leading-7 text-gray-600">
+            {detail.overview}
+          </p>
+        </DisclosureSection>
 
-      <div className="mt-6 border-t border-gray-200 pt-5">
-        <h3 className="text-sm font-semibold text-gray-950">出題範囲</h3>
-        <div className="mt-3 divide-y divide-gray-100">
-          {detail.domains.map((domain) => (
-            <div key={domain.name} className="py-3">
-              <p className="text-sm font-medium text-gray-900">
-                {domain.name}
-              </p>
-              <p className="mt-1 text-sm leading-6 text-gray-600">
-                {domain.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
+        <DisclosureSection title="出題範囲">
+          <div className="divide-y divide-gray-100">
+            {detail.domains.map((domain) => (
+              <div key={domain.name} className="py-3 first:pt-0 last:pb-0">
+                <p className="text-sm font-medium text-gray-900">
+                  {domain.name}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-gray-600">
+                  {domain.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </DisclosureSection>
 
-      {progress && (
-        <div className="mt-6 border-t border-gray-200 pt-5">
-          <h3 className="text-sm font-semibold text-gray-950">学習進捗</h3>
-          <dl className="mt-3 grid grid-cols-3 gap-3">
-            <InfoBlock label="最高得点" value={`${progress.bestScore}%`} />
-            <InfoBlock label="挑戦回数" value={`${progress.attempts}`} />
-            <InfoBlock
-              label="解答済み"
-              value={`${Object.keys(progress.questionHistory).length}`}
-            />
-          </dl>
-        </div>
-      )}
+        {progress && (
+          <DisclosureSection title="学習進捗">
+            <dl className="grid gap-3 sm:grid-cols-3">
+              <InfoBlock label="最高得点" value={`${progress.bestScore}%`} />
+              <InfoBlock label="挑戦回数" value={`${progress.attempts}`} />
+              <InfoBlock
+                label="解答済み"
+                value={`${Object.keys(progress.questionHistory).length}`}
+              />
+            </dl>
+          </DisclosureSection>
+        )}
+      </div>
     </section>
+  );
+}
+
+function DisclosureSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <details className="group">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 py-3 text-sm font-semibold text-gray-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600">
+        <span>{title}</span>
+        <span
+          aria-hidden="true"
+          className="text-gray-500 transition-transform group-open:rotate-180"
+        >
+          ↓
+        </span>
+      </summary>
+      <div className="pb-4">{children}</div>
+    </details>
   );
 }
 
