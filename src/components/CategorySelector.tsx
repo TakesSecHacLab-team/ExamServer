@@ -39,6 +39,7 @@ export default function CategorySelector({ categories }: Props) {
 
   const handleCategoryChange = (nextId: string) => {
     setSelectedId(nextId);
+    setProgress(null);
   };
 
   useEffect(() => {
