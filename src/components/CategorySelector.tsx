@@ -38,6 +38,8 @@ export default function CategorySelector({ categories }: Props) {
   const detail = selectedId ? CATEGORY_DETAILS[selectedId] : null;
 
   const handleCategoryChange = (nextId: string) => {
+    if (nextId === selectedId) return;
+
     setSelectedId(nextId);
     setProgress(null);
   };
