@@ -167,6 +167,27 @@ function DocsAppShell({
               </span>
             </summary>
             <div className="max-h-[62dvh] overflow-y-auto border-t border-[var(--border)] bg-[var(--surface)] px-4 py-4">
+              <nav
+                aria-label="主要ナビゲーション"
+                className="mb-4 grid grid-cols-2 gap-2"
+              >
+                {NAV_ITEMS.map((item) => (
+                  <Link
+                    key={item.section}
+                    href={item.href}
+                    aria-current={
+                      item.section === "learn" ? "page" : undefined
+                    }
+                    className={`rounded-md px-3 py-2 text-center text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] ${
+                      item.section === "learn"
+                        ? "bg-[var(--primary-soft)] text-[var(--link)]"
+                        : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:text-[var(--foreground)]"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
               {sidebar}
             </div>
           </details>
