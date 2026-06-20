@@ -13,7 +13,9 @@ import type {
   PublicQuestion,
   ExamMode,
 } from "@/types/exam";
+import type { CategoryBucket } from "@/components/CategorySelector";
 import { saveExamResult } from "@/lib/storage";
+import FlowBackLink from "@/components/FlowBackLink";
 import MarkdownContent from "@/components/exam/MarkdownContent";
 
 interface Props {
@@ -22,6 +24,7 @@ interface Props {
   mode: ExamMode;
   result: BatchAnswerResponse;
   questions: PublicQuestion[];
+  returnBucket: CategoryBucket;
 }
 
 export default function ResultView({
@@ -30,6 +33,7 @@ export default function ResultView({
   mode,
   result,
   questions,
+  returnBucket,
 }: Props) {
   // 結果を localStorage に保存
   useEffect(() => {
@@ -45,6 +49,7 @@ export default function ResultView({
   }, [categoryId, mode, result]);
 
   const questionMap = new Map(questions.map((q) => [q.id, q]));
+  const setupHref = `/exam/${categoryId}?bucket=${returnBucket}`;
 
   return (
     <main className="exam-production-surface min-h-screen bg-gray-50">
@@ -72,6 +77,7 @@ export default function ResultView({
 
       {/* 各問の結果一覧 */}
       <section className="max-w-3xl mx-auto px-6 py-8 space-y-4">
+        <FlowBackLink href={setupHref} label="設定画面に戻る" />
         <h2 className="text-lg font-semibold text-gray-800">問題別の結果</h2>
 
         {result.results.map((r, index) => {
@@ -171,7 +177,7 @@ export default function ResultView({
       {/* フッター */}
       <footer className="max-w-3xl mx-auto px-6 pb-12 flex gap-4">
         <Link
-          href={`/exam/${categoryId}`}
+          href={setupHref}
           className="px-6 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
         >
           もう一度挑戦

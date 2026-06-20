@@ -6,7 +6,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { ExamMode, Category } from "@/types/exam";
+import type { CategoryBucket } from "@/components/CategorySelector";
 import { useExamSession } from "@/hooks/useExamSession";
 import ExamShell from "@/components/exam/ExamShell";
 import OneshotLayout from "@/components/exam/layouts/OneshotLayout";
@@ -19,6 +21,9 @@ interface Props {
   mode: ExamMode;
   questionCount: number;
   timerEnabled: boolean;
+  randomEnabled: boolean;
+  selectedDomains: string[];
+  returnBucket: CategoryBucket | null;
 }
 
 export default function ExamSession({
@@ -26,7 +31,11 @@ export default function ExamSession({
   mode,
   questionCount,
   timerEnabled,
+  randomEnabled,
+  selectedDomains,
+  returnBucket,
 }: Props) {
+  const router = useRouter();
   const [category, setCategory] = useState<Category | null>(null);
 
   // カテゴリ情報を取得（サーバーから）
@@ -42,8 +51,15 @@ export default function ExamSession({
     mode,
     questionCount,
     timerEnabled,
+    randomEnabled,
+    selectedDomains,
     timeLimit: category?.timeLimit ?? 5400,
   });
+
+  const effectiveReturnBucket =
+    returnBucket ??
+    (category?.group === "certification" ? "certification" : "other");
+  const setupHref = `/exam/${categoryId}?bucket=${effectiveReturnBucket}`;
 
   // ローディング中
   if (session.loading || !category) {
@@ -72,6 +88,7 @@ export default function ExamSession({
         mode={mode}
         result={session.batchResult}
         questions={session.questions}
+        returnBucket={effectiveReturnBucket}
       />
     );
   }
@@ -84,7 +101,7 @@ export default function ExamSession({
           全問完了しました！
         </p>
         <a
-          href={`/exam/${categoryId}`}
+          href={setupHref}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           設定画面に戻る
@@ -122,6 +139,22 @@ export default function ExamSession({
       : mode === "drill"
         ? session.submitDrill
         : session.finishExam;
+  const handleExitExam = async () => {
+    const confirmed = window.confirm(
+      mode === "exam"
+        ? "試験を終了して採点しますか？未回答の問題は未回答として扱われます。"
+        : "一問一答を終了して設定画面に戻りますか？"
+    );
+    if (!confirmed) return;
+
+    if (mode === "exam") {
+      await session.finishExam();
+      return;
+    }
+
+    session.abandonSession();
+    router.push(setupHref);
+  };
 
   return (
     <ExamShell
@@ -137,6 +170,7 @@ export default function ExamSession({
       onNext={handlePrimaryNext}
       onNavigate={session.goTo}
       onFinish={handlePrimaryFinish}
+      onExit={handleExitExam}
     >
       {/* style に応じてレイアウトを切り替え */}
       {isScenario && parentScenario ? (

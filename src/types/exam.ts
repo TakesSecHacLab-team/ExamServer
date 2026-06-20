@@ -15,6 +15,9 @@ export type QuestionStyle = "oneshot" | "scenario";
 /** 回答形式 */
 export type QuestionType = "single-choice" | "multiple-choice";
 
+/** 演習トップで使うカテゴリ分類 */
+export type CategoryGroup = "certification" | "lab" | "demo";
+
 // ---------------------------------------------------------------------------
 // 問題データ
 // ---------------------------------------------------------------------------
@@ -34,6 +37,8 @@ export interface Question {
   answer: number | number[];
   /** 解説（Markdown対応） */
   explanation: string;
+  /** 出題ドメイン。設定画面で絞り込みに使う（任意） */
+  domain?: string;
 }
 
 /** クライアントに配信する問題（正解・解説を除外） */
@@ -78,6 +83,8 @@ export interface Category {
   id: string;
   name: string;
   description: string;
+  /** 演習トップでの分類 */
+  group: CategoryGroup;
   /** このカテゴリの問題に適用するデフォルトスタイル */
   defaultStyle: QuestionStyle;
   /** 制限時間（秒） */

@@ -39,6 +39,8 @@ interface UseExamSessionOptions {
   mode: ExamMode;
   questionCount: number;
   timerEnabled: boolean;
+  randomEnabled: boolean;
+  selectedDomains: string[];
   timeLimit: number;
 }
 
@@ -75,12 +77,21 @@ interface ExamSessionActions {
   nextDrill: () => void;
   /** 本番モードで試験を終了・一括採点 */
   finishExam: () => Promise<void>;
+  /** 採点せずにセッションを破棄 */
+  abandonSession: () => void;
 }
 
 export function useExamSession(
   options: UseExamSessionOptions
 ): ExamSessionState & ExamSessionActions {
-  const { categoryId, questionCount, timerEnabled, timeLimit } = options;
+  const {
+    categoryId,
+    questionCount,
+    timerEnabled,
+    randomEnabled,
+    selectedDomains,
+    timeLimit,
+  } = options;
 
   const [questions, setQuestions] = useState<PublicQuestion[]>([]);
   const [answers, setAnswers] = useState<AnswerState[]>([]);
@@ -125,6 +136,11 @@ export function useExamSession(
           allQuestions = [...allQuestions, ...scenario.questions];
         }
       }
+      if (selectedDomains.length > 0) {
+        allQuestions = allQuestions.filter((question) =>
+          question.domain ? selectedDomains.includes(question.domain) : false
+        );
+      }
 
       const saved = loadSessionState();
       const restoredQuestions = restoreSavedQuestionOrder(
@@ -137,8 +153,13 @@ export function useExamSession(
       // ランダム出題（問題数指定時）
       if (restoredQuestions) {
         allQuestions = restoredQuestions;
-      } else if (questionCount < allQuestions.length) {
-        allQuestions = shuffle(allQuestions).slice(0, questionCount);
+      } else {
+        if (randomEnabled) {
+          allQuestions = shuffle(allQuestions);
+        }
+        if (questionCount < allQuestions.length) {
+          allQuestions = allQuestions.slice(0, questionCount);
+        }
       }
 
       // sessionStorage から復帰を試みる。
@@ -163,7 +184,7 @@ export function useExamSession(
     };
 
     fetchQuestions();
-  }, [categoryId, questionCount, timerEnabled, timeLimit]);
+  }, [categoryId, questionCount, randomEnabled, selectedDomains, timerEnabled, timeLimit]);
 
   // ---------------------------------------------------------------------------
   // タイマー
@@ -299,10 +320,24 @@ export function useExamSession(
       }),
     });
     const data = (await res.json()) as BatchAnswerResponse;
-    setBatchResult(data);
+    const resultOrder = new Map(
+      questions.map((question, index) => [question.id, index])
+    );
+    const orderedResults = [...data.results].sort(
+      (a, b) =>
+        (resultOrder.get(a.questionId) ?? Number.MAX_SAFE_INTEGER) -
+        (resultOrder.get(b.questionId) ?? Number.MAX_SAFE_INTEGER)
+    );
+    setBatchResult({ ...data, results: orderedResults });
     setFinished(true);
     clearSessionState();
   }, [categoryId, questions, answers]);
+
+  const abandonSession = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    clearSessionState();
+    setFinished(true);
+  }, []);
 
   return {
     questions,
@@ -322,6 +357,7 @@ export function useExamSession(
     submitDrill,
     nextDrill,
     finishExam,
+    abandonSession,
   };
 }
 

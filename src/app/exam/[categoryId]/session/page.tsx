@@ -33,6 +33,17 @@ function SessionContent() {
   const mode = (searchParams.get("mode") ?? "exam") as "exam" | "drill";
   const count = Number(searchParams.get("count") ?? "10");
   const timer = searchParams.get("timer") === "1";
+  const random = searchParams.get("random") === "1";
+  const domains = (searchParams.get("domains") ?? "")
+    .split(",")
+    .map((domain) => domain.trim())
+    .filter(Boolean);
+  const bucket =
+    searchParams.get("bucket") === "certification"
+      ? "certification"
+      : searchParams.get("bucket") === "other"
+        ? "other"
+        : null;
 
   return (
     <ExamSession
@@ -40,6 +51,9 @@ function SessionContent() {
       mode={mode}
       questionCount={count}
       timerEnabled={timer}
+      randomEnabled={random}
+      selectedDomains={domains}
+      returnBucket={bucket}
     />
   );
 }

@@ -23,6 +23,7 @@ import { getLearningImageMetas } from "../src/lib/learning-images";
 
 const VALID_STYLES = ["oneshot", "scenario"] as const;
 const VALID_TYPES = ["single-choice", "multiple-choice"] as const;
+const VALID_CATEGORY_GROUPS = ["certification", "lab", "demo"] as const;
 
 // ---------------------------------------------------------------------------
 // メイン
@@ -85,6 +86,8 @@ function validateCategories(): string[] {
     if (!c.name || typeof c.name !== "string") error(`${prefix} name が未設定`);
     if (!c.description || typeof c.description !== "string")
       error(`${prefix} description が未設定`);
+    if (!VALID_CATEGORY_GROUPS.includes(c.group as typeof VALID_CATEGORY_GROUPS[number]))
+      error(`${prefix} group が不正: ${c.group}`);
     if (!VALID_STYLES.includes(c.defaultStyle as typeof VALID_STYLES[number]))
       error(`${prefix} defaultStyle が不正: ${c.defaultStyle}`);
     if (typeof c.timeLimit !== "number" || c.timeLimit <= 0)
@@ -183,6 +186,14 @@ function validateQuestion(
   // explanation
   if (!q.explanation || typeof q.explanation !== "string" || (q.explanation as string).trim() === "") {
     error(`${prefix} 解説が空`);
+  }
+
+  // domain
+  if (
+    q.domain !== undefined &&
+    (typeof q.domain !== "string" || q.domain.trim() === "")
+  ) {
+    error(`${prefix} domain が不正`);
   }
 }
 
