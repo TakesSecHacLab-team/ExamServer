@@ -20,6 +20,9 @@ interface ParseResult {
   errors: string[];
 }
 
+const MIN_OPTIONS = 2;
+const MAX_OPTIONS = 10;
+
 export default function BulkUploadClient({ categories }: Props) {
   const [categoryId, setCategoryId] = useState(categories[0]?.id || "");
   const [parsed, setParsed] = useState<ParseResult | null>(null);
@@ -87,10 +90,39 @@ export default function BulkUploadClient({ categories }: Props) {
   // ---------------------------------------------------------------------------
 
   const downloadCsvTemplate = () => {
-    const csv =
-      "id,type,text,option1,option2,option3,option4,option5,option6,answer,explanation\n" +
-      'example-001,single-choice,問題文を入力,選択肢A,選択肢B,選択肢C,選択肢D,,,1,解説文を入力\n' +
-      'example-002,multiple-choice,全て選べ...,A,B,C,D,,,"0,2",解説文\n';
+    const optionHeaders = Array.from(
+      { length: MAX_OPTIONS },
+      (_, i) => `option${i + 1}`
+    );
+    const blankOptions = Array(MAX_OPTIONS - 4).fill("");
+    const csvRows = [
+      ["id", "type", "text", ...optionHeaders, "answer", "explanation"],
+      [
+        "example-001",
+        "single-choice",
+        "問題文を入力",
+        "選択肢A",
+        "選択肢B",
+        "選択肢C",
+        "選択肢D",
+        ...blankOptions,
+        "1",
+        "解説文を入力",
+      ],
+      [
+        "example-002",
+        "multiple-choice",
+        "全て選べ...",
+        "A",
+        "B",
+        "C",
+        "D",
+        ...blankOptions,
+        "0,2",
+        "解説文",
+      ],
+    ];
+    const csv = csvRows.map(toCsvLine).join("\n") + "\n";
     downloadFile("template.csv", csv);
   };
 
@@ -310,15 +342,17 @@ function parseCsv(text: string, defaultStyle: QuestionStyle): ParseResult {
   // ヘッダースキップ
   for (let i = 1; i < lines.length; i++) {
     const cols = parseCSVLine(lines[i]);
-    if (cols.length < 8) {
-      errors.push(`行${i + 1}: 列数が不足しています（最低8列必要）`);
+    const requiredColumns = 3 + MAX_OPTIONS + 2;
+    if (cols.length < requiredColumns) {
+      errors.push(`行${i + 1}: 列数が不足しています（最低${requiredColumns}列必要）`);
       continue;
     }
 
-    const [id, type, qtext, o1, o2, o3, o4, o5, o6, answerStr, explanation] =
-      cols;
-
-    const options = [o1, o2, o3, o4, o5, o6].filter((o) => o && o.trim());
+    const [id, type, qtext, ...rest] = cols;
+    const optionValues = rest.slice(0, MAX_OPTIONS);
+    const answerStr = rest[MAX_OPTIONS] ?? "";
+    const explanation = rest[MAX_OPTIONS + 1] ?? "";
+    const options = optionValues.filter((o) => o && o.trim());
 
     // answer パース
     let answer: number | number[];
@@ -396,13 +430,22 @@ function validateQuestion(
   }
 
   const opts = q.options;
-  if (!Array.isArray(opts) || opts.length < 2 || opts.length > 6) {
-    errors.push(`${prefix}: 選択肢は 2〜6 個必要`);
+  if (!Array.isArray(opts) || opts.length < MIN_OPTIONS || opts.length > MAX_OPTIONS) {
+    errors.push(`${prefix}: 選択肢は ${MIN_OPTIONS}〜${MAX_OPTIONS} 個必要`);
   }
 
   if (!q.explanation) errors.push(`${prefix}: 解説が空`);
 
   return errors;
+}
+
+/** CSV 行として安全に出力する */
+function toCsvLine(values: string[]): string {
+  return values
+    .map((value) =>
+      /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value
+    )
+    .join(",");
 }
 
 /** ファイルをダウンロードさせる */

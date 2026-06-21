@@ -303,7 +303,11 @@ def split_choices(question_id: str, block: str) -> tuple[str, list[str]]:
         raise ValueError("選択肢ラベルが見つかりません")
 
     first = matches[0]
-    columns = answer_group_columns(choice_region[: first.start()])
+    columns = (
+        answer_group_columns(choice_region[: first.start()])
+        if answer_group_index != -1
+        else []
+    )
     stem_end = answer_group_index if answer_group_index != -1 else choice_region_offset + first.start()
     stem = block[:stem_end].strip()
     options: list[str] = []

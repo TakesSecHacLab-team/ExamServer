@@ -2,7 +2,7 @@
  * 問題登録・編集フォーム
  *
  * カテゴリ/スタイル/タイプはドロップダウン・ラジオで選択。
- * 選択肢は 4〜6 の動的追加。
+ * 選択肢は 4〜10 の動的追加。
  * スタイルが scenario の場合はシナリオ本文欄を表示。
  * プレビュー機能付き。
  */
@@ -35,7 +35,7 @@ interface Props {
 }
 
 const MIN_OPTIONS = 4;
-const MAX_OPTIONS = 6;
+const MAX_OPTIONS = 10;
 
 export default function QuestionForm({
   categories,
