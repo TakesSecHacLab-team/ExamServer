@@ -20,8 +20,8 @@ CHOICE_INDEX = {label: index for index, label in enumerate(CHOICE_LABELS)}
 
 CASE_NOTES: dict[str, tuple[str, str]] = {
     "sg-r07-q13": (
-        "クラウドサービス中心の会社では，端末管理，認証，ログ，バックアップなどを，問題文の業務実態に合わせて選ぶ。表の数値や機能名は，目的と効果を一つずつ対応させる。",
-        "この問は用語暗記ではなく，A社の資産と利用形態に合う管理策を選ぶ問題。オンプレミスを持たない点，貸与端末を使う点，クラウドサービスを使う点を分けて読む。",
+        "可用性評価では，サービスが止まったときに誰へ直ちに影響するかで重要度を決める。顧客にも直ちに影響するなら2，自社だけなら1，直ちの影響がなければ0。",
+        "電子メールはヘルプデスク利用者への受付・回答に使うので顧客影響がある。人事・労務管理は社内利用なので，自社への影響として読む。",
     ),
     "sg-r07-q14": (
         "ファイル共有サービスでは，送信者・受信者・承認者・保管場所・削除タイミングを分けて管理する。メール添付より便利でも，誤共有や権限過多を防ぐ設計が必要になる。",
@@ -118,6 +118,16 @@ CASE_NOTES: dict[str, tuple[str, str]] = {
 }
 
 
+OPTION_FIXES: dict[str, list[str]] = {
+    "sg-sample-set-q57": [
+        "OK　アクセス権の設定状況が適切であることを確認した。",
+        "OK　アクセス権を適切に設定するルールが存在することを確認した。",
+        "OK　ファイルサーバは情報システム部が運用管理している。",
+        "NA　顧客情報をファイルサーバに保存することは禁止されている。",
+    ],
+}
+
+
 SOURCES = [
     {
         "prefix": "sg-r07",
@@ -206,6 +216,12 @@ def clean_lines(text: str) -> str:
     return cleaned
 
 
+def normalize_markdown_text(text: str) -> str:
+    lines = [re.sub(r"[ \t]+", " ", line).strip() for line in text.strip().splitlines()]
+    lines = [line.replace("(ニ)", "(二)") for line in lines if line]
+    return "  \n".join(lines)
+
+
 def extract_answers(text: str) -> dict[int, str]:
     answers: dict[int, str] = {}
     for number, label in re.findall(r"問\s*([0-9０-９]+)\s+([アイウエオカキクケコ])", text):
@@ -229,7 +245,7 @@ def question_blocks(text: str, count: int) -> dict[int, str]:
     return blocks
 
 
-def split_choices(block: str) -> tuple[str, list[str]]:
+def split_choices(question_id: str, block: str) -> tuple[str, list[str]]:
     choice_region_offset = 0
     choice_region = block
     answer_group_index = block.rfind("解答群")
@@ -258,13 +274,23 @@ def split_choices(block: str) -> tuple[str, list[str]]:
             else len(block)
         )
         option = block[start:end].strip()
-        option = re.sub(r"\s+", " ", option)
         option = re.sub(r"^解答群\s*", "", option)
         option = re.sub(r"\s*[－-]\s*\d+\s*[－-]\s*$", "", option).strip()
-        options.append(option)
+        options.append(normalize_markdown_text(option))
 
-    stem = re.sub(r"\s+", " ", stem)
     stem = re.sub(r"^問\s*[0-9０-９]+\s*", "", stem).strip()
+    stem = normalize_markdown_text(stem)
+    if question_id == "sg-sample-set-q52":
+        supplement = (
+            "補足（本データ）: NPCは，B社の従業員が在宅勤務で利用するPCを"
+            "指すものとして読んでください。"
+        )
+        marker = "B 社は，A 社 PC 規程と同様の規程を作成して順守することにした。"
+        if marker in stem:
+            stem = stem.replace(marker, f"{supplement}  \n{marker}", 1)
+        else:
+            stem = f"{supplement}  \n{stem}"
+    options = OPTION_FIXES.get(question_id, options)
     return stem, options
 
 
@@ -667,11 +693,14 @@ def build_explanation(
 ) -> str:
     correct = options[CHOICE_INDEX[answer_label]]
     knowledge, approach = beginner_note(question_id, stem, correct)
+    source_note = f"出典：{source['source_label']} 問{number}"
+    if question_id == "sg-sample-set-q52":
+        source_note += "\n補足：単独表示で読めるよう，NPCの読み方を本文に補足しています。"
     return (
         f"正解は「{answer_label}」。\n\n"
         f"必要知識:\n- {knowledge}\n\n"
         f"考え方:\n- {approach}\n\n"
-        f"出典：{source['source_label']} 問{number}"
+        f"{source_note}"
     )
 
 
@@ -691,8 +720,8 @@ def build_questions() -> list[dict[str, object]]:
             answer_label = answers.get(number)
             if answer_label is None:
                 raise ValueError(f"{source['prefix']}: 問{number} の正答が見つかりません")
-            stem, options = split_choices(blocks[number])
             question_id = f"{source['prefix']}-q{number:02d}"
+            stem, options = split_choices(question_id, blocks[number])
             if answer_label not in CHOICE_INDEX or CHOICE_INDEX[answer_label] >= len(options):
                 raise ValueError(
                     f"{source['prefix']}: 問{number} の正答 {answer_label} が選択肢範囲外"
