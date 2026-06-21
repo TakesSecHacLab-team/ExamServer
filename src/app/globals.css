@@ -312,8 +312,17 @@ summary::-webkit-details-marker {
   text-wrap: pretty;
 }
 
-.lesson-outline-closed .learning-article {
-  max-width: 92ch;
+.lesson-reading-layout {
+  max-width: 78ch;
+}
+
+.docs-workspace[data-left-open="false"] .docs-heading-container,
+.docs-workspace[data-right-open="false"] .docs-heading-container,
+.docs-workspace[data-left-open="false"] .lesson-reading-layout,
+.docs-workspace[data-right-open="false"] .lesson-reading-layout,
+.docs-workspace[data-left-open="false"] .learning-article,
+.docs-workspace[data-right-open="false"] .learning-article {
+  max-width: 112ch;
 }
 
 .learning-article :where(pre, table, blockquote, figure) {

@@ -43,17 +43,28 @@ export default async function LearningLessonPage({ params }: Props) {
       title={node.title}
       description={node.summary}
       sidebar={<LearningNav map={learningMap} activeNodeId={node.id} />}
+      rightSidebar={
+        <>
+          <p className="text-xs font-semibold text-[var(--foreground)]">
+            このページ
+          </p>
+          <div className="mt-3">
+            <ArticleOutline headings={headings} />
+          </div>
+        </>
+      }
     >
       <LessonReadingLayout
-        outline={
-          <>
-            <p className="text-xs font-semibold text-[var(--foreground)]">
-              このページ
-            </p>
-            <div className="mt-3">
+        mobileOutline={
+          <details className="group mb-7 rounded-md border border-[var(--border)] bg-[var(--surface)] xl:hidden">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 text-sm font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--surface-muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus)]">
+              <span>このページ</span>
+              <DisclosureIcon />
+            </summary>
+            <div className="border-t border-[var(--border)] px-3 py-3">
               <ArticleOutline headings={headings} />
             </div>
-          </>
+          </details>
         }
       >
           <nav
@@ -90,16 +101,6 @@ export default async function LearningLessonPage({ params }: Props) {
               ))}
             </ol>
           </nav>
-
-          <details className="group mb-7 rounded-md border border-[var(--border)] bg-[var(--surface)] xl:hidden">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 text-sm font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--surface-muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus)]">
-              <span>このページ</span>
-              <DisclosureIcon />
-            </summary>
-            <div className="border-t border-[var(--border)] px-3 py-3">
-              <ArticleOutline headings={headings} />
-            </div>
-          </details>
 
           <article className="learning-article">
             <Lesson />

@@ -11,6 +11,7 @@ interface PublicAppShellProps {
   description?: string;
   eyebrow?: string;
   sidebar?: ReactNode;
+  rightSidebar?: ReactNode;
   children: ReactNode;
   hideMobileTabs?: boolean;
 }
@@ -41,6 +42,7 @@ export default function PublicAppShell({
   description,
   eyebrow,
   sidebar,
+  rightSidebar,
   children,
   hideMobileTabs = false,
 }: PublicAppShellProps) {
@@ -52,6 +54,7 @@ export default function PublicAppShell({
         description={description}
         eyebrow={eyebrow}
         sidebar={sidebar}
+        rightSidebar={rightSidebar}
         hideMobileTabs={hideMobileTabs}
       >
         {children}
@@ -109,6 +112,7 @@ function DocsAppShell({
   description,
   eyebrow,
   sidebar,
+  rightSidebar,
   children,
   hideMobileTabs,
 }: {
@@ -117,6 +121,7 @@ function DocsAppShell({
   description?: string;
   eyebrow?: string;
   sidebar?: ReactNode;
+  rightSidebar?: ReactNode;
   children: ReactNode;
   hideMobileTabs: boolean;
 }) {
@@ -134,7 +139,7 @@ function DocsAppShell({
         {sidebar && (
           <details className="group border-t border-[var(--border)] lg:hidden">
             <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between bg-[var(--surface)] px-4 text-sm font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--surface-muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus)]">
-              <span>Navigation</span>
+              <span>講義ナビ</span>
               <DisclosureIcon />
             </summary>
             <div className="max-h-[62dvh] overflow-y-auto border-t border-[var(--border)] bg-[var(--surface)] px-4 py-4">
@@ -144,9 +149,9 @@ function DocsAppShell({
         )}
       </div>
 
-      <DocsWorkspace sidebar={sidebar}>
+      <DocsWorkspace sidebar={sidebar} rightSidebar={rightSidebar}>
         <main id="main-content" className="min-w-0 px-5 py-8 sm:px-8 lg:px-10">
-          <div className="mx-auto max-w-[76ch]">
+          <div className="docs-heading-container mx-auto max-w-[76ch]">
             {eyebrow && (
               <p className="text-sm font-semibold text-[var(--link)]">
                 {eyebrow}
