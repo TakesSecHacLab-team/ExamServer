@@ -1,5 +1,14 @@
 from __future__ import annotations
 
+"""Import IPA official SG public questions.
+
+Setup:
+  python -m pip install -r scripts/requirements-ipa-sg.txt
+
+Run:
+  python scripts/import-ipa-sg.py
+"""
+
 import json
 import re
 import tempfile
@@ -231,6 +240,28 @@ def remove_answer_group_fragment(text: str) -> str:
     return "\n".join(lines).rstrip()
 
 
+def answer_group_columns(header: str) -> list[str]:
+    header = re.sub(r"\s+", " ", header).strip()
+    header = re.sub(r"\ba\s+([0-9０-９])", r"a\1", header)
+    if not header:
+        return []
+    columns = header.split()
+    if len(columns) < 2 or len(columns) > 6:
+        return []
+    if any("選べ" in column or "解答群" in column for column in columns):
+        return []
+    return columns
+
+
+def with_answer_group_columns(option: str, columns: list[str]) -> str:
+    if not columns:
+        return option
+    values = option.split()
+    if len(values) != len(columns):
+        return option
+    return " / ".join(f"{column}: {value}" for column, value in zip(columns, values))
+
+
 def extract_answers(text: str) -> dict[int, str]:
     answers: dict[int, str] = {}
     for number, label in re.findall(r"問\s*([0-9０-９]+)\s+([アイウエオカキクケコ])", text):
@@ -272,6 +303,7 @@ def split_choices(question_id: str, block: str) -> tuple[str, list[str]]:
         raise ValueError("選択肢ラベルが見つかりません")
 
     first = matches[0]
+    columns = answer_group_columns(choice_region[: first.start()])
     stem_end = answer_group_index if answer_group_index != -1 else choice_region_offset + first.start()
     stem = block[:stem_end].strip()
     options: list[str] = []
@@ -285,7 +317,8 @@ def split_choices(question_id: str, block: str) -> tuple[str, list[str]]:
         option = block[start:end].strip()
         option = re.sub(r"^解答群\s*", "", option)
         option = re.sub(r"\s*[－-]\s*\d+\s*[－-]\s*$", "", option).strip()
-        options.append(normalize_markdown_text(option))
+        option = normalize_markdown_text(option)
+        options.append(with_answer_group_columns(option, columns))
 
     stem = re.sub(r"^問\s*[0-9０-９]+\s*", "", stem).strip()
     stem = normalize_markdown_text(stem)
