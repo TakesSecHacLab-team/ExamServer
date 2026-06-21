@@ -222,6 +222,15 @@ def normalize_markdown_text(text: str) -> str:
     return "  \n".join(lines)
 
 
+def remove_answer_group_fragment(text: str) -> str:
+    lines = text.splitlines()
+    while lines and re.fullmatch(
+        r"[A-Za-zＡ-Ｚａ-ｚ0-9０-９]+\s*に関する", lines[-1].replace("  ", "").strip()
+    ):
+        lines.pop()
+    return "\n".join(lines).rstrip()
+
+
 def extract_answers(text: str) -> dict[int, str]:
     answers: dict[int, str] = {}
     for number, label in re.findall(r"問\s*([0-9０-９]+)\s+([アイウエオカキクケコ])", text):
@@ -280,6 +289,7 @@ def split_choices(question_id: str, block: str) -> tuple[str, list[str]]:
 
     stem = re.sub(r"^問\s*[0-9０-９]+\s*", "", stem).strip()
     stem = normalize_markdown_text(stem)
+    stem = remove_answer_group_fragment(stem)
     if question_id == "sg-sample-set-q52":
         supplement = (
             "補足（本データ）: NPCは，B社の従業員が在宅勤務で利用するPCを"
