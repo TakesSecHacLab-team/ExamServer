@@ -31,7 +31,7 @@ export interface Question {
   text: string;
   /** 画像パス（任意） */
   image?: string | null;
-  /** 選択肢（4〜6個） */
+  /** 選択肢（2〜10個） */
   options: string[];
   /** 正解のインデックス。単一選択は number、複数選択は number[] */
   answer: number | number[];

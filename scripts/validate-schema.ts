@@ -24,6 +24,7 @@ import { getLearningImageMetas } from "../src/lib/learning-images";
 const VALID_STYLES = ["oneshot", "scenario"] as const;
 const VALID_TYPES = ["single-choice", "multiple-choice"] as const;
 const VALID_CATEGORY_GROUPS = ["certification", "lab", "demo"] as const;
+const MAX_OPTION_COUNT = 10;
 
 // ---------------------------------------------------------------------------
 // メイン
@@ -144,8 +145,8 @@ function validateQuestion(
     error(`${prefix} options が配列でない`);
   } else {
     const opts = q.options as string[];
-    if (opts.length < 2 || opts.length > 6) {
-      error(`${prefix} 選択肢数が範囲外: ${opts.length}（2〜6）`);
+    if (opts.length < 2 || opts.length > MAX_OPTION_COUNT) {
+      error(`${prefix} 選択肢数が範囲外: ${opts.length}（2〜${MAX_OPTION_COUNT}）`);
     }
     for (let i = 0; i < opts.length; i++) {
       if (!opts[i] || typeof opts[i] !== "string" || opts[i].trim() === "") {
