@@ -339,19 +339,42 @@ function parseCsv(text: string, defaultStyle: QuestionStyle): ParseResult {
     return { questions: [], errors: ["CSV にデータ行がありません"] };
   }
 
-  // ヘッダースキップ
+  const header = parseCSVLine(lines[0]).map((column) => column.trim());
+  const idIndex = header.indexOf("id");
+  const typeIndex = header.indexOf("type");
+  const textIndex = header.indexOf("text");
+  const answerIndex = header.indexOf("answer");
+  const explanationIndex = header.indexOf("explanation");
+  const optionIndexes = Array.from(
+    { length: MAX_OPTIONS },
+    (_, i) => header.indexOf(`option${i + 1}`)
+  ).filter((index) => index !== -1);
+
+  if (
+    idIndex === -1 ||
+    typeIndex === -1 ||
+    textIndex === -1 ||
+    optionIndexes.length === 0 ||
+    answerIndex === -1 ||
+    explanationIndex === -1
+  ) {
+    return {
+      questions: [],
+      errors: [
+        "CSV ヘッダーに id,type,text,option1...,answer,explanation が必要です",
+      ],
+    };
+  }
+
   for (let i = 1; i < lines.length; i++) {
     const cols = parseCSVLine(lines[i]);
-    const requiredColumns = 3 + MAX_OPTIONS + 2;
-    if (cols.length < requiredColumns) {
-      errors.push(`行${i + 1}: 列数が不足しています（最低${requiredColumns}列必要）`);
-      continue;
-    }
-
-    const [id, type, qtext, ...rest] = cols;
-    const optionValues = rest.slice(0, MAX_OPTIONS);
-    const answerStr = rest[MAX_OPTIONS] ?? "";
-    const explanation = rest[MAX_OPTIONS + 1] ?? "";
+    const cell = (index: number) => cols[index]?.trim() ?? "";
+    const id = cell(idIndex);
+    const type = cell(typeIndex);
+    const qtext = cell(textIndex);
+    const answerStr = cell(answerIndex);
+    const explanation = cell(explanationIndex);
+    const optionValues = optionIndexes.map(cell);
     const options = optionValues.filter((o) => o && o.trim());
 
     // answer パース
