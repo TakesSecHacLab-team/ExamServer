@@ -6,6 +6,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import BugReportButton from "@/components/bug-report/BugReportButton";
 import type { AnswerState } from "@/types/exam";
 import QuestionNav from "@/components/exam/QuestionNav";
 
@@ -63,40 +64,42 @@ export default function ExamShell({
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-gray-950">
-              {categoryName}
+                {categoryName}
               </p>
               <p className="mt-0.5 text-xs text-gray-500">
                 問{currentIndex + 1}/{totalCount} ・ 解答済み {answeredCount}
                 問 ・ 分からない {uncertainCount}問 ・ フラグ {flaggedCount}件
               </p>
-          </div>
+            </div>
 
             <div className="flex shrink-0 items-center gap-2">
-            <button
-              onClick={onExit}
-              className="min-h-10 rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
-            >
-              試験終了
-            </button>
+              <BugReportButton variant="exam" />
 
-            <button
-              onClick={onFlag}
+              <button
+                onClick={onExit}
+                className="min-h-10 rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+              >
+                試験終了
+              </button>
+
+              <button
+                onClick={onFlag}
                 className={`min-h-10 rounded-md border px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
-                isFlagged
+                  isFlagged
                     ? "border-amber-300 bg-amber-50 text-amber-800"
                     : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-amber-700"
-              }`}
-              title="フラグを切り替え"
+                }`}
+                title="フラグを切り替え"
                 aria-pressed={isFlagged}
-            >
-              ⚑
-            </button>
+              >
+                ⚑
+              </button>
 
-            {remainingTime !== null && (
+              {remainingTime !== null && (
                 <span className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 font-mono text-sm font-semibold tabular-nums text-gray-800">
-                {formatTime(remainingTime)}
-              </span>
-            )}
+                  {formatTime(remainingTime)}
+                </span>
+              )}
             </div>
           </div>
 
