@@ -39,6 +39,12 @@ describe("BugReportButton", () => {
     expect(
       screen.getByRole("dialog", { name: "不具合報告" })
     ).toBeInTheDocument();
+    expect(
+      screen
+        .getByRole("dialog", { name: "不具合報告" })
+        .closest("[data-bug-report-overlay]")
+        ?.parentElement
+    ).toBe(document.body);
     expect(screen.getByLabelText("何が起きましたか？")).toHaveValue(
       "表示が崩れる"
     );
