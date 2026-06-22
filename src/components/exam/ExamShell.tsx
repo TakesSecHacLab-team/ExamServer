@@ -57,7 +57,7 @@ export default function ExamShell({
   const shellWidth = isScenario ? "max-w-7xl" : "max-w-[88rem]";
 
   return (
-    <div className="exam-production-surface flex h-[100dvh] min-h-[100dvh] flex-col overflow-hidden bg-gray-50">
+    <div className="exam-production-surface flex h-[100svh] min-h-[100svh] flex-col overflow-hidden bg-gray-50 lg:h-[100dvh] lg:min-h-[100dvh]">
       <header className="z-30 shrink-0 border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur">
         <div className={`mx-auto ${shellWidth}`}>
           <div className="flex items-center justify-between gap-4">
@@ -137,22 +137,25 @@ export default function ExamShell({
         </div>
       </main>
 
-      <footer className="z-30 shrink-0 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur">
-        <div className={`mx-auto space-y-3 ${shellWidth}`}>
-          <div className="flex items-center justify-between">
+      <footer
+        className="z-30 shrink-0 border-t border-gray-200 bg-white/95 px-4 pt-3 backdrop-blur"
+        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+      >
+        <div className={`mx-auto flex max-h-[42svh] min-h-0 flex-col gap-3 lg:max-h-none ${shellWidth}`}>
+          <div className="flex shrink-0 items-center justify-between gap-2">
             <button
               onClick={onPrev}
               disabled={currentIndex === 0}
-              className="min-h-10 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+              className="min-h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 sm:px-4"
             >
               前へ
             </button>
 
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2">
               <button
                 onClick={onUncertain}
                 aria-pressed={isUncertain}
-                className={`min-h-10 rounded-md border px-4 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
+                className={`min-h-10 rounded-md border px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 sm:px-4 ${
                   isUncertain
                     ? "border-sky-300 bg-sky-50 text-sky-800"
                     : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
@@ -164,14 +167,14 @@ export default function ExamShell({
               {currentIndex < totalCount - 1 ? (
                 <button
                   onClick={onNext}
-                  className="min-h-10 rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                  className="min-h-10 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 sm:px-5"
                 >
                   次へ
                 </button>
               ) : (
                 <button
                   onClick={onFinish}
-                  className="min-h-10 rounded-md bg-green-700 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-700 focus-visible:ring-offset-2"
+                  className="min-h-10 rounded-md bg-green-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-700 focus-visible:ring-offset-2 sm:px-5"
                 >
                   終了
                 </button>
@@ -179,13 +182,21 @@ export default function ExamShell({
             </div>
           </div>
 
-          <div className="lg:hidden">
-            <QuestionNav
-              answers={answers}
-              currentIndex={currentIndex}
-              onNavigate={onNavigate}
-            />
-          </div>
+          <details className="min-h-0 lg:hidden">
+            <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600">
+              <span>問題一覧</span>
+              <span className="font-mono text-xs tabular-nums text-gray-500">
+                問{currentIndex + 1}/{totalCount}
+              </span>
+            </summary>
+            <div className="mt-2 max-h-32 overflow-y-auto overscroll-contain rounded-md border border-gray-200 bg-white p-2 pr-1 sm:max-h-40">
+              <QuestionNav
+                answers={answers}
+                currentIndex={currentIndex}
+                onNavigate={onNavigate}
+              />
+            </div>
+          </details>
         </div>
       </footer>
     </div>
