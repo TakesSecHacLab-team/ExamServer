@@ -32,6 +32,65 @@ function getOctokit() {
 }
 
 // ---------------------------------------------------------------------------
+// Issue 操作
+// ---------------------------------------------------------------------------
+
+export interface CreateIssueInput {
+  title: string;
+  body: string;
+  labels?: string[];
+}
+
+/** GitHub Issue を作成する */
+export async function createIssue({
+  title,
+  body,
+  labels = issueLabelsFromEnv(),
+}: CreateIssueInput): Promise<{ number: number; url: string }> {
+  const { owner, repo } = getConfig();
+  const octokit = getOctokit();
+
+  try {
+    const { data } = await octokit.issues.create({
+      owner,
+      repo,
+      title,
+      body,
+      labels,
+    });
+    return { number: data.number, url: data.html_url };
+  } catch (err: unknown) {
+    if (labels.length === 0 || !hasStatus(err, 422)) {
+      throw err;
+    }
+
+    const { data } = await octokit.issues.create({
+      owner,
+      repo,
+      title,
+      body,
+    });
+    return { number: data.number, url: data.html_url };
+  }
+}
+
+function hasStatus(err: unknown, status: number): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "status" in err &&
+    (err as { status: number }).status === status
+  );
+}
+
+function issueLabelsFromEnv(): string[] {
+  return (process.env.BUG_REPORT_LABELS || "")
+    .split(",")
+    .map((label) => label.trim())
+    .filter(Boolean);
+}
+
+// ---------------------------------------------------------------------------
 // ファイル操作
 // ---------------------------------------------------------------------------
 

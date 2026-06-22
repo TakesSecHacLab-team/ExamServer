@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import BugReportButton from "@/components/bug-report/BugReportButton";
 import DocsWorkspace from "./DocsWorkspace";
 import ThemeSelector from "./ThemeSelector";
 
@@ -214,8 +215,9 @@ function PublicHeader({
 
         <div className="ml-auto flex items-center gap-3">
           <ThemeSelector modernLightLabel={modernLightLabel} />
+          <BugReportButton />
           <Link
-          href="/TSHLadmin"
+            href="/TSHLadmin"
             className="hidden rounded-md px-2 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)] sm:block"
           >
             管理
